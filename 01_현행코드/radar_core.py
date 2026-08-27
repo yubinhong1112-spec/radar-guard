@@ -546,8 +546,7 @@ class PoseEstimator:
             'shape_ok': bool(shape_ok),
             'shape_why': shape_why,
             # 화면에 반드시 이 라벨을 띄울 것 — 추정임을 숨기지 않는다.
-            'label': (f'레이더 형상 · 최근 {len(self.buf)}프레임 누적 '
-                      f'(원시 {len(self.buf[-1][1])}점/프레임) · 머리 {head_src}'
+            'label': (f'레이더 점군 · 최근 {len(self.buf)}프레임 누적 · 위치·자세 추정'
                       if shape_ok else
                       f'형상 표시 안 함 ({shape_why}) · 최근 {len(self.buf)}프레임 '
                       f'{len(pts)}점 · 높이폭 {h_span:.2f} m'),
@@ -702,7 +701,7 @@ SOP_QUERY = {
     'leakage_current':     '누설전류 전기 설비 이상 시 차단 및 절연 점검 절차',
     'pinching_suspected':  '회전기계 협착 의심 시 비상정지 및 작업자 확인 절차',
     'pinching':            '회전기계 끼임 협착 재해 발생 시 구조 및 정지 절차',
-    'vibration_anomaly':   '설비 이상 진동 상태감시 진단 및 점검 조치',
+    'vibration_anomaly':   '설비 진동 이상 상태감시 진단 및 점검 조치',
     'overcurrent':         '과전류 전기 설비 이상 시 차단 및 점검 절차',
     'voltage_drop':        '전압 강하 전기 설비 이상 시 점검 절차',
 }

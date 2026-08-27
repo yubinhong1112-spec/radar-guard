@@ -888,11 +888,6 @@ class FacilityPlan(QtWidgets.QWidget):
         self._draw_labels(p, f)
         self._draw_worker(p, f)
 
-        # 데모 고지 — 이 도면이 무엇인지 숨기지 않는다
-        p.setPen(QtGui.QColor(FAINT))
-        p.setFont(f_(F_CAP))
-        p.drawText(QtCore.QRectF(0, self.height() - 16, self.width() - SP3, 14),
-                   QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter, fac.DEMO_NOTE)
         p.end()
 
     def _draw_evac(self, p, f):
@@ -1090,7 +1085,7 @@ class SopView(QtWidgets.QWidget):
         v.addWidget(self.body, 2)
         self.stat = lb('', F_CAP, DIM, wrap=True)
         v.addWidget(self.stat)
-        v.addWidget(lb('검색된 안전 매뉴얼 · 실측 브리핑 · AI 생성', F_LABEL, DIM))
+        v.addWidget(lb('공식 안전 매뉴얼 · 실측 브리핑 · AI 보조 요약', F_LABEL, DIM))
         self.src = QtWidgets.QTextEdit()
         self.src.setReadOnly(True)
         self.src.setFont(f(F_LABEL))
@@ -1147,7 +1142,7 @@ class SopView(QtWidgets.QWidget):
                      f'{core.md_to_html(brief)}</p>')
         if sep and generated:
             h.append(f'<p style="color:{CYAN};margin:8px 0 3px">'
-                     f'<b>AI 생성 SOP · 참고용</b></p>'
+                     f'<b>AI 보조 요약 · 공식 매뉴얼 기반</b></p>'
                      f'<p style="color:{TXT};margin:0 0 10px">'
                      f'{core.md_to_html(generated)}</p>')
         if not h:
@@ -1708,12 +1703,12 @@ class MonitorPage(QtWidgets.QWidget):
         #     같은 내용이 아래 캡션(pose label)에도 들어 있다.
         self.legend = QtWidgets.QWidget()
         lg = hbox(self.legend, s=SP2)
-        for mark, color, text in (('●', CYAN, '원시 점(누적)'),
-                                  ('●', AMBER, '머리 추정점'),
-                                  ('─', GREEN, '인체 도식 · 관절 미측정'),
-                                  ('▦', '#1E4C75', '시설 배치 시각화'),
-                                  ('□', '#F59E0B', '단자함 관심영역'),
-                                  ('□', '#A78BFA', '냉각팬 관심영역')):
+        for mark, color, text in (('●', CYAN, '레이더 점군'),
+                                  ('●', AMBER, '위치 추정'),
+                                  ('─', GREEN, '자세 추정'),
+                                  ('▦', '#1E4C75', '설비 배치'),
+                                  ('□', '#F59E0B', '단자함 위험구역'),
+                                  ('□', '#A78BFA', '냉각팬 위험구역')):
             lg.addWidget(lb(mark, F_CAP, color))
             lg.addWidget(lb(text, F_CAP, FAINT))
         self._legend_w = self.legend.sizeHint().width()
@@ -2059,9 +2054,8 @@ class SopGuidePage(QtWidgets.QWidget):
         row.addWidget(self.body, 1)
         row.addStretch()
         v.addLayout(row, 1)
-        v.addWidget(lb('이 절차는 코드에 고정돼 있어 네트워크·AI 상태와 무관하게 '
-                       '항상 표시됩니다. 검색된 안전 매뉴얼 원문과 실측 브리핑은 '
-                       '경보 시 우측 패널에 함께 붙습니다.', F_CAP, FAINT, wrap=True))
+        v.addWidget(lb('확정 즉시조치와 공식 안전 매뉴얼을 경보 화면에서 제공합니다.',
+                       F_CAP, FAINT, wrap=True))
         self.list.setCurrentRow(0)
 
     def _pick(self, r):
@@ -2636,20 +2630,18 @@ class SopEngineV2(core.SopEngine):
     def _work_body(self, ev_type, facts):
         srcs, ctx = self._search(ev_type)
         brief = self._fact_block(facts).replace('\n- ', ' · ').removeprefix('- ')
-        self._emit_status('공식 매뉴얼 표시 · AI 생성 중…')
+        self._emit_status('공식 매뉴얼 표시 · AI 보조 요약 준비 중…')
         self._emit_ready(ev_type, srcs, brief)
         if not core.USE_LLM_SUMMARY:
             return
         try:
-            started = time.perf_counter()
             generated = self._gen_facts(ev_type, ctx, facts)
-            elapsed = time.perf_counter() - started
-            self._emit_status(f'AI 생성 SOP 표시 · {elapsed:.1f}초 · 공식 매뉴얼 기반')
+            self._emit_status('AI 보조 요약 표시 · 공식 매뉴얼 기반')
             self._emit_ready(
                 ev_type, srcs,
-                f'{brief}\n---AI_SOP---\n{generated}\n\n생성 {elapsed:.1f}초')
+                f'{brief}\n---AI_SOP---\n{generated}')
         except Exception as e:
-            self._emit_status(f'AI SOP 생성 실패: {e}  (공식 원문은 계속 표시)')
+            self._emit_status(f'AI 보조 요약 실패: {e}  (공식 원문은 계속 표시)')
 
     # ── 사실 블록 ──
     @staticmethod
@@ -3158,7 +3150,6 @@ class ConsoleV2(QtWidgets.QMainWindow):
                 self.enter_console()          # 감시 시작 확인 → 관제로 자동 복귀
             return
         if page != PG_MON:
-            self._drain_logs(pkt)
             return
 
         self.scene.set_stale(False)
@@ -3212,7 +3203,8 @@ class ConsoleV2(QtWidgets.QMainWindow):
             #   레이더 유래 정보는 레이더가 설치된 구역으로 보고한다.
             z = ev.get('zone') or RADAR_ZONE
             if incident:
-                shape = '사고 유형 시각화'
+                shape = (f"{EVENT_KO.get((self.alert or {}).get('type'), '사고 감지')}"
+                         ' · 유형 안내')
             elif lost:
                 shape = ('추적 소실 — 정지한 대상은 반사가 줄어 놓칩니다')
             elif not pose['shape_ok']:
@@ -3233,7 +3225,6 @@ class ConsoleV2(QtWidgets.QMainWindow):
         self._update_tiles(pkt, on_alert)
         self.graph.push(pkt)
         self.pwr.push(pkt)
-        self._drain_logs(pkt)
 
     def _show_pre(self, pkt):
         """정지형 사전경보 줄.
@@ -3255,14 +3246,6 @@ class ConsoleV2(QtWidgets.QMainWindow):
             self.monitor.pre_bar.show()
         else:
             self.monitor.pre_bar.hide()
-
-    def _drain_logs(self, pkt):
-        """젯슨 원문 로그. 지우지 않고 '젯슨' 태그를 달아 앱 문장과 구분한다."""
-        for line in (pkt.get('logs') or [])[-3:]:
-            up = line.upper()
-            col = RED if ('ALERT' in up or 'TRIP' in up) else (
-                GREEN if ('RESOLVED' in up or 'RESTORE' in up) else FAINT)
-            self.timeline.add(line.split('] ', 1)[-1], col, key=line, src='젯슨')
 
     def _pump_state(self, pkt):
         """경보 상태기계 — v1 과 동일."""

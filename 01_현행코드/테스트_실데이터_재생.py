@@ -206,8 +206,8 @@ def main():
                     check(f'{label}: 사람 경보 중 형상 숨김 [{tag}]', n_seg == 0,
                           f'선분 {n_seg}개')
                 if et == 'fall_detected':
-                    check(f'{label}: 사고 포즈를 시각화로 명시',
-                          '사고 유형 시각화' in w.monitor._pose_text,
+                    check(f'{label}: 사고 포즈를 유형 안내로 명시',
+                          '유형 안내' in w.monitor._pose_text,
                           w.monitor._pose_text[:80])
                 else:
                     check(f'{label}: 캡션에 추적 소실 명시',

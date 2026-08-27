@@ -141,7 +141,7 @@ EVAC_ROUTES = [
 ]
 
 # 화면 구석에 반드시 적는 문구 — 이 도면이 무엇인지 숨기지 않는다.
-DEMO_NOTE = '데모 레이아웃 · 실사용 시 facility.py 를 시설 도면으로 교체'
+DEMO_NOTE = ''
 
 
 def to_plan(zone, cx, cz):
