@@ -64,6 +64,15 @@ check('0g. 대화 말풍선은 사용자·AI 좌우 구분',
 check('0h. 입력창 Enter가 추천 질문 버튼을 함께 누르지 않음',
       all(not b.autoDefault() and not b.isDefault()
           for b in w.assistant.findChildren(QtWidgets.QPushButton)))
+brief = w.assistant._local_answer('현재 상태 알려줘')
+check('0i. 챗봇 현재 브리핑은 수신·경보·재실·전력·다음 조치를 함께 표시',
+      all(word in brief for word in ('젯슨', '경보', '작업자', '차단', '현재 단계')),
+      brief)
+w.assistant._busy = True
+w.assistant.ask('등록되지 않은 임의 질문')
+check('0j. AI 요청 중 추가 생성 요청을 쌓지 않음',
+      w.assistant._busy and '이전 질문의 근거를 확인 중' in w.assistant.log.toPlainText())
+w.assistant._busy = False
 
 # ── 1. confirm() 버튼이 다크테마에서 보이는가 (v1 7/31) ──
 d_txt = []
@@ -142,6 +151,11 @@ w.begin_session({'zone': ui.RADAR_ZONE, 'shift': '주간조', 'operator': '홍�
 app.processEvents()
 w.demo_src.t0 = time.time()-7; pump(20); w.tick_ui()
 check('14. 경보 발생 → UNACK', w.alarm == ui.ST_UNACK, w.alarm)
+check('14a. 경보 발생 시 챗봇 기록에 자동 브리핑·다음 조치 추가',
+      '경보 진행 중' in w.assistant.log.toPlainText()
+      and '다음 조치' in w.assistant.log.toPlainText())
+check('14b. 다음 조치 질문은 LLM 없이 확정 즉시조치로 응답',
+      w.assistant._local_answer('지금 뭐 해야 해?').startswith('현재 단계:'))
 b = w.monitor.b_right.text()
 w.do_ack()
 check('15. 확인함 = ACK (경보 유지)',
@@ -317,6 +331,18 @@ check('37. 사고 포즈 3종의 관절 형상이 서로 다름',
 geometry = core._facility_scene_geometry()
 check('38. 폐기한 주황·보라 소영역이 설비 형상에서 제거',
       len(geometry) == 5, f'형상 그룹 {len(geometry)}개')
+
+roi_normal = core.Track3D.roi_color('normal')
+roi_warning = core.Track3D.roi_color('warning')
+roi_critical = core.Track3D.roi_color('critical')
+check('39. ROI가 3D 장면에 복원되고 정상은 파란 경계로 표시',
+      (w.scene.track.gl is None or hasattr(w.scene.track, 'roi'))
+      and roi_normal[2] > roi_normal[0] and roi_normal[2] > roi_normal[1],
+      f'normal={roi_normal}')
+check('40. ROI가 기존 경보 등급의 주황·빨강을 그대로 사용',
+      roi_warning[:3] == core.pg.glColor(core.sev_color('warning'))[:3]
+      and roi_critical[:3] == core.pg.glColor(core.sev_color('critical'))[:3],
+      f'warning={roi_warning} critical={roi_critical}')
 
 print('\n' + '='*62)
 print(f'통과 {len(OK)} / 실패 {len(NG)}')

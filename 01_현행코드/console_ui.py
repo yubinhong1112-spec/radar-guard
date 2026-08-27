@@ -98,6 +98,9 @@ from radar_common import (
 )
 
 APP_VERSION = 'v2.0'
+# Ollama는 한 번에 한 작업만 수행한다. SOP 사전 준비와 질의가 겹치면 CPU를
+# 서로 빼앗아 둘 다 늦어지므로, UI 밖 작업 스레드에서만 직렬화한다.
+AI_WORK_LOCK = threading.Lock()
 
 # ══════════════════════════════════════════════════════════════════════
 # 0. 타이포그래피
@@ -2138,6 +2141,7 @@ class AssistantDrawer(QtWidgets.QDialog):
         self.setMinimumSize(620, 520)
         self.setStyleSheet(
             f'QDialog{{background:{PANEL};}}QWidget{{color:{TXT};}}')
+        self._busy = False
         v = vbox(self, SP4, SP3)
         head = hbox(s=SP2)
         head.addWidget(lb('Radar-Guard AI', F_H1, TXT, bold=True))
@@ -2218,8 +2222,14 @@ class AssistantDrawer(QtWidgets.QDialog):
         if local is not None:
             source = ('즉시 응답' if self._is_smalltalk(question)
                       else '실시간 로컬 집계')
-            self._show_answer(local, source, 0.0)
+            self._append_answer(local, source, 0.0)
             return
+        if self._busy:
+            self._append_answer(
+                '이전 질문의 근거를 확인 중입니다. 완료 후 다시 질문해 주세요.',
+                '요청 대기열 보호', 0.0)
+            return
+        self._busy = True
         self.waiting.setText('근거를 확인하고 있습니다…')
         threading.Thread(target=self._work, args=(question,), daemon=True).start()
 
@@ -2272,6 +2282,20 @@ class AssistantDrawer(QtWidgets.QDialog):
         if 'LLM' in question or 'AI 역할' in question:
             return ('AI는 공식 SOP와 젯슨 실측값을 결합해 설명·대응 가이드를 작성하지만 '
                     '위험 판정, 차단, 경보 해제, 전원 복구를 실행하지 않습니다.')
+        if ('다음조치' in q or '뭐해야' in q or '해야할' in q
+                or '안한조치' in q or '미완료' in q):
+            return self._next_action()
+        if '재투입' in q or '전력복구' in q:
+            if c.alarm != ST_NORMAL:
+                return ('현재 경보가 진행 중이므로 전력을 재투입하지 마십시오. 먼저 현장 '
+                        '상태를 확인하고 상황 종료 절차를 완료해야 합니다.')
+            if c.pwr.tripped():
+                return ('차단 상태는 확인되지만 안전한 재투입 여부는 시스템이 보증할 수 '
+                        '없습니다. 유자격자가 절연·누설·설비 상태를 확인한 뒤 '
+                        '[전기 설비]의 확인 절차를 따르십시오.')
+            return '현재 차단된 설비 회로가 없어 재투입할 대상이 없습니다.'
+        if '조치이력' in q or '사고이력' in q or '최근이력' in q:
+            return self._incident_history()
         if '차단' in question:
             zones = c.pwr.tripped()
             return (f'현재 차단된 설비 회로: {", ".join(zones)}. 재투입은 전기 설비 '
@@ -2285,13 +2309,60 @@ class AssistantDrawer(QtWidgets.QDialog):
             last = c.incidents[-1]
             return (f"마지막 경보는 {last.get('detected')} Zone {last.get('zone')} "
                     f"{EVENT_KO.get(last.get('type'), last.get('type'))}입니다.")
-        if '현재 상태' in question:
-            age = c.link.age() if c.link else None
-            link = f'마지막 수신 {age:.1f}초 전' if age is not None else '젯슨 미수신'
-            return f'{link} · 경보 {len(c.incidents)}건 · 차단 설비 {len(c.pwr.tripped())}개'
+        if '현재상태' in q or '상황알려' in q or '상황요약' in q:
+            return self._current_brief()
         return None
 
+    def _current_brief(self):
+        """현재 UI가 받은 상태만 요약한다. 판정·추정은 추가하지 않는다."""
+        c = self.console
+        age = c.link.age() if c.link else None
+        link = f'젯슨 마지막 수신 {age:.1f}초 전' if age is not None else '젯슨 미수신'
+        occupied = c.pkt.get('occupied')
+        worker = '작업자 재실' if occupied is True else (
+            '작업자 퇴실' if occupied is False else '작업자 재실 정보 없음')
+        zones = c.pwr.tripped()
+        power = f'차단 회로 {", ".join(zones)}' if zones else '차단 회로 없음'
+        if c.alert:
+            et = c.alert.get('type')
+            z = c.alert.get('zone') or RADAR_ZONE
+            alarm = (f'{z} {ZONE_KO.get(z, "")} '
+                     f'{EVENT_KO.get(et, et)} {SEV_KO.get(c.cur_sev(), "")} 경보 진행 중')
+        else:
+            alarm = '진행 중인 경보 없음'
+        return f'{link}. {alarm}. {worker}. {power}. {self._next_action()}'
+
+    def _next_action(self):
+        """현재 상태에서 이미 화면에 확정된 첫 조치만 안내한다."""
+        c = self.console
+        if c.alert:
+            et = c.alert.get('type')
+            actions = INSTANT_ACTION.get(et, INSTANT_ACTION_UNKNOWN)
+            first = actions[0][1][0]
+            stage = '경보 확인 전' if c.alarm == ST_UNACK else '경보 확인 완료'
+            return f'현재 단계: {stage}. 다음 조치: {first}'
+        if c.pwr.tripped():
+            return ('현재 단계: 상황 종료 후 차단 유지. 다음 조치: 유자격자가 현장과 '
+                    '전기 상태를 확인한 뒤 전력 재투입 절차를 진행하십시오.')
+        return '현재 단계: 정상 감시. 미완료 안전 조치가 없습니다.'
+
+    def _incident_history(self):
+        incidents = self.console.incidents[-3:]
+        if not incidents:
+            return '오늘 기록된 경보와 조치 이력이 없습니다.'
+        rows = []
+        for item in reversed(incidents):
+            name = EVENT_KO.get(item.get('type'), item.get('type'))
+            state = (f"{item.get('resolved')} 상황 종료" if item.get('resolved')
+                     else '진행 중')
+            rows.append(f"{item.get('detected')} {item.get('zone')} 구역 {name} · {state}")
+        return '최근 조치 이력: ' + ' / '.join(rows)
+
     def _work(self, question):
+        with AI_WORK_LOCK:
+            self._work_locked(question)
+
+    def _work_locked(self, question):
         import urllib.request
         started = time.perf_counter()
         try:
@@ -2330,13 +2401,13 @@ class AssistantDrawer(QtWidgets.QDialog):
             body = json.dumps({
                 'model': core.LLM_MODEL, 'prompt': prompt, 'stream': False,
                 'keep_alive': '30m',
-                'options': {'num_ctx': 2048, 'num_predict': 180,
+                'options': {'num_ctx': 2048, 'num_predict': 100,
                             'temperature': 0.2},
             }).encode('utf-8')
             req = urllib.request.Request(
                 core.OLLAMA_URL, data=body,
                 headers={'Content-Type': 'application/json'})
-            with urllib.request.urlopen(req, timeout=120) as response:
+            with urllib.request.urlopen(req, timeout=30) as response:
                 answer = json.loads(response.read().decode('utf-8')).get(
                     'response', '').strip()
             # 질의 답변의 출처도 같은 규칙으로 표기한다(파일명 노출 금지).
@@ -2363,22 +2434,28 @@ class AssistantDrawer(QtWidgets.QDialog):
         return None
 
     def _show_answer(self, answer, source, elapsed):
+        self._busy = False
         self.waiting.clear()
+        self._append_answer(answer, source, elapsed)
+
+    def _append_answer(self, answer, source, elapsed):
         content = (f'{core.md_to_html(answer)}<br><span style="color:{FAINT};'
                    f'font-size:9pt;">근거: {html_escape(source)} · '
                    f'{elapsed:.1f}초</span>')
         self.log.append(self._bubble(content, False, 'AI'))
 
     def _show_error(self, error):
+        self._busy = False
         self.waiting.clear()
         self.log.append(self._bubble(
             f'<span style="color:{AMBER};">AI 응답 실패: '
             f'{html_escape(error)}</span>', False, 'AI'))
 
-    def system_notice(self, text):
+    def system_notice(self, text, open_drawer=True):
         """젯슨에서 확인된 상태 변화를 AI 대화에 즉시 알린다."""
         self.log.append(self._bubble(html_escape(text), False, 'Radar-Guard AI'))
-        self.open_drawer()
+        if open_drawer:
+            self.open_drawer()
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -2551,7 +2628,8 @@ class SopEngineV2(core.SopEngine):
         #   SOP 는 안전 조치의 필수 경로가 아니다(즉시조치는 이미 화면에 있다).
         #   → 무슨 일이 있어도 이 스레드는 조용히 끝난다.
         try:
-            self._work_body(ev_type, facts)
+            with AI_WORK_LOCK:
+                self._work_body(ev_type, facts)
         except Exception as e:
             self._emit_status(f'SOP 처리 실패: {e}  (즉시조치는 계속 표시)')
 
@@ -2659,14 +2737,15 @@ class SopEngineV2(core.SopEngine):
         def worker():
             import urllib.request
             try:
-                body = json.dumps({
-                    'model': core.LLM_MODEL, 'prompt': '.', 'stream': False,
-                    'keep_alive': '30m', 'options': {'num_predict': 1},
-                }).encode('utf-8')
-                req = urllib.request.Request(
-                    core.OLLAMA_URL, data=body,
-                    headers={'Content-Type': 'application/json'})
-                urllib.request.urlopen(req, timeout=120).read()
+                with AI_WORK_LOCK:
+                    body = json.dumps({
+                        'model': core.LLM_MODEL, 'prompt': '.', 'stream': False,
+                        'keep_alive': '30m', 'options': {'num_predict': 1},
+                    }).encode('utf-8')
+                    req = urllib.request.Request(
+                        core.OLLAMA_URL, data=body,
+                        headers={'Content-Type': 'application/json'})
+                    urllib.request.urlopen(req, timeout=120).read()
             except Exception as e:
                 self._emit_status(f'AI 모델 준비 실패: {e}  (경보 시 다시 시도)')
         threading.Thread(target=worker, daemon=True).start()
@@ -3285,6 +3364,11 @@ class ConsoleV2(QtWidgets.QMainWindow):
         #    같은 사건을 두 가지로 말하고 있었다)
         self.drawer.sop.show_for(sop_type, title=name, sev=sev)
         self._set_auto_action(z)
+        if not updating:
+            # 판정 결과를 다시 계산하지 않고 현재 패킷과 확정 즉시조치만 요약한다.
+            # 경보 화면을 가리지 않도록 대화 기록에만 쌓고 팝업은 열지 않는다.
+            self.assistant.system_notice(self.assistant._current_brief(),
+                                         open_drawer=False)
         self.drawer.ack.show()
         if self.cfg.autopop.isChecked():
             self.drawer.open_at(0)
@@ -3384,6 +3468,8 @@ class ConsoleV2(QtWidgets.QMainWindow):
         self.timeline.add('상황 종료 처리됨' + (' (젯슨)' if remote else ''), GREEN)
         self._recent.appendleft((ts, '상황 종료', GREEN))
         self.dash.set_events(list(self._recent))
+        self.assistant.system_notice(self.assistant._current_brief(),
+                                     open_drawer=False)
         self._lock_nav()
 
     def _show_pwr(self):

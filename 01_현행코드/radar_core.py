@@ -60,7 +60,7 @@ import pyqtgraph as pg
 from radar_common import (
     DATA_PORT, CTRL_PORT, HELLO_SEC, LINK_TIMEOUT, SCHEMA_VERSION,
     CMD_HELLO, CMD_START, CMD_TRAIN, CMD_RESET,
-    CEILING_H, HISTORY_LEN,
+    CEILING_H, HISTORY_LEN, FRAME_INNER_HALF,
     PH_READY, PH_WARMUP, PH_WAIT_TRAIN, PH_TRAINING, PH_WAIT_ARM, PH_LIVE,
     PHASE_ORDER, PHASE_KO, PHASE_ACTION,
     EVENT_KO, EVENT_CATEGORY, ZONE_IDS, ZONE_KO, RADAR_ZONE, pg_conn_str,
@@ -1259,6 +1259,17 @@ class Track3D(QtWidgets.QWidget):
         g.setSpacing(0.5, 0.5)
         g.setColor(pg.mkColor(GRID))
         self.gl.addItem(g)
+        # 판정 ROI를 그대로 표시만 한다. 평상시는 점군보다 낮은 채도의 파란색,
+        # 사고 중에는 젯슨이 보낸 경보 등급 색으로 바꿔 위치와 심각도를 함께 보인다.
+        h = FRAME_INNER_HALF
+        roi_pos = np.array([[-h, -h, 0.02], [h, -h, 0.02],
+                            [h, h, 0.02], [-h, h, 0.02],
+                            [-h, -h, 0.02]], dtype=np.float32)
+        self.roi = gl.GLLinePlotItem(
+            pos=roi_pos, color=self.roi_color('normal'), width=1.8,
+            antialias=True)
+        self.gl.addItem(self.roi)
+        self._roi_sev = 'normal'
         # 1 m 높이 눈금 — 캡슐 크기를 눈으로 가늠할 기준
         for h in (1.0, 2.0):
             ring = np.column_stack([1.0 * np.cos(np.linspace(0, 2 * np.pi, 48)),
@@ -1376,6 +1387,14 @@ class Track3D(QtWidgets.QWidget):
             return c, c, c
         return CYAN, GREEN, AMBER
 
+    @staticmethod
+    def roi_color(sev):
+        """표시 전용 ROI 색. 정상 경계는 상태색 초록 대신 절제된 파란색이다."""
+        if sev in ('warning', 'critical'):
+            color = pg.glColor(sev_color(sev))
+            return (*color[:3], 0.96)
+        return (0.08, 0.38, 0.62, 0.58)
+
     def push(self, st, sev='normal', hide_shape=False, incident=None):
         incident = incident if incident is not None else getattr(self, '_incident', None)
         track_state = st.get('track_state', 'tracking')
@@ -1414,6 +1433,10 @@ class Track3D(QtWidgets.QWidget):
         p = self.pose.estimate()
         pt_c, fig_c, hd_c = self.sev_colors(sev)
         if self.gl is not None:
+            roi_sev = sev if sev in ('warning', 'critical') else 'normal'
+            if roi_sev != self._roi_sev:
+                self.roi.setData(color=self.roi_color(roi_sev))
+                self._roi_sev = roi_sev
             incident_kind = incident and incident.get('kind')
             if incident_kind != self._incident_kind:
                 if incident_kind:
