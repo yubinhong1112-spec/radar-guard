@@ -1337,6 +1337,7 @@ class DashboardPage(QtWidgets.QWidget):
     def __init__(self, link=None, demo=False):
         super().__init__()
         self.link, self.demo = link, demo
+        self._ai_status = (False, '대기', '감시 시작 후 6종 SOP 준비', AMBER)
         self._pkt = {}
         self._link_ok = bool(demo)
         outer = QtWidgets.QVBoxLayout(self)
@@ -1575,7 +1576,7 @@ class DashboardPage(QtWidgets.QWidget):
         c['sop'].set(RAG_OK, '정상' if RAG_OK else '비활성',
                      '안전 매뉴얼 검색 사용 가능' if RAG_OK
                      else '매뉴얼 검색 불가 — 즉시 조치만 표시')
-        c['llm'].set(True, '대기', '경보 시 요약 생성', AMBER)
+        c['llm'].set(*self._ai_status)
 
         ok = c['radar'].ok
         self._link_ok = ok
@@ -1588,6 +1589,10 @@ class DashboardPage(QtWidgets.QWidget):
         self.why.setText('' if ok else
                          '레이더 링크가 확인되면 구역을 선택할 수 있습니다 — '
                          '젯슨에서 jetson_sender.py 가 실행 중인지 확인하세요')
+
+    def set_ai_status(self, ok, value, detail, color=None):
+        self._ai_status = (ok, value, detail, color)
+        self.cards['llm'].set(*self._ai_status)
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -2570,6 +2575,13 @@ class SopEngineV2(core.SopEngine):
       · 생성 지연·환각·문장 잘림 없이 매 사건의 현재 값이 즉시 반영된다.
     """
 
+    cache_progress = QtCore.pyqtSignal(int, int, str)
+    PREPARE_MODEL = 'qwen2.5:3b-instruct-q4_K_M'
+    PREPARE_EVENTS = (
+        'fall_detected', 'pinching', 'electric_shock_risk_confirmed',
+        'overcurrent', 'leakage_current', 'stationary_anomaly',
+    )
+
     # ⚠ [8/25] 데몬 스레드가 살아 있는 채로 앱이 닫히면 Qt 객체가 먼저 지워져
     #   signal.emit 자체가 RuntimeError 를 낸다. 그러면 except 절 안의 emit 도
     #   같이 터져 traceback 이 콘솔로 새어 나간다(레이아웃 검증 2회차 실측).
@@ -2628,6 +2640,15 @@ class SopEngineV2(core.SopEngine):
             self._emit_status(f'SOP 처리 실패: {e}  (즉시조치는 계속 표시)')
 
     def _work_body(self, ev_type, facts):
+        cached = self._cache.get(ev_type)
+        if cached:
+            srcs, generated = cached
+            brief = self._fact_block(facts).replace(
+                '\n- ', ' · ').removeprefix('- ')
+            self._emit_status('사전 준비된 AI SOP 표시 · 실시간 센서 브리핑 결합')
+            self._emit_ready(
+                ev_type, srcs, f'{brief}\n---AI_SOP---\n{generated}')
+            return
         srcs, ctx = self._search(ev_type)
         brief = self._fact_block(facts).replace('\n- ', ' · ').removeprefix('- ')
         self._emit_status('공식 매뉴얼 표시 · AI 보조 요약 준비 중…')
@@ -2635,7 +2656,11 @@ class SopEngineV2(core.SopEngine):
         if not core.USE_LLM_SUMMARY:
             return
         try:
-            generated = self._gen_facts(ev_type, ctx, facts)
+            def show_partial(generated):
+                self._emit_ready(
+                    ev_type, srcs, f'{brief}\n---AI_SOP---\n{generated}')
+
+            generated = self._gen_facts(ev_type, ctx, facts, show_partial)
             self._emit_status('AI 보조 요약 표시 · 공식 매뉴얼 기반')
             self._emit_ready(
                 ev_type, srcs,
@@ -2698,48 +2723,91 @@ class SopEngineV2(core.SopEngine):
         return '\n'.join(L)
 
     @staticmethod
-    def _gen_facts(ev_type, ctx, facts):
+    def _cacheable_sop(text):
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        return (len(lines) == 4
+                and all(line.startswith(f'{i}. ') and len(line) > 4
+                        for i, line in enumerate(lines, 1))
+                and not any(mark in text for mark in ('#', '*', '[', ']')))
+
+    @staticmethod
+    def _gen_facts(ev_type, ctx, facts, on_update=None):
         import urllib.request
         label = EVENT_KO.get(ev_type, ev_type)
         fact_block = SopEngineV2._fact_block(facts)
+        verified_actions = '\n'.join(
+            f'- {action}' for _, actions in INSTANT_ACTION.get(ev_type, [])
+            for action in actions)
+        task = ('사건마다 공통으로 적용할 초동 조치 SOP를 작성하라. '
+                '실시간 센서값은 경보 때 별도로 표시된다.' if not fact_block else
+                '아래 젯슨 실측값을 반영한 초동 조치 SOP를 작성하라.')
+        breaker_rule = (' 이미 차단된 전원을 다시 차단하라고 하지 마라.'
+                        if fact_block else '')
         prompt = (
-            f'너는 산업 현장 안전관리 보조자다. "{label}" 경보에 대해 아래 '
-            f'젯슨 실측값과 공식 매뉴얼 발췌만 근거로 초동 조치 SOP를 작성하라.\n'
-            f'[젯슨 실측값]\n{fact_block or "—"}\n'
-            f'[공식 매뉴얼 발췌]\n{ctx[:1100] or "검색 결과 없음"}\n'
-            f'규칙: 번호를 매긴 4단계, 각 단계는 짧은 한 문장. 없는 수치를 '
-            f'만들지 말고 이미 차단된 전원을 다시 차단하라고 하지 마라. '
+            f'너는 산업 현장 안전관리 보조자다. "{label}" 경보에 대해 '
+            f'공식 매뉴얼 발췌만 근거로 {task}\n'
+            f'[젯슨 실측값]\n{fact_block or "경보 시 별도 표시"}\n'
+            f'[확정 즉시조치]\n{verified_actions or "등록된 조치 없음"}\n'
+            f'[공식 매뉴얼 발췌]\n{ctx[:700] or "검색 결과 없음"}\n'
+            f'규칙: 반드시 1.부터 4.까지 정확히 네 줄만 출력하고 각 줄은 '
+            f'25자 이내의 완결된 한 문장으로 써라. 제목·소제목·불릿·마크다운·'
+            f'대괄호 빈칸은 쓰지 마라. 확정 즉시조치의 의미를 바꾸거나 누락하지 '
+            f'말고, 없는 수치를 만들지 마라.'
+            f'{breaker_rule} '
             f'환자 이동·응급처치는 위 매뉴얼과 충돌하지 않게 쓰고 서론은 생략하라.')
         body = json.dumps({
-            'model': core.LLM_MODEL, 'prompt': prompt, 'stream': False,
+            'model': (core.LLM_MODEL if fact_block else SopEngineV2.PREPARE_MODEL),
+            'prompt': prompt, 'stream': bool(fact_block),
             'keep_alive': '30m',
-            'options': {'num_ctx': 2048, 'num_predict': 220, 'temperature': 0.2},
+            **({} if fact_block else {'format': {
+                'type': 'object', 'properties': {'steps': {
+                    'type': 'array', 'items': {'type': 'string'},
+                    'minItems': 4, 'maxItems': 4}}, 'required': ['steps']} }),
+            'options': {'num_ctx': 1536, 'num_predict': 160, 'temperature': 0.0},
         }).encode('utf-8')
         req = urllib.request.Request(
             core.OLLAMA_URL, data=body,
             headers={'Content-Type': 'application/json'})
         with urllib.request.urlopen(req, timeout=120) as response:
-            return json.loads(response.read().decode('utf-8')).get(
-                'response', '').strip()
+            if not fact_block:
+                raw = json.loads(response.read().decode('utf-8')).get('response', '')
+                steps = json.loads(raw).get('steps', [])
+                return '\n'.join(f'{i}. {step.strip()}'
+                                 for i, step in enumerate(steps, 1))
+            generated = ''
+            shown = 0
+            for line in response:
+                part = json.loads(line.decode('utf-8')).get('response', '')
+                generated += part
+                if on_update and (len(generated) - shown >= 24 or not part):
+                    on_update(generated.strip())
+                    shown = len(generated)
+            return generated.strip()
 
     def prewarm(self):
-        """모델만 메모리에 올린다. 경보별 SOP 문장은 실측값 때문에 캐시하지 않는다."""
+        """공식 문서를 검색해 6종 SOP를 미리 만들고 경보 때 즉시 표시한다."""
         if QtCore.qEnvironmentVariable('QT_QPA_PLATFORM') == 'offscreen':
             return
+        total = len(self.PREPARE_EVENTS)
+        self.cache_progress.emit(0, total, '')
         def worker():
-            import urllib.request
-            try:
+            failed = []
+            for done, ev_type in enumerate(self.PREPARE_EVENTS, 1):
                 with AI_WORK_LOCK:
-                    body = json.dumps({
-                        'model': core.LLM_MODEL, 'prompt': '.', 'stream': False,
-                        'keep_alive': '30m', 'options': {'num_predict': 1},
-                    }).encode('utf-8')
-                    req = urllib.request.Request(
-                        core.OLLAMA_URL, data=body,
-                        headers={'Content-Type': 'application/json'})
-                    urllib.request.urlopen(req, timeout=120).read()
-            except Exception as e:
-                self._emit_status(f'AI 모델 준비 실패: {e}  (경보 시 다시 시도)')
+                    try:
+                        srcs, ctx = self._search(ev_type)
+                        if not srcs:
+                            raise RuntimeError('공식 SOP 검색 결과 없음')
+                        generated = self._gen_facts(ev_type, ctx, {})
+                        if not self._cacheable_sop(generated):
+                            raise RuntimeError('AI 요약 4단계 형식 불일치')
+                        self._cache[ev_type] = (srcs, generated)
+                        if ev_type == 'electric_shock_risk_confirmed':
+                            self._cache['electric_shock_risk'] = (srcs, generated)
+                    except Exception as e:
+                        failed.append(EVENT_KO.get(ev_type, ev_type))
+                        self._emit_status(f'{EVENT_KO.get(ev_type, ev_type)} SOP 준비 실패: {e}')
+                    self.cache_progress.emit(done, total, ', '.join(failed))
         threading.Thread(target=worker, daemon=True).start()
 
 
@@ -2874,6 +2942,9 @@ class ConsoleV2(QtWidgets.QMainWindow):
         self.engine = SopEngineV2()
         self.engine.ready.connect(self.drawer.sop.set_sources)
         self.engine.status.connect(self.drawer.sop.set_status)
+        self.engine.cache_progress.connect(self._on_cache_progress)
+        self._prewarmed = True
+        QtCore.QTimer.singleShot(0, self.engine.prewarm)
         self.pwr.restore_btn.clicked.connect(self.do_restore)
         self.monitor.b_pwr.clicked.connect(self._show_pwr)
         self.monitor.b_graph.clicked.connect(self.graph.show)
@@ -2907,6 +2978,19 @@ class ConsoleV2(QtWidgets.QMainWindow):
             self._set_link_label('데모 모드', AMBER)
         self.nav.set_user(self.shift, self.operator)
         self._apply_shell_geometry()
+
+    def _on_cache_progress(self, done, total, failed):
+        if done < total:
+            self.dash.set_ai_status(
+                False, '준비 중', f'6종 SOP 사전 준비 {done}/{total}', AMBER)
+        elif failed:
+            self.dash.set_ai_status(
+                False, '일부 실패', f'경보 시 생성: {failed}', AMBER)
+            self.timeline.add(f'AI SOP 일부 준비 실패 · {failed}', AMBER)
+        else:
+            self.dash.set_ai_status(
+                True, '준비 완료', '6종 SOP 즉시 출력 가능', GREEN)
+            self.timeline.add('AI SOP 6종 준비 완료', GREEN)
 
     # ══════════════════════════════════════════════════════════════════
     # 화면 이동
