@@ -1,0 +1,2150 @@
+nohup: ignoring input
+[RF] fall_classifier 로드 OK (19 feats, threshold=0.784637)
+[RF30] 용도분리 모델 로드 OK (window=30, background=10, threshold=0.624519)
+=================================================================
+  Radar-Guard | JETSON SENDER (detection only, no GUI)
+=================================================================
+  Radar data : /home/project/stage1_filtered.json
+  Device     : cuda
+  Warmup     : 150 frames
+  Baseline   : /home/project/baseline_model.pt
+  UDP OUT    : *:5005  (노트북 HELLO로 자동 발견)
+  UDP IN     : 0.0.0.0:5006  (버튼 명령)
+
+  [터미널 1] python3 ~/radar_parser.py
+  [터미널 2] python3 ~/jetson_sender.py   <- 이 창
+  노트북    : python console_ui.py --live <젯슨IP>
+  종료: Ctrl+C
+=================================================================
+
+[NET] 제어 포트 5006 대기 중 (노트북 HELLO/버튼 명령)
+[LOG 16:30:58] Jetson sender started -- waiting for radar data
+[LOG 16:30:58] Pipeline started -- waiting for radar data
+[OCCUPANCY] state=vacant centroid=(0.208,1.132,-0.060) points=17
+[OCCUPANCY] state=vacant centroid=(0.232,1.169,-0.058) points=18
+[OCCUPANCY] state=vacant centroid=(0.230,1.169,-0.065) points=18
+[OCCUPANCY] state=vacant centroid=(0.230,1.170,-0.055) points=18
+[OCCUPANCY] state=vacant centroid=(0.240,1.176,-0.096) points=19
+[OCCUPANCY] state=vacant centroid=(0.204,1.133,-0.068) points=17
+[OCCUPANCY] state=vacant centroid=(0.234,1.169,-0.070) points=18
+[OCCUPANCY] state=vacant centroid=(0.230,1.170,-0.069) points=18
+[OCCUPANCY] state=vacant centroid=(0.244,1.202,-0.031) points=19
+[OCCUPANCY] state=vacant centroid=(0.235,1.212,-0.055) points=19
+[OCCUPANCY] state=vacant centroid=(0.208,1.131,-0.060) points=17
+[OCCUPANCY] state=vacant centroid=(0.244,1.180,-0.084) points=19
+[OCCUPANCY] state=vacant centroid=(0.230,1.212,-0.076) points=19
+[OCCUPANCY] state=vacant centroid=(0.234,1.235,-0.065) points=20
+[OCCUPANCY] state=vacant centroid=(0.234,1.168,-0.063) points=18
+[OCCUPANCY] state=vacant centroid=(0.240,1.179,-0.037) points=19
+[OCCUPANCY] state=vacant centroid=(0.234,1.169,-0.058) points=18
+[OCCUPANCY] state=vacant centroid=(0.234,1.169,-0.064) points=18
+[OCCUPANCY] state=vacant centroid=(0.234,1.169,-0.060) points=18
+[OCCUPANCY] state=vacant centroid=(0.228,1.169,-0.065) points=18
+[OCCUPANCY] state=vacant centroid=(0.230,1.169,-0.066) points=18
+[OCCUPANCY] state=vacant centroid=(0.241,1.205,-0.021) points=19
+[OCCUPANCY] state=vacant centroid=(0.248,1.203,-0.027) points=19
+[OCCUPANCY] state=vacant centroid=(0.234,1.169,-0.062) points=18
+[OCCUPANCY] state=vacant centroid=(0.231,1.168,-0.067) points=18
+[OCCUPANCY] state=vacant centroid=(0.235,1.212,-0.052) points=19
+[OCCUPANCY] state=vacant centroid=(0.234,1.169,-0.061) points=18
+[OCCUPANCY] state=vacant centroid=(0.231,1.212,-0.067) points=19
+[OCCUPANCY] state=vacant centroid=(0.231,1.212,-0.065) points=19
+[OCCUPANCY] state=vacant centroid=(0.234,1.168,-0.073) points=18
+[OCCUPANCY] state=vacant centroid=(0.203,1.222,-0.063) points=19
+[OCCUPANCY] state=vacant centroid=(0.235,1.168,-0.062) points=18
+[LOG 16:31:37] 뷰어 연결됨: 127.0.0.1
+[OCCUPANCY] state=vacant centroid=(0.234,1.212,-0.049) points=19
+[OCCUPANCY] state=vacant centroid=(0.230,1.170,-0.060) points=18
+[OCCUPANCY] state=vacant centroid=(0.230,1.169,-0.068) points=18
+[OCCUPANCY] state=vacant centroid=(0.230,1.169,-0.067) points=18
+[OCCUPANCY] state=vacant centroid=(0.230,1.171,-0.061) points=18
+[OCCUPANCY] state=vacant centroid=(0.234,1.170,-0.063) points=18
+[OCCUPANCY] state=vacant centroid=(0.180,1.090,-0.059) points=16
+[OCCUPANCY] state=vacant centroid=(0.232,1.169,-0.065) points=18
+[OCCUPANCY] state=vacant centroid=(0.234,1.169,-0.066) points=18
+[OCCUPANCY] state=vacant centroid=(0.244,1.204,-0.018) points=19
+[OCCUPANCY] state=vacant centroid=(0.234,1.169,-0.067) points=18
+[OCCUPANCY] state=vacant centroid=(0.234,1.169,-0.068) points=18
+[OCCUPANCY] state=vacant centroid=(0.234,1.170,-0.057) points=18
+[OCCUPANCY] state=vacant centroid=(0.225,1.169,-0.021) points=18
+[OCCUPANCY] state=vacant centroid=(0.234,1.169,-0.069) points=18
+[OCCUPANCY] state=vacant centroid=(0.240,1.244,-0.027) points=20
+[OCCUPANCY] state=vacant centroid=(0.232,1.169,-0.072) points=18
+[OCCUPANCY] state=vacant centroid=(0.245,1.309,-0.067) points=23
+[OCCUPANCY] state=vacant centroid=(0.257,1.215,-0.011) points=20
+[OCCUPANCY] state=vacant centroid=(0.262,1.244,0.026) points=21
+[OCCUPANCY] state=vacant centroid=(0.230,1.224,-0.008) points=20
+[OCCUPANCY] state=vacant centroid=(0.223,1.214,-0.071) points=19
+[OCCUPANCY] state=vacant centroid=(0.229,1.172,-0.014) points=18
+[OCCUPANCY] state=vacant centroid=(0.228,1.212,-0.069) points=19
+[OCCUPANCY] state=vacant centroid=(0.233,1.212,-0.071) points=19
+[OCCUPANCY] state=vacant centroid=(0.208,1.131,-0.065) points=17
+[OCCUPANCY] state=vacant centroid=(0.235,1.169,-0.064) points=18
+[OCCUPANCY] state=vacant centroid=(0.243,1.207,-0.029) points=19
+[OCCUPANCY] state=vacant centroid=(0.242,1.243,-0.037) points=20
+[OCCUPANCY] state=vacant centroid=(0.219,1.251,-0.090) points=20
+[OCCUPANCY] state=vacant centroid=(0.204,1.180,-0.077) points=18
+[OCCUPANCY] state=vacant centroid=(0.254,1.236,0.016) points=20
+[OCCUPANCY] state=vacant centroid=(0.234,1.170,-0.059) points=18
+[OCCUPANCY] state=vacant centroid=(0.248,1.203,-0.032) points=19
+[OCCUPANCY] state=vacant centroid=(0.235,1.168,-0.052) points=18
+[OCCUPANCY] state=vacant centroid=(0.253,1.239,0.001) points=20
+[OCCUPANCY] state=vacant centroid=(0.248,1.202,-0.031) points=19
+[OCCUPANCY] state=vacant centroid=(0.208,1.133,-0.054) points=17
+[OCCUPANCY] state=vacant centroid=(0.233,1.211,-0.056) points=19
+[OCCUPANCY] state=vacant centroid=(0.204,1.132,-0.057) points=17
+[OCCUPANCY] state=vacant centroid=(0.257,1.211,-0.044) points=20
+[OCCUPANCY] state=vacant centroid=(0.244,1.204,-0.025) points=19
+[OCCUPANCY] state=vacant centroid=(0.231,1.212,-0.061) points=19
+[OCCUPANCY] state=vacant centroid=(0.208,1.131,-0.068) points=17
+[OCCUPANCY] state=vacant centroid=(0.234,1.169,-0.067) points=18
+[OCCUPANCY] state=vacant centroid=(0.247,1.211,-0.008) points=20
+[OCCUPANCY] state=vacant centroid=(0.235,1.168,-0.064) points=18
+[OCCUPANCY] state=vacant centroid=(0.246,1.207,-0.044) points=19
+[OCCUPANCY] state=vacant centroid=(0.230,1.171,-0.060) points=18
+[OCCUPANCY] state=vacant centroid=(0.243,1.245,-0.036) points=20
+[LOG 16:32:39] 뷰어 연결됨: 172.20.10.12
+[OCCUPANCY] state=vacant centroid=(0.231,1.213,-0.072) points=19
+[OCCUPANCY] state=vacant centroid=(0.196,1.285,0.018) points=22
+[OCCUPANCY] state=vacant centroid=(0.234,1.169,-0.060) points=18
+[OCCUPANCY] state=vacant centroid=(0.232,1.169,-0.069) points=18
+[OCCUPANCY] state=vacant centroid=(0.238,1.212,-0.052) points=19
+[OCCUPANCY] state=vacant centroid=(0.229,1.253,-0.063) points=20
+[OCCUPANCY] state=vacant centroid=(0.235,1.169,-0.065) points=18
+[16:32:47] [CMD] start from 172.20.10.12
+[LOG 16:32:47] STEP A-0: GET OUT NOW -- empty-room scan starts in 5s
+[OCCUPANCY] state=vacant centroid=(0.248,1.203,-0.024) points=19
+[OCCUPANCY] state=vacant centroid=(0.226,1.213,-0.053) points=19
+[OCCUPANCY] state=vacant centroid=(0.210,1.132,-0.063) points=17
+[OCCUPANCY] state=vacant centroid=(0.236,1.213,-0.052) points=19
+[LOG 16:32:52] STEP A: EMPTY-ROOM SCAN 12s -- everyone OUT of view!
+[OCCUPANCY] state=vacant centroid=(0.235,1.169,-0.057) points=18
+[OCCUPANCY] state=vacant centroid=(0.210,1.131,-0.061) points=17
+[OCCUPANCY] state=vacant centroid=(0.228,1.170,-0.069) points=18
+[OCCUPANCY] state=vacant centroid=(0.234,1.169,-0.066) points=18
+[OCCUPANCY] state=vacant centroid=(0.234,1.169,-0.061) points=18
+[OCCUPANCY] state=vacant centroid=(0.210,1.131,-0.064) points=17
+[OCCUPANCY] state=vacant centroid=(0.234,1.169,-0.067) points=18
+[OCCUPANCY] state=vacant centroid=(0.235,1.209,-0.128) points=20
+[OCCUPANCY] state=vacant centroid=(0.234,1.170,-0.064) points=18
+[OCCUPANCY] state=vacant centroid=(0.232,1.171,-0.056) points=18
+[LOG 16:33:05] Scan done: 12 clutter spot(s) learned [(x+0.00,y+0.60,z+0.30), (x+0.00,y+0.90,z+0.00), (x+0.60,y+2.10,z-0.60), (x+0.60,y+1.80,z+0.00), (x+0.60,y+1.80,z-0.30), (x+0.60,y+2.10,z-0.30), (x+0.30,y+0.90,z+0.00), (x+0.30,y+2.10,z+0.00), (x+0.60,y+1.80,z+0.60), (x+0.00,y+1.80,z-0.60), (x+0.30,y+1.20,z-0.60), (x+0.30,y+1.80,z+0.60)]
+[LOG 16:33:05] >> STEP IN NOW -- OFF-NADIR (to the SIDE). Collection starts in 5s.
+[OCCUPANCY] state=vacant centroid=(0.299,1.182,0.020) points=6
+[OCCUPANCY] state=vacant centroid=(-0.272,1.320,0.160) points=48
+[OCCUPANCY] state=vacant centroid=(0.056,1.283,0.218) points=17
+[OCCUPANCY] state=vacant centroid=(0.019,1.170,-0.080) points=23
+[OCCUPANCY] state=vacant centroid=(0.227,1.263,0.199) points=8
+[LOG 16:33:10] >> Collecting baseline NOW -- act NORMALLY (stand + small natural moves)
+  [WARMUP] 1/150 frames (0%)
+[OCCUPANCY] state=vacant centroid=(0.184,1.288,0.352) points=8
+[OCCUPANCY] state=vacant centroid=(0.021,1.316,0.002) points=6
+  [WARMUP] 30/150 frames (20%)
+[OCCUPANCY] state=vacant centroid=(0.217,1.360,0.121) points=7
+[OCCUPANCY] state=vacant centroid=(0.107,1.233,0.138) points=10
+  [WARMUP] 60/150 frames (40%)
+[OCCUPANCY] state=vacant centroid=(0.082,1.231,0.155) points=10
+[OCCUPANCY] state=vacant centroid=(0.008,1.242,0.019) points=10
+[OCCUPANCY] state=vacant centroid=(0.111,1.145,0.256) points=11
+  [WARMUP] 90/150 frames (60%)
+[OCCUPANCY] state=vacant centroid=(0.094,1.467,0.087) points=14
+[OCCUPANCY] state=vacant centroid=(0.058,1.071,0.133) points=5
+  [WARMUP] 120/150 frames (80%)
+[OCCUPANCY] state=vacant centroid=(-0.046,1.170,-0.164) points=10
+[OCCUPANCY] state=vacant centroid=(0.357,1.452,-0.028) points=3
+[OCCUPANCY] state=vacant centroid=(0.000,0.781,0.148) points=1
+  [WARMUP] 150/150 frames (100%)
+[LOG 16:33:25] Baseline complete (150 frames). Click "Start Training" to proceed.
+[OCCUPANCY] state=vacant centroid=(0.181,1.265,0.217) points=9
+[16:33:27] [CMD] train from 172.20.10.12
+[LOG 16:33:27] Training LSTM-AE...
+[LOG 16:33:39] Training done. Threshold=0.08863. Waiting to arm monitoring.
+[LOG 16:33:39] Baseline saved (incl. clutter map) -- next run starts LIVE
+[OCCUPANCY] state=vacant centroid=(-0.020,1.190,0.133) points=8
+[LOG 16:33:39] 프레임 백로그 93개 버림 (9.3초 건너뜀) -- 최신 30개만 유지
+[16:33:40] [CMD] start from 172.20.10.12
+[OCCUPANCY] state=vacant centroid=(0.351,1.285,-0.065) points=5
+[OCCUPANCY] state=vacant centroid=(0.351,1.284,-0.074) points=5
+[BREAKER ERROR] [Errno 2] could not open port /dev/ttyUSB2: [Errno 2] No such file or directory: '/dev/ttyUSB2'
+[OCCUPANCY] state=vacant centroid=(0.299,1.217,-0.034) points=8
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.292,1.193,-0.024) points=6
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.351,1.284,-0.069) points=5
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.247,1.134,-0.007) points=7
+[16:33:47] [CMD] resolve from 172.20.10.12
+[BREAKER ERROR] [Errno 2] could not open port /dev/ttyUSB2: [Errno 2] No such file or directory: '/dev/ttyUSB2'
+[OCCUPANCY] state=vacant centroid=(0.295,1.223,-0.071) points=8
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.312,1.179,-0.012) points=3
+[16:33:50] [CMD] resolve from 172.20.10.12
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.243,1.344,-0.075) points=10
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.308,1.360,0.008) points=11
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.541,1.244,0.201) points=17
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[16:33:54] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=vacant centroid=(0.281,1.169,-0.027) points=6
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[BREAKER ERROR] [Errno 2] could not open port /dev/ttyUSB2: [Errno 2] No such file or directory: '/dev/ttyUSB2'
+[OCCUPANCY] state=vacant centroid=(0.345,1.284,-0.072) points=5
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.341,1.280,-0.046) points=7
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.403,1.370,-0.094) points=6
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.351,1.283,-0.076) points=5
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.215,1.027,0.033) points=5
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.292,1.191,-0.022) points=6
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.039) points=6
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.267,1.244,-0.058) points=9
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.273,1.154,-0.057) points=4
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.178,1.023,0.014) points=6
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.292,1.191,-0.035) points=6
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.351,1.283,-0.072) points=5
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.292,1.194,-0.046) points=6
+[BREAKER ERROR] [Errno 2] could not open port /dev/ttyUSB2: [Errno 2] No such file or directory: '/dev/ttyUSB2'
+[OCCUPANCY] state=vacant centroid=(0.292,1.193,-0.032) points=6
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.311,1.219,-0.103) points=7
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.341,1.280,-0.051) points=7
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.403,1.369,-0.096) points=6
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.292,1.191,-0.038) points=6
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.323,1.402,-0.090) points=6
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.208,1.521,-0.041) points=7
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(-0.077,1.164,0.241) points=4
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.221,1.186,0.074) points=6
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.351,1.283,-0.084) points=5
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.363,1.281,-0.177) points=6
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.035) points=6
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.092,1.449,-0.191) points=8
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.095,1.334,-0.085) points=5
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.241,1.067,0.034) points=4
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.043) points=6
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.077,0.822,0.109) points=5
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.170,0.993,0.016) points=6
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.314,1.215,0.012) points=5
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.137,0.867,0.048) points=3
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.318,1.268,-0.055) points=5
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.273,1.138,-0.134) points=4
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.268,1.099,0.025) points=4
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.215,1.027,0.040) points=5
+[BREAKER ERROR] Modbus backoff 중 (연속 실패로 재시도 유예)
+[OCCUPANCY] state=vacant centroid=(0.176,1.329,-0.016) points=9
+[OCCUPANCY] state=vacant centroid=(0.199,1.046,-0.006) points=5
+[OCCUPANCY] state=vacant centroid=(0.297,1.192,-0.044) points=6
+[OCCUPANCY] state=vacant centroid=(0.172,1.305,-0.119) points=10
+[OCCUPANCY] state=vacant centroid=(0.233,1.412,-0.108) points=8
+[OCCUPANCY] state=vacant centroid=(0.310,1.363,-0.113) points=8
+[OCCUPANCY] state=vacant centroid=(0.345,1.280,-0.051) points=7
+[OCCUPANCY] state=vacant centroid=(0.321,1.284,0.045) points=9
+[OCCUPANCY] state=vacant centroid=(0.210,1.445,-0.142) points=8
+[OCCUPANCY] state=vacant centroid=(0.175,1.433,-0.026) points=9
+[OCCUPANCY] state=vacant centroid=(0.288,1.201,-0.033) points=6
+[OCCUPANCY] state=vacant centroid=(0.299,1.218,-0.032) points=8
+[16:34:56] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=vacant centroid=(0.227,1.395,-0.133) points=8
+[OCCUPANCY] state=vacant centroid=(0.078,1.570,-0.106) points=7
+[OCCUPANCY] state=vacant centroid=(0.288,1.193,-0.043) points=6
+[OCCUPANCY] state=vacant centroid=(0.292,1.191,-0.035) points=6
+[OCCUPANCY] state=vacant centroid=(0.261,1.186,-0.080) points=6
+[OCCUPANCY] state=vacant centroid=(0.356,1.282,-0.076) points=5
+[OCCUPANCY] state=vacant centroid=(0.406,1.377,-0.050) points=7
+[OCCUPANCY] state=vacant centroid=(0.239,1.140,-0.055) points=7
+[OCCUPANCY] state=vacant centroid=(0.247,1.133,-0.008) points=7
+[OCCUPANCY] state=vacant centroid=(0.351,1.284,-0.078) points=5
+[16:35:07] [CMD] restore from 172.20.10.12
+[OCCUPANCY] state=vacant centroid=(-0.026,1.499,-0.184) points=6
+[OCCUPANCY] state=vacant centroid=(0.087,1.472,-0.111) points=8
+[OCCUPANCY] state=vacant centroid=(0.069,1.219,-0.059) points=6
+[OCCUPANCY] state=vacant centroid=(0.209,1.096,-0.030) points=8
+[OCCUPANCY] state=vacant centroid=(0.423,1.444,-0.140) points=7
+[OCCUPANCY] state=vacant centroid=(0.351,1.277,-0.135) points=8
+[OCCUPANCY] state=vacant centroid=(0.292,1.194,-0.036) points=6
+[OCCUPANCY] state=vacant centroid=(0.077,1.392,-0.065) points=9
+[OCCUPANCY] state=vacant centroid=(0.268,1.099,0.022) points=4
+[OCCUPANCY] state=vacant centroid=(0.243,1.141,-0.057) points=7
+[OCCUPANCY] state=vacant centroid=(0.351,1.286,-0.084) points=5
+[OCCUPANCY] state=vacant centroid=(0.112,1.448,-0.159) points=10
+[16:35:22] [CMD] enter from 172.20.10.12
+[TIMING] n=0 parse=1033.8ms feat=4631.6ms ae=0.0ms rf=0.0ms lock=0.0ms log=0.1ms
+[OCCUPANCY] state=occupied centroid=(0.215,1.028,0.037) points=5
+[TIMING] n=8 parse=3.9ms feat=16.6ms ae=180.1ms rf=0.0ms lock=1.2ms log=3.4ms
+[OCCUPANCY] state=occupied centroid=(0.079,1.210,0.161) points=6
+[TIMING] n=15 parse=6.3ms feat=33.7ms ae=119.4ms rf=80.5ms lock=5.8ms log=3.4ms
+[OCCUPANCY] state=occupied centroid=(0.247,1.135,-0.014) points=7
+[TIMING] n=8 parse=2.6ms feat=16.3ms ae=67.9ms rf=558.1ms lock=4.7ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.455,1.652,0.110) points=16
+[TIMING] n=8 parse=3.5ms feat=17.0ms ae=68.0ms rf=555.2ms lock=5.2ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.204,0.890,-0.044) points=37
+[TIMING] n=8 parse=2.9ms feat=20.0ms ae=74.4ms rf=549.9ms lock=15.0ms log=7.8ms
+[OCCUPANCY] state=occupied centroid=(-0.671,2.240,-0.473) points=1
+[TIMING] n=13 parse=2.5ms feat=27.3ms ae=110.0ms rf=888.8ms lock=8.9ms log=5.7ms
+[OCCUPANCY] state=occupied centroid=(0.192,1.145,0.013) points=8
+[TIMING] n=13 parse=0.0ms feat=24.3ms ae=108.5ms rf=881.7ms lock=8.3ms log=6.5ms
+[OCCUPANCY] state=occupied centroid=(-0.016,1.267,-0.066) points=12
+[TIMING] n=8 parse=3.2ms feat=17.5ms ae=68.1ms rf=548.4ms lock=5.0ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.123,1.235,0.168) points=17
+[TIMING] n=8 parse=5.5ms feat=16.6ms ae=65.3ms rf=541.7ms lock=4.8ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(-0.075,1.447,-0.038) points=16
+[TIMING] n=13 parse=0.0ms feat=28.0ms ae=103.0ms rf=882.4ms lock=5.8ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.255,0.950,-0.204) points=14
+[TIMING] n=8 parse=5.1ms feat=17.4ms ae=66.9ms rf=542.0ms lock=4.7ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.278,1.448,0.029) points=8
+[TIMING] n=13 parse=4.9ms feat=26.3ms ae=113.9ms rf=887.1ms lock=23.9ms log=20.0ms
+[OCCUPANCY] state=occupied centroid=(0.268,1.100,-0.013) points=4
+[TIMING] n=13 parse=0.0ms feat=27.0ms ae=113.3ms rf=888.9ms lock=34.6ms log=17.9ms
+[OCCUPANCY] state=occupied centroid=(0.347,1.241,-0.037) points=5
+[TIMING] n=8 parse=5.4ms feat=16.9ms ae=71.9ms rf=550.5ms lock=5.1ms log=3.4ms
+[OCCUPANCY] state=occupied centroid=(0.268,1.101,0.004) points=4
+[TIMING] n=13 parse=0.0ms feat=28.9ms ae=114.2ms rf=884.4ms lock=5.3ms log=3.7ms
+[16:35:40] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.288,1.189,0.123) points=6
+[TIMING] n=8 parse=6.8ms feat=16.5ms ae=68.3ms rf=553.2ms lock=5.0ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.114,1.403,0.064) points=12
+[TIMING] n=13 parse=0.0ms feat=27.3ms ae=111.5ms rf=888.8ms lock=5.5ms log=2.4ms
+[OCCUPANCY] state=occupied centroid=(0.022,1.187,0.015) points=26
+[TIMING] n=22 parse=7.1ms feat=41.8ms ae=121.7ms rf=213.2ms lock=12.0ms log=7.7ms
+[OCCUPANCY] state=occupied centroid=(-0.027,1.078,0.019) points=19
+[TIMING] n=8 parse=2.7ms feat=16.2ms ae=70.4ms rf=556.7ms lock=12.9ms log=8.7ms
+[OCCUPANCY] state=occupied centroid=(0.056,1.081,0.253) points=22
+[TIMING] n=8 parse=3.0ms feat=16.5ms ae=70.4ms rf=555.4ms lock=5.1ms log=4.9ms
+[OCCUPANCY] state=occupied centroid=(0.065,1.396,0.083) points=20
+[TIMING] n=12 parse=3.2ms feat=25.4ms ae=96.5ms rf=828.7ms lock=6.7ms log=3.1ms
+[OCCUPANCY] state=occupied centroid=(0.164,1.305,0.081) points=6
+[TIMING] n=13 parse=3.5ms feat=27.6ms ae=113.8ms rf=893.8ms lock=5.2ms log=2.8ms
+[OCCUPANCY] state=occupied centroid=(-0.071,1.257,0.144) points=24
+[TIMING] n=13 parse=0.0ms feat=27.7ms ae=106.1ms rf=879.0ms lock=4.8ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.141,1.837,0.238) points=14
+[TIMING] n=8 parse=5.0ms feat=17.2ms ae=69.0ms rf=542.5ms lock=15.0ms log=8.5ms
+[OCCUPANCY] state=occupied centroid=(0.312,1.179,-0.042) points=3
+[TIMING] n=11 parse=6.4ms feat=20.9ms ae=92.7ms rf=752.2ms lock=23.0ms log=15.7ms
+[OCCUPANCY] state=occupied centroid=(0.079,1.229,-0.056) points=6
+[TIMING] n=13 parse=0.0ms feat=27.9ms ae=114.9ms rf=889.9ms lock=6.4ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.242,1.454,0.197) points=9
+[TIMING] n=8 parse=5.3ms feat=17.4ms ae=71.0ms rf=555.8ms lock=5.1ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.228,1.080,0.022) points=4
+[TIMING] n=13 parse=0.0ms feat=27.0ms ae=111.1ms rf=889.4ms lock=5.7ms log=10.4ms
+[16:35:54] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.103,0.834,0.077) points=4
+[TIMING] n=8 parse=5.4ms feat=15.9ms ae=63.2ms rf=542.9ms lock=11.6ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.193,1.504,0.082) points=5
+[TIMING] n=12 parse=6.6ms feat=24.6ms ae=90.0ms rf=750.3ms lock=5.4ms log=0.1ms
+[TIMING] n=24 parse=2.4ms feat=48.1ms ae=152.4ms rf=405.1ms lock=7.4ms log=6.9ms
+[OCCUPANCY] state=occupied centroid=(0.012,1.131,-0.046) points=7
+[TIMING] n=8 parse=2.4ms feat=17.2ms ae=63.7ms rf=540.2ms lock=4.9ms log=3.4ms
+[OCCUPANCY] state=occupied centroid=(-0.047,1.311,0.041) points=27
+[TIMING] n=8 parse=3.7ms feat=16.4ms ae=64.4ms rf=542.5ms lock=9.3ms log=25.8ms
+[OCCUPANCY] state=occupied centroid=(-0.169,1.463,-0.065) points=6
+[TIMING] n=8 parse=2.8ms feat=17.1ms ae=68.1ms rf=538.7ms lock=23.8ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(-0.596,2.250,-0.524) points=1
+[TIMING] n=9 parse=3.5ms feat=18.9ms ae=74.3ms rf=610.1ms lock=5.0ms log=3.1ms
+[OCCUPANCY] state=occupied centroid=(0.009,1.494,-0.145) points=15
+[TIMING] n=13 parse=0.0ms feat=29.9ms ae=110.0ms rf=880.2ms lock=5.1ms log=3.3ms
+[OCCUPANCY] state=occupied centroid=(-0.025,0.783,0.135) points=1
+[TIMING] n=8 parse=3.1ms feat=14.8ms ae=67.2ms rf=558.0ms lock=21.6ms log=14.2ms
+[OCCUPANCY] state=occupied centroid=(0.131,1.308,0.099) points=6
+[TIMING] n=9 parse=5.6ms feat=18.3ms ae=72.8ms rf=617.4ms lock=5.3ms log=2.3ms
+[OCCUPANCY] state=occupied centroid=(0.210,1.037,0.039) points=5
+[TIMING] n=12 parse=0.0ms feat=26.3ms ae=112.5ms rf=828.3ms lock=21.3ms log=12.6ms
+[OCCUPANCY] state=occupied centroid=(0.241,1.530,-0.141) points=6
+[TIMING] n=7 parse=7.2ms feat=19.9ms ae=61.7ms rf=488.0ms lock=29.2ms log=17.7ms
+[16:36:07] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.167,1.308,-0.084) points=7
+[TIMING] n=13 parse=0.0ms feat=28.6ms ae=107.9ms rf=891.6ms lock=8.7ms log=5.0ms
+[OCCUPANCY] state=occupied centroid=(0.074,1.429,0.078) points=12
+[TIMING] n=22 parse=7.6ms feat=41.0ms ae=127.6ms rf=207.9ms lock=4.8ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(-0.162,1.192,-0.286) points=26
+[TIMING] n=8 parse=2.8ms feat=17.3ms ae=69.2ms rf=548.8ms lock=8.9ms log=6.4ms
+[OCCUPANCY] state=occupied centroid=(0.011,1.179,-0.105) points=22
+[TIMING] n=8 parse=3.2ms feat=17.3ms ae=67.5ms rf=547.9ms lock=5.3ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.005,1.115,-0.003) points=18
+[TIMING] n=9 parse=3.3ms feat=24.8ms ae=77.3ms rf=620.5ms lock=5.3ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.059,0.942,-0.033) points=15
+[TIMING] n=13 parse=3.5ms feat=28.9ms ae=110.1ms rf=884.5ms lock=5.8ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.021,1.448,-0.065) points=13
+[TIMING] n=13 parse=0.0ms feat=26.8ms ae=109.0ms rf=889.2ms lock=11.4ms log=5.4ms
+[OCCUPANCY] state=occupied centroid=(-0.065,1.546,-0.028) points=15
+[TIMING] n=8 parse=4.1ms feat=17.7ms ae=66.9ms rf=556.8ms lock=6.5ms log=5.6ms
+[OCCUPANCY] state=occupied centroid=(0.243,1.378,0.194) points=13
+[TIMING] n=10 parse=5.4ms feat=20.8ms ae=78.0ms rf=677.5ms lock=5.5ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.268,1.101,0.002) points=4
+[TIMING] n=13 parse=0.0ms feat=27.0ms ae=118.4ms rf=892.9ms lock=24.8ms log=13.7ms
+[OCCUPANCY] state=occupied centroid=(0.059,1.718,-0.100) points=13
+[TIMING] n=7 parse=5.6ms feat=13.1ms ae=60.0ms rf=477.3ms lock=34.8ms log=24.1ms
+[OCCUPANCY] state=occupied centroid=(-0.033,1.398,-0.068) points=7
+[TIMING] n=12 parse=0.0ms feat=26.2ms ae=107.8ms rf=866.0ms lock=4.3ms log=2.4ms
+[OCCUPANCY] state=occupied centroid=(0.175,0.988,0.038) points=6
+[TIMING] n=8 parse=5.3ms feat=17.3ms ae=75.4ms rf=548.7ms lock=3.7ms log=2.7ms
+[16:36:22] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.289,1.156,0.012) points=6
+[TIMING] n=13 parse=0.0ms feat=29.4ms ae=118.2ms rf=885.2ms lock=4.6ms log=2.8ms
+[OCCUPANCY] state=occupied centroid=(0.353,1.239,-0.037) points=5
+[TIMING] n=22 parse=8.2ms feat=45.3ms ae=126.4ms rf=211.5ms lock=5.3ms log=3.1ms
+[OCCUPANCY] state=occupied centroid=(0.340,1.198,-0.199) points=4
+[TIMING] n=8 parse=2.5ms feat=17.3ms ae=67.7ms rf=549.1ms lock=4.4ms log=24.3ms
+[OCCUPANCY] state=occupied centroid=(0.094,1.436,0.047) points=6
+[TIMING] n=7 parse=3.2ms feat=15.8ms ae=66.5ms rf=487.0ms lock=25.4ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(0.049,1.312,-0.029) points=22
+[TIMING] n=11 parse=3.5ms feat=25.0ms ae=91.8ms rf=741.0ms lock=6.0ms log=2.7ms
+[OCCUPANCY] state=occupied centroid=(0.167,1.325,-0.028) points=7
+[TIMING] n=13 parse=0.0ms feat=28.0ms ae=111.1ms rf=889.5ms lock=4.7ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(-0.053,1.236,0.018) points=5
+[TIMING] n=8 parse=3.7ms feat=18.5ms ae=66.2ms rf=549.4ms lock=5.3ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.034,1.357,-0.093) points=18
+[TIMING] n=8 parse=5.0ms feat=16.8ms ae=67.2ms rf=542.1ms lock=4.9ms log=4.2ms
+[OCCUPANCY] state=occupied centroid=(0.112,1.586,0.281) points=14
+[TIMING] n=13 parse=0.0ms feat=27.8ms ae=107.3ms rf=892.4ms lock=6.2ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.248,1.103,0.021) points=7
+[TIMING] n=7 parse=7.4ms feat=13.0ms ae=60.9ms rf=487.0ms lock=37.9ms log=26.3ms
+[OCCUPANCY] state=occupied centroid=(0.210,1.037,0.023) points=5
+[TIMING] n=13 parse=0.0ms feat=26.9ms ae=107.7ms rf=902.1ms lock=26.6ms log=19.7ms
+[OCCUPANCY] state=occupied centroid=(0.065,1.167,-0.036) points=7
+[TIMING] n=8 parse=7.0ms feat=17.3ms ae=69.4ms rf=557.9ms lock=6.0ms log=4.0ms
+[16:36:35] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(-0.022,1.487,-0.175) points=6
+[TIMING] n=12 parse=4.6ms feat=25.9ms ae=92.6ms rf=746.3ms lock=5.7ms log=0.1ms
+[OCCUPANCY] state=occupied centroid=(-0.398,1.019,-0.187) points=8
+[TIMING] n=24 parse=4.7ms feat=46.2ms ae=158.0ms rf=413.2ms lock=2.7ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.311,0.883,-0.405) points=8
+[TIMING] n=9 parse=3.0ms feat=18.7ms ae=81.4ms rf=622.0ms lock=5.0ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.070,1.275,0.194) points=7
+[TIMING] n=11 parse=3.2ms feat=24.7ms ae=92.2ms rf=761.7ms lock=5.3ms log=5.9ms
+[OCCUPANCY] state=occupied centroid=(0.148,1.326,0.128) points=17
+[TIMING] n=13 parse=3.8ms feat=27.9ms ae=106.0ms rf=890.2ms lock=7.8ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(-0.454,1.878,-0.373) points=4
+[TIMING] n=13 parse=0.0ms feat=27.6ms ae=110.1ms rf=886.5ms lock=5.5ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.070,1.289,-0.012) points=8
+[TIMING] n=8 parse=4.0ms feat=16.2ms ae=72.8ms rf=554.7ms lock=4.9ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(-0.012,1.548,-0.113) points=15
+[TIMING] n=10 parse=5.6ms feat=20.5ms ae=82.3ms rf=683.9ms lock=5.1ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.074,1.353,-0.037) points=12
+[TIMING] n=13 parse=0.0ms feat=29.2ms ae=114.4ms rf=887.0ms lock=5.9ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(0.078,1.417,-0.024) points=8
+[TIMING] n=8 parse=6.1ms feat=16.3ms ae=67.8ms rf=547.0ms lock=5.4ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.210,1.194,-0.055) points=3
+[TIMING] n=13 parse=0.0ms feat=28.1ms ae=103.2ms rf=880.7ms lock=5.6ms log=4.3ms
+[OCCUPANCY] state=occupied centroid=(0.011,1.261,0.244) points=15
+[TIMING] n=8 parse=5.4ms feat=17.7ms ae=70.0ms rf=550.0ms lock=5.6ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.192,1.308,0.356) points=11
+[TIMING] n=11 parse=5.9ms feat=22.0ms ae=91.8ms rf=752.5ms lock=5.5ms log=4.7ms
+[OCCUPANCY] state=occupied centroid=(-0.064,1.142,-0.166) points=22
+[TIMING] n=13 parse=0.0ms feat=28.3ms ae=104.1ms rf=889.4ms lock=6.6ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.033,0.976,-0.072) points=26
+[TIMING] n=8 parse=5.5ms feat=17.8ms ae=65.4ms rf=552.5ms lock=4.9ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(-0.671,2.210,-0.598) points=1
+[TIMING] n=13 parse=0.0ms feat=27.0ms ae=107.7ms rf=884.5ms lock=5.4ms log=4.4ms
+[OCCUPANCY] state=occupied centroid=(0.038,1.096,-0.016) points=7
+[TIMING] n=8 parse=4.4ms feat=16.3ms ae=63.9ms rf=547.7ms lock=5.7ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.124,1.312,-0.008) points=6
+[TIMING] n=13 parse=0.0ms feat=26.3ms ae=103.4ms rf=879.9ms lock=5.9ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(-0.034,1.150,-0.014) points=8
+[TIMING] n=8 parse=5.3ms feat=16.4ms ae=66.8ms rf=538.9ms lock=4.9ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.089,1.244,0.045) points=18
+[TIMING] n=13 parse=0.0ms feat=26.0ms ae=105.2ms rf=876.2ms lock=5.7ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.041,1.284,0.063) points=19
+[TIMING] n=8 parse=5.8ms feat=17.9ms ae=65.7ms rf=546.4ms lock=4.8ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(0.005,1.177,-0.129) points=10
+[TIMING] n=13 parse=5.8ms feat=27.8ms ae=110.0ms rf=884.6ms lock=5.4ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.181,1.305,0.138) points=15
+[TIMING] n=13 parse=0.0ms feat=27.1ms ae=107.0ms rf=881.7ms lock=5.8ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(-0.011,1.252,0.103) points=10
+[TIMING] n=8 parse=5.5ms feat=17.7ms ae=69.5ms rf=557.3ms lock=5.3ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.029,1.123,-0.039) points=5
+[TIMING] n=13 parse=0.0ms feat=29.0ms ae=107.5ms rf=888.7ms lock=9.3ms log=34.2ms
+[OCCUPANCY] state=occupied centroid=(0.088,1.198,0.032) points=12
+[TIMING] n=8 parse=5.5ms feat=15.7ms ae=65.3ms rf=546.9ms lock=33.1ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.030,1.272,0.000) points=16
+[TIMING] n=13 parse=0.0ms feat=29.3ms ae=106.6ms rf=886.2ms lock=5.7ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(-0.042,1.444,-0.116) points=15
+[TIMING] n=8 parse=6.0ms feat=16.4ms ae=68.2ms rf=541.0ms lock=5.0ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.034,1.252,-0.084) points=17
+[TIMING] n=13 parse=0.0ms feat=28.9ms ae=105.7ms rf=889.6ms lock=5.8ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(0.106,1.561,0.059) points=3
+[TIMING] n=8 parse=4.8ms feat=17.6ms ae=67.2ms rf=546.1ms lock=5.4ms log=2.7ms
+[OCCUPANCY] state=occupied centroid=(-0.096,1.406,-0.099) points=4
+[TIMING] n=13 parse=0.0ms feat=24.4ms ae=105.0ms rf=884.0ms lock=8.4ms log=6.2ms
+[OCCUPANCY] state=occupied centroid=(0.302,1.570,-0.062) points=3
+[TIMING] n=8 parse=4.0ms feat=16.2ms ae=65.6ms rf=545.5ms lock=5.2ms log=3.3ms
+[OCCUPANCY] state=occupied centroid=(-0.348,1.479,-0.292) points=2
+[TIMING] n=13 parse=0.0ms feat=24.8ms ae=109.5ms rf=884.4ms lock=38.8ms log=36.4ms
+[OCCUPANCY] state=occupied centroid=(0.129,1.302,-0.113) points=15
+[TIMING] n=8 parse=6.1ms feat=19.2ms ae=72.6ms rf=563.7ms lock=6.6ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.175,0.986,0.056) points=6
+[TIMING] n=13 parse=0.0ms feat=27.0ms ae=111.4ms rf=879.8ms lock=10.5ms log=6.1ms
+[OCCUPANCY] state=occupied centroid=(-0.019,1.385,-0.107) points=7
+[TIMING] n=8 parse=5.6ms feat=16.2ms ae=63.5ms rf=545.0ms lock=7.6ms log=4.4ms
+[OCCUPANCY] state=occupied centroid=(0.067,1.231,-0.037) points=6
+[TIMING] n=13 parse=0.0ms feat=27.4ms ae=108.2ms rf=884.6ms lock=4.2ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.213,1.070,-0.028) points=5
+[TIMING] n=8 parse=5.3ms feat=16.6ms ae=67.7ms rf=549.7ms lock=5.0ms log=4.3ms
+[16:37:17] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.260,1.173,-0.053) points=9
+[TIMING] n=13 parse=0.0ms feat=26.8ms ae=108.4ms rf=889.3ms lock=6.3ms log=2.2ms
+[OCCUPANCY] state=occupied centroid=(0.033,1.496,-0.078) points=21
+[TIMING] n=25 parse=5.9ms feat=46.0ms ae=145.2ms rf=423.9ms lock=5.1ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(-0.402,1.730,-0.372) points=3
+[TIMING] n=8 parse=5.7ms feat=16.0ms ae=68.0ms rf=556.8ms lock=21.9ms log=13.2ms
+[OCCUPANCY] state=occupied centroid=(0.046,1.420,0.052) points=11
+[TIMING] n=10 parse=3.0ms feat=20.5ms ae=83.4ms rf=678.1ms lock=4.4ms log=2.6ms
+[OCCUPANCY] state=occupied centroid=(-0.112,1.390,-0.081) points=7
+[TIMING] n=12 parse=3.2ms feat=24.2ms ae=100.7ms rf=825.4ms lock=4.4ms log=3.2ms
+[OCCUPANCY] state=occupied centroid=(-0.452,1.733,-0.297) points=3
+[TIMING] n=13 parse=3.8ms feat=26.3ms ae=104.4ms rf=885.3ms lock=5.1ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.094,1.271,0.141) points=19
+[TIMING] n=13 parse=0.0ms feat=27.3ms ae=112.1ms rf=885.4ms lock=9.8ms log=4.2ms
+[OCCUPANCY] state=occupied centroid=(0.213,1.089,0.017) points=5
+[TIMING] n=8 parse=5.3ms feat=16.4ms ae=69.2ms rf=556.3ms lock=20.4ms log=16.1ms
+[OCCUPANCY] state=occupied centroid=(0.148,1.425,0.121) points=9
+[TIMING] n=11 parse=5.9ms feat=22.9ms ae=93.3ms rf=750.6ms lock=50.6ms log=40.3ms
+[OCCUPANCY] state=occupied centroid=(0.222,1.740,0.050) points=14
+[TIMING] n=13 parse=0.0ms feat=27.9ms ae=110.8ms rf=880.0ms lock=5.3ms log=3.3ms
+[16:37:30] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.116,1.338,-0.074) points=5
+[TIMING] n=8 parse=8.4ms feat=17.1ms ae=70.2ms rf=546.8ms lock=4.6ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.213,1.081,-0.031) points=5
+[TIMING] n=13 parse=0.0ms feat=27.7ms ae=115.1ms rf=892.1ms lock=5.6ms log=3.4ms
+[OCCUPANCY] state=occupied centroid=(0.124,1.257,0.082) points=11
+[TIMING] n=22 parse=8.7ms feat=41.2ms ae=128.6ms rf=207.0ms lock=5.7ms log=2.8ms
+[OCCUPANCY] state=occupied centroid=(-0.022,1.330,-0.055) points=18
+[TIMING] n=8 parse=2.6ms feat=17.1ms ae=67.5ms rf=567.6ms lock=4.1ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(-0.239,1.554,-0.276) points=5
+[TIMING] n=8 parse=2.8ms feat=17.6ms ae=68.4ms rf=566.7ms lock=5.4ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(-0.004,1.318,0.291) points=13
+[TIMING] n=9 parse=3.7ms feat=19.8ms ae=83.3ms rf=637.2ms lock=5.4ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(-0.100,1.514,-0.232) points=8
+[TIMING] n=13 parse=0.0ms feat=29.1ms ae=111.0ms rf=884.4ms lock=5.5ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.079,1.561,-0.241) points=7
+[TIMING] n=8 parse=4.1ms feat=16.6ms ae=63.5ms rf=544.2ms lock=5.0ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.130,1.743,-0.018) points=12
+[TIMING] n=8 parse=5.3ms feat=17.0ms ae=70.6ms rf=545.8ms lock=5.3ms log=2.5ms
+[OCCUPANCY] state=occupied centroid=(0.165,1.347,-0.097) points=7
+[TIMING] n=13 parse=0.0ms feat=28.3ms ae=105.1ms rf=892.4ms lock=4.5ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.178,1.445,-0.179) points=6
+[TIMING] n=8 parse=5.2ms feat=18.2ms ae=73.4ms rf=548.5ms lock=5.3ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.288,1.200,-0.062) points=6
+[TIMING] n=12 parse=6.0ms feat=26.5ms ae=99.9ms rf=819.8ms lock=5.6ms log=2.9ms
+[OCCUPANCY] state=occupied centroid=(0.242,1.570,-0.021) points=7
+[TIMING] n=13 parse=0.0ms feat=27.6ms ae=107.1ms rf=890.9ms lock=4.8ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.111,1.577,0.210) points=11
+[TIMING] n=8 parse=5.8ms feat=16.5ms ae=65.0ms rf=544.9ms lock=5.0ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.163,1.312,0.218) points=12
+[TIMING] n=13 parse=0.0ms feat=27.0ms ae=106.2ms rf=904.8ms lock=10.3ms log=5.3ms
+[OCCUPANCY] state=occupied centroid=(0.037,1.238,0.148) points=13
+[TIMING] n=8 parse=4.4ms feat=15.7ms ae=69.6ms rf=546.5ms lock=3.4ms log=2.2ms
+[OCCUPANCY] state=occupied centroid=(0.030,1.261,-0.122) points=13
+[TIMING] n=13 parse=5.5ms feat=26.8ms ae=109.0ms rf=890.0ms lock=4.1ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.013,1.271,0.016) points=32
+[TIMING] n=13 parse=0.0ms feat=30.2ms ae=110.0ms rf=876.9ms lock=5.8ms log=3.4ms
+[OCCUPANCY] state=occupied centroid=(0.134,1.028,0.221) points=8
+[TIMING] n=8 parse=5.3ms feat=18.0ms ae=69.4ms rf=558.4ms lock=4.6ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(0.006,1.214,-0.070) points=18
+[TIMING] n=13 parse=0.0ms feat=27.1ms ae=104.6ms rf=876.8ms lock=6.1ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.178,0.909,0.003) points=20
+[TIMING] n=8 parse=6.3ms feat=17.5ms ae=66.8ms rf=546.4ms lock=4.9ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.140,1.323,-0.083) points=8
+[TIMING] n=12 parse=0.0ms feat=24.1ms ae=101.6ms rf=837.7ms lock=38.6ms log=22.7ms
+[OCCUPANCY] state=occupied centroid=(0.360,1.269,0.028) points=6
+[TIMING] n=8 parse=7.7ms feat=16.8ms ae=64.9ms rf=544.2ms lock=5.6ms log=5.2ms
+[OCCUPANCY] state=occupied centroid=(0.095,1.322,-0.134) points=5
+[TIMING] n=13 parse=0.0ms feat=26.7ms ae=114.5ms rf=889.5ms lock=5.9ms log=4.5ms
+[16:37:56] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.067,1.225,-0.056) points=6
+[TIMING] n=8 parse=5.4ms feat=17.4ms ae=68.6ms rf=543.5ms lock=5.8ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(0.215,1.027,0.037) points=5
+[TIMING] n=13 parse=0.0ms feat=27.4ms ae=109.1ms rf=879.2ms lock=6.1ms log=2.4ms
+[OCCUPANCY] state=occupied centroid=(0.075,1.222,0.005) points=22
+[TIMING] n=25 parse=8.0ms feat=48.0ms ae=146.5ms rf=408.2ms lock=5.1ms log=2.9ms
+[OCCUPANCY] state=occupied centroid=(0.101,1.259,0.014) points=17
+[TIMING] n=8 parse=3.1ms feat=18.0ms ae=70.1ms rf=557.1ms lock=4.2ms log=2.8ms
+[OCCUPANCY] state=occupied centroid=(-0.121,1.490,-0.138) points=10
+[TIMING] n=9 parse=3.2ms feat=20.2ms ae=78.6ms rf=616.8ms lock=4.2ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.002,1.101,-0.016) points=5
+[TIMING] n=12 parse=3.7ms feat=24.4ms ae=100.7ms rf=817.1ms lock=5.8ms log=2.1ms
+[OCCUPANCY] state=occupied centroid=(0.131,1.289,-0.018) points=11
+[TIMING] n=13 parse=0.0ms feat=26.4ms ae=109.6ms rf=883.4ms lock=4.1ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(-0.051,1.392,-0.045) points=10
+[TIMING] n=8 parse=3.6ms feat=16.6ms ae=67.6ms rf=540.5ms lock=4.7ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.596,2.238,-0.574) points=1
+[TIMING] n=8 parse=3.5ms feat=16.9ms ae=67.8ms rf=543.8ms lock=5.1ms log=2.8ms
+[OCCUPANCY] state=occupied centroid=(0.043,1.389,0.039) points=9
+[TIMING] n=13 parse=0.0ms feat=27.4ms ae=107.2ms rf=877.2ms lock=4.7ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(-0.348,1.500,-0.208) points=2
+[TIMING] n=8 parse=3.4ms feat=15.5ms ae=64.9ms rf=540.0ms lock=5.4ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(-0.118,1.314,-0.205) points=9
+[TIMING] n=11 parse=4.3ms feat=23.8ms ae=89.6ms rf=745.9ms lock=8.8ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.018,1.292,-0.085) points=15
+[TIMING] n=13 parse=0.0ms feat=27.6ms ae=115.5ms rf=876.9ms lock=3.9ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.196,1.199,-0.034) points=3
+[TIMING] n=8 parse=4.2ms feat=16.5ms ae=66.8ms rf=545.3ms lock=5.1ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.110,1.253,0.122) points=22
+[TIMING] n=13 parse=0.0ms feat=26.4ms ae=116.5ms rf=897.1ms lock=12.1ms log=7.0ms
+[OCCUPANCY] state=occupied centroid=(0.056,1.123,-0.040) points=24
+[TIMING] n=8 parse=4.1ms feat=18.2ms ae=68.0ms rf=552.1ms lock=4.6ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.081,1.265,-0.166) points=5
+[TIMING] n=12 parse=4.1ms feat=26.0ms ae=96.7ms rf=821.3ms lock=5.7ms log=2.8ms
+[OCCUPANCY] state=occupied centroid=(-0.080,1.351,-0.204) points=31
+[TIMING] n=13 parse=0.0ms feat=24.8ms ae=109.3ms rf=890.8ms lock=22.5ms log=12.9ms
+[OCCUPANCY] state=occupied centroid=(-0.075,1.220,-0.179) points=18
+[TIMING] n=8 parse=4.0ms feat=17.6ms ae=68.7ms rf=550.5ms lock=3.6ms log=3.2ms
+[OCCUPANCY] state=occupied centroid=(-0.132,1.405,-0.204) points=7
+[TIMING] n=12 parse=0.0ms feat=26.3ms ae=108.5ms rf=844.8ms lock=8.2ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.048,1.361,-0.041) points=16
+[TIMING] n=8 parse=6.2ms feat=17.4ms ae=71.2ms rf=545.5ms lock=3.4ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(0.095,1.433,0.100) points=11
+[TIMING] n=13 parse=0.0ms feat=27.2ms ae=114.7ms rf=898.6ms lock=8.7ms log=3.9ms
+[16:38:20] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.268,1.101,0.004) points=4
+[TIMING] n=23 parse=5.6ms feat=44.3ms ae=145.2ms rf=367.1ms lock=17.7ms log=12.1ms
+[OCCUPANCY] state=occupied centroid=(0.347,1.241,-0.030) points=5
+[TIMING] n=9 parse=3.1ms feat=18.3ms ae=69.7ms rf=550.4ms lock=5.8ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.285,1.165,0.007) points=6
+[TIMING] n=8 parse=3.0ms feat=16.0ms ae=66.9ms rf=544.4ms lock=5.1ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.198,1.301,-0.010) points=5
+[TIMING] n=8 parse=3.7ms feat=16.7ms ae=65.5ms rf=552.0ms lock=4.9ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.167,1.082,0.534) points=6
+[TIMING] n=9 parse=3.5ms feat=20.6ms ae=77.1ms rf=623.7ms lock=5.3ms log=2.9ms
+[OCCUPANCY] state=occupied centroid=(-0.030,1.372,-0.089) points=22
+[TIMING] n=13 parse=3.7ms feat=29.1ms ae=106.5ms rf=898.6ms lock=4.9ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(-0.044,1.496,-0.080) points=12
+[TIMING] n=13 parse=0.0ms feat=28.1ms ae=107.6ms rf=885.3ms lock=5.8ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(-0.037,1.437,-0.067) points=9
+[TIMING] n=8 parse=3.7ms feat=14.1ms ae=68.6ms rf=548.8ms lock=9.6ms log=6.4ms
+[OCCUPANCY] state=occupied centroid=(-0.033,1.172,-0.053) points=11
+[TIMING] n=11 parse=4.0ms feat=22.5ms ae=95.5ms rf=746.2ms lock=4.8ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.068,1.461,-0.164) points=15
+[TIMING] n=13 parse=0.0ms feat=28.2ms ae=110.2ms rf=877.2ms lock=5.8ms log=4.2ms
+[OCCUPANCY] state=occupied centroid=(0.097,1.279,-0.027) points=18
+[TIMING] n=8 parse=5.1ms feat=18.1ms ae=66.8ms rf=550.6ms lock=5.4ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(-0.070,1.358,-0.042) points=16
+[TIMING] n=13 parse=0.0ms feat=27.2ms ae=111.2ms rf=896.5ms lock=5.4ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(-0.014,0.906,-0.119) points=21
+[TIMING] n=8 parse=7.4ms feat=18.0ms ae=65.8ms rf=547.0ms lock=5.0ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.136,1.110,0.088) points=10
+[TIMING] n=12 parse=5.9ms feat=26.6ms ae=102.8ms rf=815.7ms lock=5.6ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.076,1.490,0.078) points=18
+[TIMING] n=13 parse=0.0ms feat=27.7ms ae=107.9ms rf=883.1ms lock=5.5ms log=3.2ms
+[OCCUPANCY] state=occupied centroid=(0.215,1.026,0.039) points=5
+[TIMING] n=8 parse=5.8ms feat=16.9ms ae=65.5ms rf=548.3ms lock=10.8ms log=6.6ms
+[OCCUPANCY] state=occupied centroid=(0.173,1.362,-0.125) points=5
+[TIMING] n=13 parse=0.0ms feat=27.3ms ae=105.7ms rf=890.1ms lock=4.6ms log=2.9ms
+[OCCUPANCY] state=occupied centroid=(0.347,1.240,-0.021) points=5
+[TIMING] n=8 parse=5.4ms feat=17.2ms ae=69.6ms rf=545.2ms lock=4.2ms log=2.4ms
+[OCCUPANCY] state=occupied centroid=(-0.048,1.053,-0.037) points=6
+[TIMING] n=13 parse=0.0ms feat=27.4ms ae=107.8ms rf=885.1ms lock=4.3ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.131,1.393,0.042) points=7
+[TIMING] n=8 parse=5.7ms feat=17.4ms ae=65.4ms rf=552.6ms lock=5.1ms log=4.5ms
+[OCCUPANCY] state=occupied centroid=(0.215,1.028,0.031) points=5
+[TIMING] n=13 parse=0.0ms feat=27.4ms ae=105.1ms rf=881.7ms lock=6.3ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.215,1.028,0.037) points=5
+[TIMING] n=8 parse=7.1ms feat=16.4ms ae=65.9ms rf=541.5ms lock=5.1ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.215,1.028,0.033) points=5
+[TIMING] n=13 parse=0.0ms feat=26.7ms ae=109.0ms rf=892.8ms lock=5.8ms log=4.5ms
+[OCCUPANCY] state=occupied centroid=(0.069,1.172,0.000) points=7
+[TIMING] n=8 parse=7.2ms feat=19.0ms ae=70.3ms rf=536.9ms lock=5.9ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.247,1.134,-0.018) points=7
+[TIMING] n=13 parse=6.8ms feat=27.4ms ae=106.3ms rf=880.5ms lock=5.6ms log=4.2ms
+[OCCUPANCY] state=occupied centroid=(-0.048,1.241,0.031) points=6
+[TIMING] n=13 parse=0.0ms feat=27.3ms ae=112.9ms rf=873.5ms lock=6.1ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.080,1.498,0.405) points=9
+[TIMING] n=8 parse=4.9ms feat=16.7ms ae=71.5ms rf=549.5ms lock=5.0ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(-0.050,0.763,-0.204) points=2
+[TIMING] n=13 parse=0.0ms feat=28.9ms ae=112.4ms rf=879.2ms lock=40.6ms log=37.1ms
+[OCCUPANCY] state=occupied centroid=(0.067,0.953,0.083) points=3
+[TIMING] n=8 parse=5.7ms feat=17.0ms ae=69.5ms rf=543.1ms lock=5.0ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(-0.036,1.435,-0.160) points=12
+[TIMING] n=13 parse=0.0ms feat=27.0ms ae=107.6ms rf=888.8ms lock=5.8ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(-0.143,0.995,-0.054) points=17
+[TIMING] n=8 parse=5.5ms feat=17.5ms ae=69.7ms rf=544.6ms lock=4.7ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(-0.110,1.433,-0.225) points=8
+[TIMING] n=13 parse=0.0ms feat=27.8ms ae=103.5ms rf=876.0ms lock=5.4ms log=2.4ms
+[OCCUPANCY] state=occupied centroid=(-0.105,1.351,-0.195) points=13
+[TIMING] n=8 parse=6.0ms feat=16.8ms ae=67.1ms rf=540.5ms lock=3.7ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.135,1.022,-0.338) points=4
+[TIMING] n=13 parse=0.0ms feat=30.0ms ae=108.8ms rf=877.9ms lock=5.8ms log=2.9ms
+[OCCUPANCY] state=occupied centroid=(-0.061,1.138,-0.219) points=16
+[TIMING] n=8 parse=4.3ms feat=19.0ms ae=76.0ms rf=547.6ms lock=4.2ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(-0.028,1.239,-0.218) points=16
+[TIMING] n=13 parse=0.0ms feat=29.7ms ae=105.6ms rf=880.3ms lock=5.6ms log=3.3ms
+[OCCUPANCY] state=occupied centroid=(0.107,1.326,-0.179) points=9
+[TIMING] n=8 parse=5.3ms feat=16.3ms ae=65.7ms rf=544.5ms lock=4.5ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(-0.085,0.876,-0.307) points=20
+[TIMING] n=13 parse=0.0ms feat=30.9ms ae=107.8ms rf=904.4ms lock=5.6ms log=4.4ms
+[OCCUPANCY] state=occupied centroid=(0.077,1.101,-0.124) points=5
+[TIMING] n=8 parse=5.0ms feat=17.0ms ae=67.0ms rf=542.0ms lock=5.6ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.175,1.255,-0.157) points=10
+[TIMING] n=13 parse=4.0ms feat=25.9ms ae=108.9ms rf=883.7ms lock=5.7ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(-0.131,1.442,-0.169) points=10
+[TIMING] n=13 parse=0.0ms feat=25.9ms ae=107.4ms rf=896.4ms lock=5.6ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.016,1.234,-0.147) points=13
+[TIMING] n=8 parse=6.4ms feat=17.2ms ae=69.7ms rf=548.3ms lock=5.1ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(0.146,1.380,0.053) points=12
+[TIMING] n=13 parse=0.0ms feat=27.9ms ae=111.8ms rf=898.7ms lock=13.6ms log=7.0ms
+[OCCUPANCY] state=occupied centroid=(0.003,1.064,0.009) points=7
+[TIMING] n=8 parse=4.3ms feat=15.0ms ae=64.7ms rf=552.9ms lock=32.1ms log=22.5ms
+[OCCUPANCY] state=occupied centroid=(-0.040,1.244,-0.148) points=2
+[TIMING] n=13 parse=0.0ms feat=24.5ms ae=109.1ms rf=903.6ms lock=4.0ms log=4.7ms
+[OCCUPANCY] state=occupied centroid=none points=0
+[TIMING] n=8 parse=4.2ms feat=13.1ms ae=75.9ms rf=553.2ms lock=21.8ms log=12.0ms
+[16:39:10] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(-0.075,1.496,-0.070) points=5
+[TIMING] n=13 parse=0.0ms feat=20.7ms ae=116.1ms rf=896.9ms lock=19.4ms log=11.5ms
+[OCCUPANCY] state=occupied centroid=(0.005,1.087,-0.073) points=19
+[TIMING] n=12 parse=6.2ms feat=28.1ms ae=72.2ms rf=477.0ms lock=4.3ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(0.106,1.218,0.151) points=13
+[TIMING] n=20 parse=3.2ms feat=41.4ms ae=145.9ms rf=442.7ms lock=17.9ms log=8.8ms
+[OCCUPANCY] state=occupied centroid=(0.041,1.295,-0.067) points=3
+[TIMING] n=8 parse=3.1ms feat=15.7ms ae=68.5ms rf=552.2ms lock=18.0ms log=11.8ms
+[OCCUPANCY] state=occupied centroid=(-0.047,1.381,0.288) points=4
+[TIMING] n=9 parse=3.7ms feat=18.2ms ae=75.9ms rf=630.8ms lock=5.3ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(0.083,1.255,0.032) points=19
+[TIMING] n=13 parse=0.0ms feat=27.2ms ae=108.0ms rf=890.0ms lock=5.5ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.023,1.238,0.017) points=13
+[TIMING] n=8 parse=3.9ms feat=17.2ms ae=66.0ms rf=550.0ms lock=5.2ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.052,1.162,-0.126) points=12
+[TIMING] n=8 parse=4.1ms feat=17.9ms ae=66.2ms rf=542.7ms lock=7.7ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(-0.095,1.477,-0.024) points=14
+[TIMING] n=13 parse=0.0ms feat=27.7ms ae=105.7ms rf=879.9ms lock=4.2ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(-0.053,1.091,-0.085) points=23
+[TIMING] n=8 parse=4.1ms feat=16.8ms ae=70.4ms rf=539.6ms lock=4.7ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.119,1.311,0.080) points=16
+[TIMING] n=10 parse=5.6ms feat=23.4ms ae=82.2ms rf=681.7ms lock=5.1ms log=2.9ms
+[OCCUPANCY] state=occupied centroid=(0.077,0.824,0.088) points=5
+[TIMING] n=13 parse=0.0ms feat=27.4ms ae=111.6ms rf=886.1ms lock=30.6ms log=19.0ms
+[OCCUPANCY] state=occupied centroid=(0.077,0.824,0.089) points=5
+[TIMING] n=8 parse=4.1ms feat=16.8ms ae=69.4ms rf=548.9ms lock=13.0ms log=6.7ms
+[OCCUPANCY] state=occupied centroid=(0.096,0.846,0.067) points=4
+[TIMING] n=13 parse=0.0ms feat=27.2ms ae=127.0ms rf=889.5ms lock=4.2ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.094,1.529,-0.009) points=9
+[TIMING] n=8 parse=4.2ms feat=16.1ms ae=68.7ms rf=540.8ms lock=5.2ms log=3.9ms
+[16:39:26] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.208,1.371,-0.115) points=16
+[TIMING] n=13 parse=0.0ms feat=28.1ms ae=108.4ms rf=888.9ms lock=5.8ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.038,1.355,-0.062) points=23
+[TIMING] n=21 parse=8.2ms feat=39.5ms ae=120.8ms rf=139.6ms lock=9.2ms log=5.0ms
+[OCCUPANCY] state=occupied centroid=(0.000,1.435,0.012) points=19
+[TIMING] n=8 parse=2.6ms feat=18.8ms ae=72.3ms rf=545.4ms lock=4.3ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.051,1.207,0.062) points=21
+[TIMING] n=8 parse=3.1ms feat=16.5ms ae=75.6ms rf=561.5ms lock=5.3ms log=4.7ms
+[OCCUPANCY] state=occupied centroid=(0.033,1.173,-0.010) points=14
+[TIMING] n=10 parse=5.6ms feat=22.1ms ae=88.8ms rf=684.0ms lock=6.3ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.008,1.296,-0.061) points=20
+[TIMING] n=13 parse=4.1ms feat=28.8ms ae=108.3ms rf=880.6ms lock=5.9ms log=3.0ms
+[OCCUPANCY] state=occupied centroid=(-0.007,1.499,-0.067) points=12
+[TIMING] n=13 parse=0.0ms feat=28.9ms ae=109.9ms rf=882.3ms lock=5.0ms log=2.9ms
+[OCCUPANCY] state=occupied centroid=(0.050,1.345,-0.053) points=13
+[TIMING] n=8 parse=4.4ms feat=16.5ms ae=63.2ms rf=550.3ms lock=4.2ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.241,0.756,-0.240) points=22
+[TIMING] n=10 parse=4.3ms feat=21.0ms ae=82.8ms rf=691.7ms lock=5.2ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(-0.117,1.240,-0.079) points=7
+[TIMING] n=13 parse=0.0ms feat=27.2ms ae=112.1ms rf=896.1ms lock=19.2ms log=18.0ms
+[OCCUPANCY] state=occupied centroid=(0.036,1.174,-0.105) points=6
+[TIMING] n=8 parse=3.5ms feat=16.5ms ae=64.8ms rf=555.2ms lock=10.9ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.103,0.834,0.073) points=4
+[TIMING] n=13 parse=0.0ms feat=26.9ms ae=110.1ms rf=891.0ms lock=5.6ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(-0.042,1.130,-0.042) points=5
+[TIMING] n=8 parse=4.3ms feat=17.6ms ae=66.6ms rf=545.1ms lock=5.1ms log=3.8ms
+[16:39:41] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.079,1.359,0.219) points=22
+[TIMING] n=12 parse=5.1ms feat=25.6ms ae=93.6ms rf=754.9ms lock=5.7ms log=0.1ms
+[OCCUPANCY] state=occupied centroid=(-0.165,1.357,-0.170) points=14
+[TIMING] n=24 parse=5.1ms feat=47.3ms ae=164.9ms rf=408.8ms lock=3.2ms log=4.2ms
+[OCCUPANCY] state=occupied centroid=(-0.310,1.528,-0.134) points=2
+[TIMING] n=8 parse=4.0ms feat=15.3ms ae=69.3ms rf=546.9ms lock=5.6ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(-0.181,1.526,-0.217) points=13
+[TIMING] n=12 parse=3.5ms feat=25.2ms ae=110.2ms rf=818.0ms lock=12.7ms log=6.3ms
+[OCCUPANCY] state=occupied centroid=(-0.349,1.506,-0.414) points=2
+[TIMING] n=13 parse=3.9ms feat=26.8ms ae=117.8ms rf=882.6ms lock=4.5ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.297,1.307,-0.055) points=11
+[TIMING] n=13 parse=0.0ms feat=26.8ms ae=102.6ms rf=877.8ms lock=10.5ms log=5.0ms
+[OCCUPANCY] state=occupied centroid=(0.184,1.550,0.137) points=13
+[TIMING] n=6 parse=3.9ms feat=12.8ms ae=51.5ms rf=416.3ms lock=142.7ms log=6.3ms
+[OCCUPANCY] state=occupied centroid=(0.103,0.831,0.104) points=4
+[TIMING] n=10 parse=0.0ms feat=21.1ms ae=96.4ms rf=697.1ms lock=221.4ms log=15.1ms
+[OCCUPANCY] state=occupied centroid=(-0.207,1.452,-0.146) points=7
+[TIMING] n=8 parse=4.3ms feat=17.0ms ae=67.6ms rf=543.7ms lock=5.5ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(-0.035,1.063,-0.009) points=6
+[TIMING] n=13 parse=0.0ms feat=27.0ms ae=116.2ms rf=895.2ms lock=5.8ms log=3.9ms
+[16:39:52] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.128,1.436,0.110) points=9
+[TIMING] n=8 parse=5.6ms feat=18.6ms ae=69.2ms rf=548.1ms lock=5.3ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.060,1.125,-0.060) points=10
+[TIMING] n=13 parse=0.0ms feat=28.9ms ae=108.3ms rf=876.9ms lock=5.6ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.007,1.517,0.047) points=16
+[TIMING] n=22 parse=8.8ms feat=41.4ms ae=118.2ms rf=207.4ms lock=6.3ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.094,1.389,0.173) points=12
+[TIMING] n=8 parse=2.7ms feat=16.3ms ae=66.2ms rf=548.2ms lock=5.1ms log=2.9ms
+[OCCUPANCY] state=occupied centroid=(0.014,1.297,-0.012) points=9
+[TIMING] n=9 parse=3.2ms feat=18.8ms ae=79.4ms rf=616.9ms lock=4.3ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(-0.049,1.445,-0.193) points=13
+[TIMING] n=12 parse=3.4ms feat=26.0ms ae=101.7ms rf=821.2ms lock=5.7ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(-0.025,0.783,0.139) points=1
+[TIMING] n=13 parse=3.9ms feat=25.5ms ae=111.2ms rf=893.5ms lock=5.8ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.090,1.337,-0.036) points=8
+[TIMING] n=13 parse=0.0ms feat=26.0ms ae=107.4ms rf=885.2ms lock=6.0ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.136,1.514,-0.146) points=12
+[TIMING] n=8 parse=3.6ms feat=16.1ms ae=65.6ms rf=544.7ms lock=5.1ms log=1.9ms
+[OCCUPANCY] state=occupied centroid=(0.075,1.345,-0.141) points=6
+[TIMING] n=11 parse=3.6ms feat=23.9ms ae=93.8ms rf=761.2ms lock=3.6ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.092,1.121,-0.223) points=15
+[TIMING] n=13 parse=0.0ms feat=27.2ms ae=108.8ms rf=882.4ms lock=10.6ms log=7.0ms
+[OCCUPANCY] state=occupied centroid=(-0.016,1.315,0.013) points=12
+[TIMING] n=8 parse=3.7ms feat=16.7ms ae=66.8ms rf=537.6ms lock=4.7ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.075,1.467,-0.090) points=9
+[TIMING] n=13 parse=4.4ms feat=27.1ms ae=115.1ms rf=888.5ms lock=5.9ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(0.047,1.306,-0.079) points=19
+[TIMING] n=13 parse=0.0ms feat=26.4ms ae=107.8ms rf=879.3ms lock=6.0ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(-0.007,1.308,-0.166) points=6
+[TIMING] n=8 parse=4.3ms feat=15.1ms ae=66.5ms rf=549.8ms lock=4.9ms log=2.3ms
+[OCCUPANCY] state=occupied centroid=(-0.068,1.453,-0.083) points=11
+[TIMING] n=13 parse=0.0ms feat=26.7ms ae=104.4ms rf=880.1ms lock=4.1ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.044,1.319,0.032) points=13
+[TIMING] n=8 parse=5.4ms feat=17.1ms ae=67.1ms rf=540.7ms lock=5.1ms log=3.4ms
+[OCCUPANCY] state=occupied centroid=(-0.026,1.382,-0.133) points=18
+[TIMING] n=13 parse=0.0ms feat=28.3ms ae=112.0ms rf=877.0ms lock=5.3ms log=3.4ms
+[OCCUPANCY] state=occupied centroid=(0.108,1.261,0.101) points=12
+[TIMING] n=8 parse=5.7ms feat=16.7ms ae=67.4ms rf=540.1ms lock=4.7ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.146,1.154,0.102) points=11
+[TIMING] n=13 parse=0.0ms feat=28.5ms ae=103.0ms rf=877.3ms lock=5.7ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.071,1.205,0.132) points=18
+[TIMING] n=8 parse=7.3ms feat=18.8ms ae=64.7ms rf=539.4ms lock=4.9ms log=2.4ms
+[OCCUPANCY] state=occupied centroid=(0.215,1.027,0.029) points=5
+[TIMING] n=12 parse=5.2ms feat=25.1ms ae=109.8ms rf=829.3ms lock=16.3ms log=12.4ms
+[OCCUPANCY] state=occupied centroid=(0.406,1.405,-0.153) points=6
+[TIMING] n=13 parse=0.0ms feat=27.5ms ae=115.1ms rf=902.9ms lock=6.2ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(0.351,1.283,-0.091) points=5
+[TIMING] n=8 parse=5.6ms feat=18.3ms ae=71.0ms rf=549.2ms lock=5.4ms log=3.8ms
+[16:40:20] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.080,1.337,-0.020) points=5
+[TIMING] n=13 parse=0.0ms feat=27.0ms ae=105.1ms rf=903.0ms lock=5.7ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(0.209,1.028,0.028) points=5
+[TIMING] n=25 parse=6.1ms feat=48.2ms ae=140.5ms rf=418.3ms lock=6.8ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.247,1.133,-0.036) points=7
+[TIMING] n=8 parse=5.6ms feat=16.9ms ae=62.0ms rf=547.4ms lock=4.8ms log=4.4ms
+[OCCUPANCY] state=occupied centroid=(0.133,1.238,-0.073) points=8
+[TIMING] n=9 parse=3.3ms feat=19.0ms ae=79.6ms rf=624.4ms lock=5.8ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.297,1.343,-0.071) points=9
+[TIMING] n=12 parse=5.2ms feat=26.6ms ae=102.0ms rf=827.2ms lock=5.7ms log=2.6ms
+[OCCUPANCY] state=occupied centroid=(0.140,1.371,0.071) points=8
+[TIMING] n=13 parse=0.0ms feat=27.5ms ae=109.1ms rf=888.7ms lock=4.7ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.114,1.245,0.132) points=13
+[TIMING] n=8 parse=3.7ms feat=17.8ms ae=64.0ms rf=547.1ms lock=5.2ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.251,1.306,-0.139) points=6
+[TIMING] n=8 parse=3.7ms feat=16.6ms ae=66.7ms rf=542.4ms lock=5.0ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.060,1.139,-0.028) points=14
+[TIMING] n=13 parse=0.0ms feat=28.5ms ae=103.0ms rf=879.7ms lock=5.8ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.027,1.397,-0.178) points=8
+[TIMING] n=8 parse=3.8ms feat=16.5ms ae=67.4ms rf=549.5ms lock=5.2ms log=3.0ms
+[OCCUPANCY] state=occupied centroid=(0.039,1.230,-0.129) points=15
+[TIMING] n=12 parse=6.0ms feat=24.4ms ae=99.2ms rf=812.9ms lock=9.6ms log=6.1ms
+[OCCUPANCY] state=occupied centroid=(0.297,1.192,-0.054) points=6
+[TIMING] n=13 parse=0.0ms feat=27.8ms ae=106.5ms rf=893.6ms lock=33.7ms log=26.9ms
+[OCCUPANCY] state=occupied centroid=(0.268,1.100,0.006) points=4
+[TIMING] n=8 parse=5.6ms feat=16.6ms ae=67.4ms rf=547.2ms lock=5.4ms log=4.8ms
+[OCCUPANCY] state=occupied centroid=(0.086,1.721,-0.310) points=11
+[TIMING] n=13 parse=0.0ms feat=28.2ms ae=113.5ms rf=884.5ms lock=5.6ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.079,1.236,-0.044) points=6
+[TIMING] n=8 parse=5.6ms feat=18.5ms ae=69.9ms rf=549.1ms lock=5.3ms log=2.5ms
+[OCCUPANCY] state=occupied centroid=(-0.014,1.599,-0.243) points=10
+[16:40:37] [CMD] resolve from 172.20.10.12
+[TIMING] n=13 parse=0.0ms feat=27.5ms ae=108.9ms rf=892.5ms lock=4.5ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.146,1.747,0.150) points=12
+[TIMING] n=20 parse=8.4ms feat=42.2ms ae=114.7ms rf=73.3ms lock=6.1ms log=2.7ms
+[OCCUPANCY] state=occupied centroid=(0.282,1.462,-0.170) points=4
+[TIMING] n=8 parse=2.5ms feat=18.8ms ae=67.8ms rf=548.8ms lock=4.0ms log=4.7ms
+[OCCUPANCY] state=occupied centroid=(-0.355,1.931,-0.254) points=6
+[TIMING] n=8 parse=2.7ms feat=16.5ms ae=67.0ms rf=545.9ms lock=6.0ms log=2.5ms
+[OCCUPANCY] state=occupied centroid=(0.110,1.064,0.007) points=8
+[TIMING] n=10 parse=3.0ms feat=21.6ms ae=86.9ms rf=685.9ms lock=4.0ms log=2.4ms
+[OCCUPANCY] state=occupied centroid=(-0.025,1.171,-0.112) points=10
+[TIMING] n=13 parse=0.0ms feat=27.4ms ae=108.9ms rf=886.5ms lock=4.4ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(-0.096,1.451,-0.186) points=8
+[TIMING] n=8 parse=3.0ms feat=16.3ms ae=68.9ms rf=542.2ms lock=4.8ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(-0.138,0.998,-0.029) points=13
+[TIMING] n=8 parse=3.8ms feat=16.7ms ae=69.1ms rf=538.0ms lock=5.4ms log=2.8ms
+[OCCUPANCY] state=occupied centroid=(0.047,1.338,0.109) points=17
+[TIMING] n=13 parse=0.0ms feat=28.0ms ae=112.0ms rf=892.0ms lock=4.7ms log=3.3ms
+[OCCUPANCY] state=occupied centroid=(0.210,1.037,0.025) points=5
+[TIMING] n=8 parse=4.1ms feat=16.4ms ae=73.9ms rf=553.2ms lock=17.5ms log=9.8ms
+[OCCUPANCY] state=occupied centroid=(-0.026,1.380,-0.063) points=7
+[TIMING] n=11 parse=5.4ms feat=21.5ms ae=98.3ms rf=763.4ms lock=30.4ms log=21.3ms
+[OCCUPANCY] state=occupied centroid=(0.095,1.328,-0.113) points=5
+[TIMING] n=13 parse=0.0ms feat=27.5ms ae=105.5ms rf=896.1ms lock=5.9ms log=2.8ms
+[OCCUPANCY] state=occupied centroid=(0.228,1.080,0.003) points=4
+[TIMING] n=8 parse=6.4ms feat=17.2ms ae=71.1ms rf=556.0ms lock=4.1ms log=3.6ms
+[16:40:50] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.092,1.639,0.265) points=10
+[TIMING] n=13 parse=0.0ms feat=28.8ms ae=127.6ms rf=891.8ms lock=5.5ms log=3.0ms
+[OCCUPANCY] state=occupied centroid=(-0.005,1.896,0.106) points=2
+[TIMING] n=23 parse=8.3ms feat=48.7ms ae=137.0ms rf=276.1ms lock=5.6ms log=2.3ms
+[OCCUPANCY] state=occupied centroid=(-0.229,0.631,0.225) points=8
+[TIMING] n=8 parse=2.3ms feat=16.0ms ae=67.5ms rf=553.1ms lock=3.6ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.025,0.782,0.143) points=1
+[TIMING] n=8 parse=2.2ms feat=14.4ms ae=77.5ms rf=542.5ms lock=11.8ms log=6.3ms
+[OCCUPANCY] state=occupied centroid=(0.173,1.491,-0.035) points=14
+[TIMING] n=11 parse=2.7ms feat=21.4ms ae=97.8ms rf=748.8ms lock=9.0ms log=5.8ms
+[OCCUPANCY] state=occupied centroid=(-0.111,1.691,-0.164) points=3
+[TIMING] n=6 parse=0.0ms feat=11.9ms ae=49.9ms rf=986.9ms lock=3.6ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.147,1.274,0.021) points=14
+[TIMING] n=8 parse=5.5ms feat=16.8ms ae=67.4ms rf=556.6ms lock=5.3ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.170,0.994,-0.009) points=6
+[TIMING] n=12 parse=0.0ms feat=23.0ms ae=106.5ms rf=831.1ms lock=26.7ms log=14.0ms
+[OCCUPANCY] state=occupied centroid=(0.302,1.249,0.120) points=5
+[TIMING] n=8 parse=5.5ms feat=17.3ms ae=76.1ms rf=564.1ms lock=33.4ms log=22.4ms
+[OCCUPANCY] state=occupied centroid=(0.175,0.988,0.037) points=6
+[TIMING] n=12 parse=0.0ms feat=23.5ms ae=110.2ms rf=844.3ms lock=26.0ms log=17.8ms
+[OCCUPANCY] state=occupied centroid=(0.079,1.231,-0.064) points=6
+[TIMING] n=10 parse=5.6ms feat=21.3ms ae=89.4ms rf=688.6ms lock=7.4ms log=2.5ms
+[16:41:03] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.262,1.100,0.009) points=4
+[TIMING] n=13 parse=0.0ms feat=26.9ms ae=109.5ms rf=912.0ms lock=4.5ms log=2.9ms
+[OCCUPANCY] state=occupied centroid=(0.222,1.353,0.000) points=7
+[TIMING] n=9 parse=5.9ms feat=20.0ms ae=65.4ms rf=557.4ms lock=4.3ms log=0.1ms
+[TIMING] n=24 parse=2.8ms feat=44.3ms ae=143.2ms rf=406.9ms lock=2.9ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(-0.048,0.764,0.164) points=15
+[TIMING] n=8 parse=2.3ms feat=16.2ms ae=67.6ms rf=546.5ms lock=4.9ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.680,2.020,-0.441) points=1
+[TIMING] n=8 parse=2.3ms feat=15.2ms ae=69.8ms rf=562.1ms lock=11.8ms log=6.8ms
+[OCCUPANCY] state=occupied centroid=(-0.025,0.772,0.185) points=3
+[OCCUPANCY] state=occupied centroid=(-0.592,2.268,-0.293) points=2
+[TIMING] n=12 parse=2.6ms feat=23.6ms ae=105.6ms rf=813.8ms lock=15.3ms log=12.7ms
+[OCCUPANCY] state=occupied centroid=(0.210,1.191,-0.053) points=3
+[TIMING] n=13 parse=0.0ms feat=24.3ms ae=106.2ms rf=899.6ms lock=15.5ms log=8.2ms
+[OCCUPANCY] state=occupied centroid=(-0.038,0.789,-0.020) points=4
+[TIMING] n=8 parse=3.5ms feat=15.8ms ae=60.8ms rf=550.4ms lock=4.6ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.175,0.987,0.052) points=6
+[TIMING] n=10 parse=4.1ms feat=22.4ms ae=88.7ms rf=695.1ms lock=10.3ms log=6.9ms
+[OCCUPANCY] state=occupied centroid=(0.165,1.518,0.044) points=10
+[TIMING] n=13 parse=0.0ms feat=27.9ms ae=106.9ms rf=884.2ms lock=7.6ms log=4.6ms
+[OCCUPANCY] state=occupied centroid=(0.220,1.027,0.026) points=5
+[TIMING] n=8 parse=3.9ms feat=17.1ms ae=68.5ms rf=545.8ms lock=4.7ms log=9.8ms
+[OCCUPANCY] state=occupied centroid=(0.075,1.237,-0.067) points=6
+[TIMING] n=13 parse=0.0ms feat=28.1ms ae=119.8ms rf=897.5ms lock=11.8ms log=3.8ms
+[16:41:16] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.175,0.988,0.037) points=6
+[TIMING] n=8 parse=4.4ms feat=16.2ms ae=67.2ms rf=561.0ms lock=5.1ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.134,1.198,-0.054) points=8
+[TIMING] n=12 parse=6.8ms feat=25.5ms ae=99.8ms rf=757.3ms lock=5.5ms log=0.1ms
+[TIMING] n=24 parse=2.8ms feat=49.9ms ae=153.9ms rf=412.9ms lock=9.5ms log=8.6ms
+[OCCUPANCY] state=occupied centroid=(-0.238,1.123,0.153) points=16
+[TIMING] n=8 parse=2.6ms feat=18.0ms ae=65.1ms rf=551.8ms lock=6.0ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.077,0.867,0.148) points=19
+[TIMING] n=8 parse=3.1ms feat=16.7ms ae=66.8ms rf=547.8ms lock=5.0ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.113,0.894,0.233) points=20
+[TIMING] n=8 parse=3.1ms feat=16.4ms ae=69.4ms rf=548.0ms lock=5.1ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.002,1.033,-0.011) points=9
+[TIMING] n=10 parse=3.3ms feat=21.0ms ae=83.2ms rf=682.3ms lock=5.5ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.225,0.901,0.163) points=22
+[TIMING] n=13 parse=0.0ms feat=29.8ms ae=105.8ms rf=882.7ms lock=5.9ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(-0.015,1.200,-0.346) points=6
+[TIMING] n=8 parse=3.5ms feat=17.6ms ae=63.5ms rf=540.0ms lock=5.0ms log=3.3ms
+[OCCUPANCY] state=occupied centroid=(-0.207,0.695,0.195) points=7
+[TIMING] n=9 parse=4.1ms feat=18.4ms ae=78.1ms rf=615.5ms lock=9.3ms log=6.5ms
+[OCCUPANCY] state=occupied centroid=(0.163,1.468,0.112) points=8
+[TIMING] n=13 parse=0.0ms feat=26.8ms ae=116.1ms rf=889.6ms lock=10.6ms log=7.0ms
+[TIMING] n=7 parse=5.0ms feat=14.5ms ae=65.0ms rf=490.7ms lock=13.7ms log=10.5ms
+[OCCUPANCY] state=occupied centroid=(0.209,1.118,0.094) points=7
+[16:41:29] [CMD] resolve from 172.20.10.12
+[TIMING] n=13 parse=0.0ms feat=30.4ms ae=104.6ms rf=895.1ms lock=5.8ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.365,1.351,0.072) points=8
+[OCCUPANCY] state=occupied centroid=(0.156,1.260,-0.025) points=18
+[TIMING] n=20 parse=7.8ms feat=41.8ms ae=116.4ms rf=70.4ms lock=6.1ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(-0.068,1.193,0.179) points=5
+[TIMING] n=8 parse=2.3ms feat=16.4ms ae=67.2ms rf=545.4ms lock=24.3ms log=14.1ms
+[OCCUPANCY] state=occupied centroid=(-0.028,1.072,0.101) points=21
+[TIMING] n=8 parse=3.2ms feat=16.7ms ae=68.5ms rf=549.4ms lock=12.3ms log=7.0ms
+[OCCUPANCY] state=occupied centroid=(0.025,0.966,-0.087) points=20
+[TIMING] n=10 parse=3.7ms feat=22.3ms ae=85.9ms rf=694.2ms lock=3.7ms log=3.4ms
+[OCCUPANCY] state=occupied centroid=(-0.034,0.879,-0.124) points=34
+[TIMING] n=12 parse=0.0ms feat=26.9ms ae=101.7ms rf=829.5ms lock=29.0ms log=21.6ms
+[OCCUPANCY] state=occupied centroid=(0.095,1.094,0.195) points=10
+[TIMING] n=8 parse=3.7ms feat=20.6ms ae=69.9ms rf=554.3ms lock=16.2ms log=9.7ms
+[OCCUPANCY] state=occupied centroid=(0.122,1.172,-0.010) points=13
+[TIMING] n=8 parse=5.0ms feat=17.9ms ae=72.2ms rf=549.8ms lock=11.1ms log=9.7ms
+[OCCUPANCY] state=occupied centroid=(0.023,1.008,-0.122) points=12
+[TIMING] n=13 parse=0.0ms feat=29.1ms ae=106.4ms rf=886.0ms lock=10.5ms log=6.3ms
+[OCCUPANCY] state=occupied centroid=(-0.023,1.245,-0.078) points=39
+[TIMING] n=8 parse=6.0ms feat=17.9ms ae=68.9ms rf=556.9ms lock=9.5ms log=6.1ms
+[OCCUPANCY] state=occupied centroid=(0.030,1.134,-0.103) points=25
+[TIMING] n=13 parse=5.6ms feat=30.0ms ae=114.3ms rf=896.9ms lock=8.6ms log=6.4ms
+[OCCUPANCY] state=occupied centroid=(0.047,1.193,0.022) points=14
+[TIMING] n=13 parse=0.0ms feat=29.8ms ae=109.1ms rf=897.8ms lock=10.4ms log=6.0ms
+[OCCUPANCY] state=occupied centroid=(0.102,1.240,0.181) points=11
+[TIMING] n=8 parse=5.7ms feat=16.9ms ae=65.3ms rf=553.8ms lock=4.0ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.117,1.112,0.043) points=7
+[TIMING] n=13 parse=0.0ms feat=26.4ms ae=106.8ms rf=888.1ms lock=5.9ms log=4.0ms
+[16:41:44] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(-0.064,1.442,-0.162) points=13
+[TIMING] n=24 parse=8.1ms feat=47.5ms ae=135.8ms rf=343.9ms lock=6.7ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.202,1.445,-0.088) points=5
+[TIMING] n=8 parse=2.2ms feat=16.2ms ae=66.0ms rf=557.9ms lock=5.2ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.018,0.982,-0.165) points=24
+[TIMING] n=8 parse=4.0ms feat=18.3ms ae=66.0ms rf=550.6ms lock=4.8ms log=2.3ms
+[OCCUPANCY] state=occupied centroid=(0.294,1.409,-0.155) points=2
+[TIMING] n=10 parse=3.3ms feat=21.3ms ae=84.2ms rf=695.5ms lock=3.9ms log=3.4ms
+[OCCUPANCY] state=occupied centroid=(0.348,1.303,-0.133) points=7
+[TIMING] n=13 parse=3.6ms feat=27.0ms ae=104.6ms rf=895.8ms lock=5.3ms log=2.5ms
+[OCCUPANCY] state=occupied centroid=(0.305,1.152,0.106) points=5
+[TIMING] n=13 parse=0.0ms feat=26.9ms ae=105.0ms rf=914.1ms lock=6.7ms log=5.0ms
+[OCCUPANCY] state=occupied centroid=(0.268,1.497,-0.025) points=8
+[TIMING] n=8 parse=3.6ms feat=16.7ms ae=67.9ms rf=549.3ms lock=5.1ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.175,0.987,0.046) points=6
+[TIMING] n=10 parse=4.1ms feat=24.7ms ae=92.5ms rf=719.5ms lock=5.5ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.065,1.172,-0.011) points=7
+[TIMING] n=12 parse=0.0ms feat=30.1ms ae=102.5ms rf=871.5ms lock=5.7ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.072,1.345,-0.099) points=7
+[TIMING] n=8 parse=5.4ms feat=17.0ms ae=69.5ms rf=553.4ms lock=5.1ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.268,1.101,0.002) points=4
+[TIMING] n=13 parse=0.0ms feat=26.9ms ae=102.3ms rf=883.9ms lock=5.6ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.077,0.824,0.090) points=5
+[TIMING] n=8 parse=4.7ms feat=16.9ms ae=66.3ms rf=545.7ms lock=5.1ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.040,1.652,0.008) points=16
+[TIMING] n=13 parse=0.0ms feat=27.2ms ae=110.5ms rf=882.9ms lock=5.7ms log=3.3ms
+[OCCUPANCY] state=occupied centroid=(0.062,1.554,0.013) points=10
+[TIMING] n=8 parse=4.0ms feat=20.2ms ae=66.8ms rf=552.1ms lock=15.6ms log=8.5ms
+[OCCUPANCY] state=occupied centroid=(-0.052,0.755,-0.356) points=3
+[TIMING] n=11 parse=0.0ms feat=21.2ms ae=90.3ms rf=752.2ms lock=175.3ms log=35.6ms
+[OCCUPANCY] state=occupied centroid=(0.249,1.303,0.137) points=3
+[TIMING] n=8 parse=4.2ms feat=16.8ms ae=65.7ms rf=552.2ms lock=3.4ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.027,1.234,-0.033) points=13
+[TIMING] n=13 parse=0.0ms feat=25.9ms ae=111.5ms rf=906.8ms lock=10.9ms log=5.7ms
+[OCCUPANCY] state=occupied centroid=(-0.018,1.277,-0.033) points=25
+[TIMING] n=8 parse=5.9ms feat=18.6ms ae=73.5ms rf=543.2ms lock=3.4ms log=2.3ms
+[16:42:05] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(-0.023,1.067,-0.165) points=31
+[TIMING] n=13 parse=0.0ms feat=31.0ms ae=106.2ms rf=892.7ms lock=4.2ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(-0.040,1.370,-0.045) points=15
+[TIMING] n=24 parse=5.8ms feat=53.1ms ae=162.6ms rf=349.2ms lock=32.0ms log=18.4ms
+[OCCUPANCY] state=occupied centroid=none points=0
+[TIMING] n=7 parse=3.2ms feat=12.4ms ae=62.1ms rf=489.1ms lock=25.6ms log=15.4ms
+[OCCUPANCY] state=occupied centroid=(0.078,1.314,0.336) points=6
+[TIMING] n=8 parse=3.1ms feat=14.6ms ae=68.8ms rf=552.8ms lock=6.2ms log=21.2ms
+[OCCUPANCY] state=occupied centroid=(0.227,1.586,-0.028) points=3
+[TIMING] n=8 parse=2.9ms feat=17.8ms ae=67.1ms rf=551.9ms lock=20.8ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.252,1.406,-0.293) points=6
+[TIMING] n=11 parse=3.6ms feat=23.0ms ae=92.9ms rf=748.2ms lock=5.5ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(-0.315,0.560,0.351) points=8
+[TIMING] n=13 parse=0.0ms feat=28.1ms ae=104.4ms rf=880.8ms lock=6.1ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=none points=0
+[TIMING] n=8 parse=3.5ms feat=13.7ms ae=67.2ms rf=547.0ms lock=5.0ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(-0.043,0.664,0.328) points=11
+[TIMING] n=10 parse=3.0ms feat=20.9ms ae=86.6ms rf=693.2ms lock=8.0ms log=4.2ms
+[OCCUPANCY] state=occupied centroid=(0.111,1.083,-0.028) points=6
+[TIMING] n=13 parse=0.0ms feat=25.7ms ae=109.3ms rf=895.1ms lock=9.6ms log=5.5ms
+[OCCUPANCY] state=occupied centroid=(0.680,1.954,-0.675) points=1
+[TIMING] n=8 parse=3.5ms feat=14.8ms ae=71.3ms rf=560.8ms lock=10.9ms log=8.6ms
+[OCCUPANCY] state=occupied centroid=(-0.045,1.388,-0.020) points=4
+[TIMING] n=13 parse=0.0ms feat=27.3ms ae=102.7ms rf=894.3ms lock=8.0ms log=4.8ms
+[OCCUPANCY] state=occupied centroid=(0.097,1.094,-0.152) points=7
+[TIMING] n=8 parse=4.2ms feat=16.9ms ae=66.8ms rf=540.7ms lock=4.8ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(-0.027,1.226,-0.163) points=17
+[TIMING] n=12 parse=6.6ms feat=25.3ms ae=100.6ms rf=814.6ms lock=37.7ms log=33.2ms
+[OCCUPANCY] state=occupied centroid=(-0.068,1.058,-0.115) points=53
+[TIMING] n=13 parse=0.0ms feat=30.4ms ae=110.6ms rf=888.6ms lock=37.9ms log=29.8ms
+[OCCUPANCY] state=occupied centroid=(-0.034,1.124,-0.114) points=36
+[TIMING] n=8 parse=5.8ms feat=19.1ms ae=67.8ms rf=547.8ms lock=11.7ms log=9.1ms
+[OCCUPANCY] state=occupied centroid=(0.137,1.202,-0.143) points=11
+[TIMING] n=12 parse=0.0ms feat=29.4ms ae=104.0ms rf=824.0ms lock=40.1ms log=33.3ms
+[OCCUPANCY] state=occupied centroid=(0.027,0.971,0.311) points=9
+[TIMING] n=8 parse=6.2ms feat=18.3ms ae=68.1ms rf=555.5ms lock=4.1ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.136,1.208,-0.170) points=19
+[TIMING] n=13 parse=0.0ms feat=28.3ms ae=109.9ms rf=890.3ms lock=10.0ms log=6.8ms
+[OCCUPANCY] state=occupied centroid=(-0.005,1.280,0.053) points=20
+[TIMING] n=8 parse=5.2ms feat=18.2ms ae=65.7ms rf=553.6ms lock=5.0ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.067,1.303,-0.098) points=18
+[TIMING] n=13 parse=0.0ms feat=27.8ms ae=109.5ms rf=883.6ms lock=12.5ms log=6.6ms
+[OCCUPANCY] state=occupied centroid=(0.018,1.140,-0.038) points=30
+[TIMING] n=8 parse=5.8ms feat=21.2ms ae=70.2ms rf=554.9ms lock=3.4ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.062,1.071,-0.001) points=32
+[TIMING] n=12 parse=0.0ms feat=26.7ms ae=104.7ms rf=837.7ms lock=39.1ms log=54.3ms
+[OCCUPANCY] state=occupied centroid=(-0.036,1.323,0.095) points=7
+[TIMING] n=7 parse=4.3ms feat=14.4ms ae=63.0ms rf=489.7ms lock=32.8ms log=7.0ms
+[16:42:31] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(-0.025,0.782,0.141) points=1
+[TIMING] n=13 parse=0.0ms feat=28.0ms ae=111.8ms rf=887.9ms lock=5.8ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.048,1.389,0.025) points=21
+[TIMING] n=9 parse=6.0ms feat=18.2ms ae=62.7ms rf=541.0ms lock=5.3ms log=0.1ms
+[TIMING] n=24 parse=3.3ms feat=46.8ms ae=151.6ms rf=411.6ms lock=18.2ms log=35.0ms
+[OCCUPANCY] state=occupied centroid=(0.256,1.640,0.144) points=9
+[TIMING] n=8 parse=5.0ms feat=17.5ms ae=66.2ms rf=547.8ms lock=26.4ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(0.098,1.189,0.012) points=6
+[OCCUPANCY] state=occupied centroid=(0.207,0.854,-0.248) points=15
+[TIMING] n=9 parse=3.9ms feat=20.3ms ae=78.0ms rf=606.8ms lock=5.0ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(-0.090,1.010,0.136) points=6
+[TIMING] n=13 parse=3.5ms feat=28.0ms ae=112.7ms rf=908.7ms lock=27.9ms log=23.0ms
+[OCCUPANCY] state=occupied centroid=(-0.117,1.108,0.041) points=27
+[TIMING] n=13 parse=0.0ms feat=27.7ms ae=106.5ms rf=879.9ms lock=10.4ms log=5.3ms
+[OCCUPANCY] state=occupied centroid=(-0.081,1.527,0.166) points=18
+[TIMING] n=8 parse=4.9ms feat=18.0ms ae=64.1ms rf=543.9ms lock=23.9ms log=20.0ms
+[OCCUPANCY] state=occupied centroid=(0.109,1.335,0.029) points=9
+[TIMING] n=9 parse=5.6ms feat=18.8ms ae=78.4ms rf=618.8ms lock=5.4ms log=5.0ms
+[OCCUPANCY] state=occupied centroid=(0.288,1.200,-0.062) points=6
+[TIMING] n=13 parse=0.0ms feat=27.9ms ae=112.5ms rf=882.0ms lock=5.9ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.268,1.099,-0.006) points=4
+[TIMING] n=8 parse=5.4ms feat=16.6ms ae=69.2ms rf=551.4ms lock=5.0ms log=3.1ms
+[OCCUPANCY] state=occupied centroid=(0.268,1.101,0.001) points=4
+[TIMING] n=13 parse=0.0ms feat=27.1ms ae=114.1ms rf=884.4ms lock=5.0ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.274,1.315,-0.065) points=7
+[TIMING] n=8 parse=5.8ms feat=16.9ms ae=61.2ms rf=542.3ms lock=5.0ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(0.265,1.179,-0.045) points=6
+[TIMING] n=12 parse=6.1ms feat=26.5ms ae=101.8ms rf=813.0ms lock=5.9ms log=2.4ms
+[OCCUPANCY] state=occupied centroid=(0.191,1.628,-0.216) points=6
+[TIMING] n=13 parse=0.0ms feat=29.0ms ae=105.2ms rf=878.0ms lock=4.3ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.288,1.200,-0.053) points=6
+[TIMING] n=8 parse=5.7ms feat=17.3ms ae=67.5ms rf=538.9ms lock=5.2ms log=3.4ms
+[OCCUPANCY] state=occupied centroid=(0.288,1.201,-0.059) points=6
+[TIMING] n=13 parse=0.0ms feat=27.9ms ae=104.8ms rf=883.8ms lock=5.4ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.351,1.285,-0.090) points=5
+[TIMING] n=8 parse=7.6ms feat=17.7ms ae=70.0ms rf=559.2ms lock=5.3ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.082,1.567,-0.136) points=7
+[TIMING] n=13 parse=0.0ms feat=27.7ms ae=102.4ms rf=884.0ms lock=5.4ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(0.247,1.135,-0.033) points=7
+[TIMING] n=8 parse=5.5ms feat=16.4ms ae=64.4ms rf=546.1ms lock=5.4ms log=4.4ms
+[OCCUPANCY] state=occupied centroid=(0.288,1.200,-0.055) points=6
+[TIMING] n=13 parse=0.0ms feat=28.2ms ae=104.6ms rf=887.3ms lock=6.3ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.292,1.193,-0.035) points=6
+[TIMING] n=8 parse=5.3ms feat=17.5ms ae=64.7ms rf=539.7ms lock=4.9ms log=2.8ms
+[OCCUPANCY] state=occupied centroid=(0.318,1.249,-0.154) points=3
+[TIMING] n=12 parse=5.6ms feat=25.7ms ae=98.4ms rf=824.3ms lock=4.6ms log=4.4ms
+[OCCUPANCY] state=occupied centroid=(0.297,1.191,-0.056) points=6
+[TIMING] n=13 parse=0.0ms feat=28.0ms ae=109.6ms rf=878.2ms lock=6.3ms log=4.4ms
+[OCCUPANCY] state=occupied centroid=(0.077,1.381,-0.134) points=9
+[TIMING] n=8 parse=6.1ms feat=17.7ms ae=69.0ms rf=548.4ms lock=5.7ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(0.247,1.134,-0.021) points=7
+[TIMING] n=13 parse=0.0ms feat=28.5ms ae=114.8ms rf=887.1ms lock=5.3ms log=4.2ms
+[OCCUPANCY] state=occupied centroid=(0.288,1.200,-0.052) points=6
+[TIMING] n=8 parse=5.5ms feat=16.6ms ae=64.4ms rf=548.4ms lock=5.5ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.288,1.201,-0.048) points=6
+[TIMING] n=13 parse=0.0ms feat=28.1ms ae=110.5ms rf=881.1ms lock=5.8ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.318,1.266,-0.074) points=5
+[TIMING] n=8 parse=5.6ms feat=17.4ms ae=70.6ms rf=545.0ms lock=4.9ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.288,1.200,-0.055) points=6
+[TIMING] n=13 parse=0.0ms feat=27.7ms ae=103.9ms rf=881.6ms lock=5.8ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.071,1.454,-0.156) points=8
+[TIMING] n=8 parse=6.0ms feat=16.5ms ae=71.1ms rf=546.4ms lock=5.0ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.295,1.217,-0.037) points=8
+[TIMING] n=13 parse=0.0ms feat=29.3ms ae=119.2ms rf=879.4ms lock=5.6ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.247,1.135,-0.017) points=7
+[TIMING] n=8 parse=5.3ms feat=17.3ms ae=71.3ms rf=541.6ms lock=5.3ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.403,1.370,-0.115) points=6
+[TIMING] n=13 parse=0.0ms feat=27.3ms ae=109.9ms rf=882.9ms lock=5.9ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(0.247,1.135,-0.019) points=7
+[TIMING] n=8 parse=6.9ms feat=16.6ms ae=61.9ms rf=544.9ms lock=4.7ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.247,1.134,-0.028) points=7
+[TIMING] n=13 parse=0.0ms feat=28.2ms ae=108.4ms rf=894.4ms lock=5.8ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.292,1.194,-0.051) points=6
+[TIMING] n=8 parse=5.9ms feat=16.4ms ae=70.6ms rf=550.6ms lock=5.0ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.096,0.846,0.067) points=4
+[TIMING] n=13 parse=0.0ms feat=28.0ms ae=102.4ms rf=877.7ms lock=5.9ms log=19.6ms
+[OCCUPANCY] state=occupied centroid=(0.299,1.217,-0.039) points=8
+[TIMING] n=8 parse=6.1ms feat=19.6ms ae=66.9ms rf=549.6ms lock=20.8ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.288,1.201,-0.058) points=6
+[TIMING] n=13 parse=0.0ms feat=27.3ms ae=110.6ms rf=889.0ms lock=5.8ms log=2.6ms
+[OCCUPANCY] state=occupied centroid=(0.271,1.227,0.053) points=8
+[TIMING] n=8 parse=8.3ms feat=17.2ms ae=65.0ms rf=555.8ms lock=3.9ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.310,1.290,0.051) points=7
+[TIMING] n=13 parse=0.0ms feat=28.1ms ae=105.6ms rf=883.6ms lock=5.9ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.221,1.128,-0.059) points=4
+[TIMING] n=8 parse=5.8ms feat=18.0ms ae=66.0ms rf=553.9ms lock=5.1ms log=4.3ms
+[OCCUPANCY] state=occupied centroid=(0.198,1.225,-0.057) points=6
+[TIMING] n=13 parse=0.0ms feat=27.6ms ae=108.7ms rf=883.2ms lock=6.2ms log=4.3ms
+[OCCUPANCY] state=occupied centroid=(0.281,1.197,-0.050) points=6
+[TIMING] n=8 parse=6.0ms feat=17.4ms ae=65.3ms rf=541.7ms lock=5.6ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(0.000,1.531,0.129) points=23
+[TIMING] n=13 parse=0.0ms feat=28.4ms ae=109.0ms rf=880.4ms lock=5.4ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(-0.318,1.254,0.094) points=45
+[TIMING] n=8 parse=5.7ms feat=18.8ms ae=68.3ms rf=542.6ms lock=8.7ms log=7.2ms
+[OCCUPANCY] state=occupied centroid=(0.106,0.972,-0.207) points=15
+[TIMING] n=13 parse=0.0ms feat=25.3ms ae=105.3ms rf=895.3ms lock=37.0ms log=23.7ms
+[OCCUPANCY] state=occupied centroid=(-0.400,1.773,-0.270) points=4
+[TIMING] n=8 parse=4.5ms feat=17.2ms ae=65.7ms rf=548.3ms lock=5.7ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(-0.427,1.746,-0.282) points=3
+[TIMING] n=13 parse=0.0ms feat=22.4ms ae=110.5ms rf=899.8ms lock=13.8ms log=7.5ms
+[OCCUPANCY] state=occupied centroid=(-0.025,0.784,0.133) points=1
+[TIMING] n=8 parse=3.8ms feat=14.1ms ae=74.5ms rf=555.5ms lock=6.6ms log=4.2ms
+[OCCUPANCY] state=occupied centroid=none points=0
+[TIMING] n=13 parse=0.0ms feat=21.4ms ae=119.3ms rf=903.4ms lock=18.7ms log=12.4ms
+[OCCUPANCY] state=occupied centroid=(0.024,1.302,0.142) points=3
+[TIMING] n=8 parse=3.6ms feat=15.6ms ae=68.8ms rf=555.4ms lock=22.8ms log=16.9ms
+[OCCUPANCY] state=occupied centroid=none points=0
+[TIMING] n=13 parse=0.0ms feat=22.3ms ae=119.5ms rf=893.7ms lock=16.0ms log=9.4ms
+[OCCUPANCY] state=occupied centroid=(0.004,1.752,-0.073) points=8
+[TIMING] n=8 parse=5.0ms feat=16.8ms ae=73.2ms rf=549.0ms lock=12.8ms log=18.3ms
+[16:43:30] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.023,1.558,-0.002) points=14
+[TIMING] n=13 parse=0.0ms feat=27.3ms ae=116.7ms rf=892.4ms lock=12.4ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(-0.206,1.727,-0.244) points=6
+[TIMING] n=25 parse=5.7ms feat=47.3ms ae=147.0ms rf=407.6ms lock=6.3ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.021,1.261,-0.000) points=13
+[TIMING] n=8 parse=3.2ms feat=17.5ms ae=66.3ms rf=547.1ms lock=9.4ms log=5.5ms
+[OCCUPANCY] state=occupied centroid=(0.680,2.026,-0.415) points=1
+[TIMING] n=8 parse=2.3ms feat=16.0ms ae=66.9ms rf=540.6ms lock=3.6ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(-0.050,0.757,0.236) points=3
+[TIMING] n=8 parse=2.3ms feat=16.2ms ae=70.5ms rf=543.7ms lock=9.2ms log=6.1ms
+[OCCUPANCY] state=occupied centroid=(-0.089,0.659,0.098) points=13
+[TIMING] n=8 parse=4.1ms feat=14.3ms ae=71.5ms rf=543.9ms lock=11.0ms log=6.1ms
+[OCCUPANCY] state=occupied centroid=(0.071,1.502,0.042) points=23
+[TIMING] n=13 parse=0.0ms feat=27.5ms ae=106.0ms rf=877.1ms lock=4.8ms log=5.3ms
+[OCCUPANCY] state=occupied centroid=(0.243,1.140,-0.064) points=7
+[TIMING] n=8 parse=4.0ms feat=15.8ms ae=68.4ms rf=549.2ms lock=20.3ms log=10.6ms
+[OCCUPANCY] state=occupied centroid=(0.340,1.371,0.026) points=8
+[TIMING] n=10 parse=4.2ms feat=19.6ms ae=86.1ms rf=684.5ms lock=30.0ms log=17.1ms
+[OCCUPANCY] state=occupied centroid=(0.398,1.371,-0.093) points=6
+[TIMING] n=13 parse=0.0ms feat=28.4ms ae=108.0ms rf=899.4ms lock=4.2ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.288,1.218,-0.033) points=7
+[TIMING] n=8 parse=5.7ms feat=19.9ms ae=67.4ms rf=549.3ms lock=5.0ms log=3.8ms
+[16:43:41] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.201,1.293,-0.029) points=7
+[TIMING] n=13 parse=0.0ms feat=28.0ms ae=109.0ms rf=890.6ms lock=5.8ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(-0.497,0.618,-0.267) points=2
+[TIMING] n=20 parse=7.6ms feat=37.7ms ae=104.5ms rf=80.3ms lock=5.7ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.276,1.171,-0.335) points=3
+[TIMING] n=8 parse=2.1ms feat=16.0ms ae=67.1ms rf=543.1ms lock=5.0ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=none points=0
+[TIMING] n=8 parse=2.4ms feat=14.9ms ae=67.8ms rf=553.8ms lock=9.1ms log=30.7ms
+[OCCUPANCY] state=occupied centroid=(-0.063,1.032,0.191) points=11
+[TIMING] n=7 parse=3.3ms feat=14.5ms ae=61.7ms rf=485.3ms lock=35.1ms log=6.6ms
+[OCCUPANCY] state=occupied centroid=(0.086,0.966,0.153) points=16
+[TIMING] n=13 parse=0.0ms feat=28.3ms ae=107.3ms rf=889.0ms lock=5.4ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(-0.022,1.684,-0.056) points=8
+[TIMING] n=8 parse=3.2ms feat=19.0ms ae=67.8ms rf=555.9ms lock=4.6ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(-0.534,1.403,-0.200) points=2
+[TIMING] n=8 parse=3.4ms feat=14.1ms ae=76.3ms rf=562.3ms lock=12.6ms log=8.3ms
+[OCCUPANCY] state=occupied centroid=(-0.099,1.146,0.180) points=6
+[TIMING] n=12 parse=0.0ms feat=23.8ms ae=103.3ms rf=822.9ms lock=78.5ms log=7.0ms
+[OCCUPANCY] state=occupied centroid=(-0.053,1.201,-0.215) points=4
+[TIMING] n=7 parse=3.9ms feat=14.0ms ae=65.1ms rf=506.6ms lock=9.8ms log=7.1ms
+[OCCUPANCY] state=occupied centroid=(0.077,1.556,0.158) points=16
+[TIMING] n=13 parse=0.0ms feat=26.8ms ae=108.4ms rf=897.6ms lock=5.9ms log=3.5ms
+[16:43:53] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.166,1.002,-0.004) points=6
+[TIMING] n=8 parse=5.2ms feat=14.9ms ae=68.1ms rf=547.8ms lock=23.1ms log=12.6ms
+[OCCUPANCY] state=occupied centroid=(0.044,1.422,-0.033) points=12
+[TIMING] n=12 parse=0.0ms feat=24.2ms ae=103.5ms rf=838.5ms lock=51.7ms log=45.1ms
+[OCCUPANCY] state=occupied centroid=(-0.073,1.105,0.037) points=19
+[TIMING] n=21 parse=9.7ms feat=46.8ms ae=125.9ms rf=146.2ms lock=31.2ms log=23.0ms
+[OCCUPANCY] state=occupied centroid=(-0.203,1.316,0.019) points=27
+[TIMING] n=8 parse=3.1ms feat=17.4ms ae=69.8ms rf=556.6ms lock=13.5ms log=7.5ms
+[16:43:57] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.073,1.219,0.126) points=8
+[TIMING] n=8 parse=3.6ms feat=17.5ms ae=67.1ms rf=560.5ms lock=5.0ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.112,1.577,-0.085) points=12
+[TIMING] n=13 parse=4.0ms feat=28.0ms ae=106.7ms rf=821.2ms lock=5.7ms log=0.1ms
+[TIMING] n=19 parse=4.3ms feat=37.2ms ae=118.7ms rf=75.1ms lock=2.2ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.124,1.355,0.020) points=9
+[TIMING] n=8 parse=2.5ms feat=16.7ms ae=71.3ms rf=548.6ms lock=5.3ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(0.153,1.337,-0.103) points=7
+[TIMING] n=8 parse=3.4ms feat=16.6ms ae=62.7ms rf=543.7ms lock=4.7ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.064,1.385,-0.093) points=9
+[TIMING] n=8 parse=3.6ms feat=18.1ms ae=66.3ms rf=550.6ms lock=5.2ms log=4.2ms
+[OCCUPANCY] state=occupied centroid=(0.162,1.474,-0.070) points=12
+[OCCUPANCY] state=occupied centroid=(0.248,1.134,0.037) points=6
+[TIMING] n=11 parse=4.0ms feat=22.8ms ae=94.4ms rf=749.9ms lock=5.9ms log=4.1ms
+[16:44:05] [CMD] exit from 172.20.10.12
+[OCCUPANCY] state=vacant centroid=(0.158,1.360,-0.056) points=7
+[OCCUPANCY] state=vacant centroid=(0.247,1.135,-0.016) points=7
+[OCCUPANCY] state=vacant centroid=(0.158,1.572,0.072) points=9
+[OCCUPANCY] state=vacant centroid=(-0.099,1.588,0.210) points=12
+[OCCUPANCY] state=vacant centroid=(0.215,1.028,0.018) points=5
+[OCCUPANCY] state=vacant centroid=(0.185,1.191,-0.053) points=6
+[16:44:13] [CMD] enter from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.137,0.868,0.020) points=3
+[TIMING] n=5 parse=39.0ms feat=192.0ms ae=35.1ms rf=273.2ms lock=5.0ms log=0.1ms
+[OCCUPANCY] state=occupied centroid=(0.228,1.520,-0.033) points=8
+[TIMING] n=13 parse=5.6ms feat=28.2ms ae=54.8ms rf=0.0ms lock=1.6ms log=3.8ms
+[TIMING] n=10 parse=3.7ms feat=23.8ms ae=78.1ms rf=80.9ms lock=5.4ms log=3.3ms
+[OCCUPANCY] state=occupied centroid=(0.273,1.155,-0.078) points=4
+[TIMING] n=8 parse=2.5ms feat=17.5ms ae=65.7ms rf=546.2ms lock=4.7ms log=4.2ms
+[OCCUPANCY] state=occupied centroid=(0.040,1.216,0.092) points=28
+[TIMING] n=8 parse=3.1ms feat=18.1ms ae=67.0ms rf=555.2ms lock=14.3ms log=8.5ms
+[OCCUPANCY] state=occupied centroid=(-0.326,1.090,0.242) points=28
+[TIMING] n=8 parse=2.8ms feat=16.5ms ae=64.8ms rf=544.2ms lock=12.0ms log=23.3ms
+[OCCUPANCY] state=occupied centroid=(-0.151,1.329,0.166) points=3
+[TIMING] n=8 parse=2.9ms feat=16.0ms ae=66.4ms rf=546.7ms lock=19.2ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(-0.062,1.427,-0.109) points=14
+[OCCUPANCY] state=occupied centroid=(-0.053,1.533,-0.329) points=4
+[TIMING] n=12 parse=3.4ms feat=21.7ms ae=103.4ms rf=819.5ms lock=5.7ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.008,1.213,-0.233) points=10
+[TIMING] n=13 parse=0.0ms feat=25.5ms ae=112.7ms rf=890.0ms lock=5.7ms log=3.4ms
+[OCCUPANCY] state=occupied centroid=(0.191,1.279,-0.401) points=3
+[TIMING] n=8 parse=3.3ms feat=15.9ms ae=61.8ms rf=545.8ms lock=4.6ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(-0.295,1.634,-0.316) points=4
+[TIMING] n=10 parse=3.4ms feat=20.6ms ae=85.3ms rf=677.6ms lock=10.5ms log=7.1ms
+[OCCUPANCY] state=occupied centroid=(-0.137,1.855,-0.221) points=4
+[TIMING] n=13 parse=0.0ms feat=26.6ms ae=107.1ms rf=887.0ms lock=5.7ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(-0.271,1.339,-0.198) points=5
+[TIMING] n=8 parse=3.8ms feat=16.6ms ae=65.4ms rf=549.2ms lock=5.4ms log=3.4ms
+[OCCUPANCY] state=occupied centroid=(0.030,1.361,0.321) points=16
+[TIMING] n=13 parse=0.0ms feat=26.7ms ae=106.7ms rf=892.9ms lock=7.6ms log=4.6ms
+[OCCUPANCY] state=occupied centroid=none points=0
+[TIMING] n=8 parse=4.2ms feat=16.1ms ae=64.3ms rf=548.6ms lock=4.6ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.077,0.823,0.093) points=5
+[TIMING] n=12 parse=3.5ms feat=25.1ms ae=103.0ms rf=813.9ms lock=10.7ms log=7.4ms
+[OCCUPANCY] state=occupied centroid=(0.231,1.113,0.220) points=4
+[TIMING] n=13 parse=0.0ms feat=26.8ms ae=103.9ms rf=884.4ms lock=5.8ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(-0.053,1.222,-0.041) points=4
+[TIMING] n=8 parse=3.6ms feat=16.9ms ae=70.7ms rf=549.0ms lock=4.8ms log=2.7ms
+[OCCUPANCY] state=occupied centroid=(0.137,0.867,0.049) points=3
+[TIMING] n=13 parse=0.0ms feat=27.9ms ae=111.5ms rf=885.2ms lock=4.6ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.078,0.958,0.002) points=5
+[TIMING] n=8 parse=3.9ms feat=17.4ms ae=69.1ms rf=550.0ms lock=5.1ms log=4.3ms
+[OCCUPANCY] state=occupied centroid=(0.097,1.440,0.142) points=10
+[TIMING] n=13 parse=0.0ms feat=28.0ms ae=108.6ms rf=878.8ms lock=6.2ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.069,1.140,0.042) points=9
+[TIMING] n=8 parse=4.1ms feat=16.2ms ae=64.2ms rf=550.2ms lock=5.2ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.224,1.175,0.134) points=5
+[TIMING] n=13 parse=0.0ms feat=26.7ms ae=106.2ms rf=879.5ms lock=5.5ms log=3.2ms
+[OCCUPANCY] state=occupied centroid=(-0.348,1.506,-0.191) points=2
+[TIMING] n=8 parse=5.3ms feat=17.0ms ae=65.5ms rf=542.9ms lock=4.4ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.219,1.411,0.116) points=24
+[TIMING] n=12 parse=6.0ms feat=25.9ms ae=99.5ms rf=814.8ms lock=5.7ms log=3.3ms
+[OCCUPANCY] state=occupied centroid=(0.288,1.200,-0.058) points=6
+[TIMING] n=8 parse=0.0ms feat=16.4ms ae=68.9ms rf=553.0ms lock=364.7ms log=17.7ms
+[OCCUPANCY] state=occupied centroid=(0.292,1.191,-0.050) points=6
+[TIMING] n=12 parse=5.8ms feat=24.9ms ae=108.3ms rf=830.0ms lock=25.7ms log=15.7ms
+[OCCUPANCY] state=occupied centroid=(0.231,1.394,-0.079) points=9
+[TIMING] n=13 parse=0.0ms feat=28.1ms ae=108.0ms rf=895.1ms lock=5.9ms log=1.8ms
+[16:44:44] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.247,1.134,-0.016) points=7
+[TIMING] n=11 parse=8.1ms feat=23.2ms ae=94.7ms rf=752.8ms lock=3.6ms log=2.5ms
+[OCCUPANCY] state=occupied centroid=(0.096,0.846,0.064) points=4
+[TIMING] n=13 parse=0.0ms feat=28.1ms ae=111.1ms rf=874.4ms lock=4.5ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.166,1.138,-0.031) points=21
+[TIMING] n=11 parse=6.4ms feat=23.0ms ae=83.8ms rf=681.4ms lock=5.4ms log=0.1ms
+[TIMING] n=24 parse=2.6ms feat=45.8ms ae=148.3ms rf=403.6ms lock=2.7ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.257,1.292,-0.263) points=8
+[TIMING] n=8 parse=2.5ms feat=16.0ms ae=71.4ms rf=552.2ms lock=5.2ms log=2.6ms
+[OCCUPANCY] state=occupied centroid=(0.195,1.179,-0.128) points=10
+[OCCUPANCY] state=occupied centroid=none points=0
+[TIMING] n=11 parse=3.5ms feat=22.2ms ae=89.6ms rf=763.0ms lock=9.1ms log=6.3ms
+[OCCUPANCY] state=occupied centroid=(0.269,1.444,0.030) points=6
+[TIMING] n=13 parse=3.9ms feat=27.6ms ae=115.5ms rf=888.2ms lock=16.6ms log=8.9ms
+[OCCUPANCY] state=occupied centroid=(0.351,1.282,-0.094) points=5
+[TIMING] n=12 parse=0.0ms feat=21.8ms ae=106.0ms rf=837.2ms lock=41.8ms log=23.8ms
+[OCCUPANCY] state=occupied centroid=(0.148,1.269,-0.101) points=8
+[TIMING] n=8 parse=4.8ms feat=17.0ms ae=70.5ms rf=559.0ms lock=18.2ms log=10.5ms
+[16:44:55] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.351,1.282,-0.094) points=5
+[TIMING] n=11 parse=4.6ms feat=29.8ms ae=86.9ms rf=677.5ms lock=4.0ms log=0.1ms
+[OCCUPANCY] state=occupied centroid=(0.046,1.242,-0.176) points=10
+[TIMING] n=24 parse=4.7ms feat=48.8ms ae=146.4ms rf=433.6ms lock=3.0ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(-0.025,0.780,0.151) points=1
+[TIMING] n=8 parse=2.4ms feat=17.1ms ae=71.9ms rf=538.9ms lock=5.4ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.569,1.964,0.124) points=3
+[TIMING] n=10 parse=2.8ms feat=21.4ms ae=88.4ms rf=673.9ms lock=9.1ms log=4.9ms
+[OCCUPANCY] state=occupied centroid=(0.036,1.160,0.145) points=4
+[TIMING] n=12 parse=4.6ms feat=26.8ms ae=99.0ms rf=819.4ms lock=4.4ms log=4.8ms
+[OCCUPANCY] state=occupied centroid=(0.108,1.619,0.054) points=14
+[TIMING] n=11 parse=0.0ms feat=24.5ms ae=94.3ms rf=742.0ms lock=145.7ms log=7.6ms
+[OCCUPANCY] state=occupied centroid=(-0.026,1.298,-0.073) points=8
+[TIMING] n=7 parse=5.2ms feat=12.7ms ae=58.7ms rf=490.5ms lock=24.7ms log=13.9ms
+[OCCUPANCY] state=occupied centroid=(0.079,1.610,-0.199) points=8
+[TIMING] n=12 parse=0.0ms feat=24.5ms ae=117.6ms rf=835.6ms lock=22.5ms log=12.8ms
+[OCCUPANCY] state=occupied centroid=(0.155,1.337,-0.139) points=7
+[TIMING] n=8 parse=5.5ms feat=17.0ms ae=71.5ms rf=543.8ms lock=4.0ms log=4.0ms
+[16:45:04] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.215,1.398,-0.145) points=8
+[TIMING] n=11 parse=5.4ms feat=22.6ms ae=84.1ms rf=675.5ms lock=5.7ms log=0.1ms
+[TIMING] n=24 parse=3.0ms feat=51.7ms ae=155.0ms rf=409.1ms lock=3.0ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=none points=0
+[TIMING] n=8 parse=2.1ms feat=16.2ms ae=68.7ms rf=553.6ms lock=5.0ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=none points=0
+[TIMING] n=8 parse=2.6ms feat=17.1ms ae=66.4ms rf=544.6ms lock=5.4ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.114,1.114,-0.088) points=8
+[TIMING] n=8 parse=2.8ms feat=17.1ms ae=67.9ms rf=547.8ms lock=5.0ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(-0.473,1.883,-0.313) points=4
+[TIMING] n=8 parse=4.5ms feat=16.1ms ae=65.4ms rf=548.0ms lock=5.1ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.245,1.293,0.005) points=8
+[TIMING] n=13 parse=0.0ms feat=28.1ms ae=112.6ms rf=890.0ms lock=19.7ms log=10.9ms
+[OCCUPANCY] state=occupied centroid=(0.320,1.215,-0.011) points=5
+[TIMING] n=7 parse=3.9ms feat=12.5ms ae=58.2ms rf=503.8ms lock=24.7ms log=14.1ms
+[OCCUPANCY] state=occupied centroid=(0.212,1.110,0.132) points=7
+[TIMING] n=11 parse=5.6ms feat=23.8ms ae=104.5ms rf=766.0ms lock=14.5ms log=9.0ms
+[16:45:14] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.268,1.099,0.007) points=4
+[TIMING] n=13 parse=0.0ms feat=30.2ms ae=114.3ms rf=900.9ms lock=5.3ms log=2.5ms
+[OCCUPANCY] state=occupied centroid=(-0.093,1.335,-0.014) points=5
+[TIMING] n=23 parse=7.8ms feat=48.8ms ae=138.2ms rf=285.8ms lock=5.2ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(-0.056,1.397,-0.141) points=12
+[TIMING] n=8 parse=2.3ms feat=16.4ms ae=70.1ms rf=555.7ms lock=5.1ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.071,1.239,-0.221) points=5
+[TIMING] n=8 parse=2.4ms feat=16.2ms ae=68.2ms rf=547.7ms lock=5.2ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(-0.037,1.688,-0.231) points=6
+[TIMING] n=10 parse=3.0ms feat=18.5ms ae=85.9ms rf=679.1ms lock=9.6ms log=5.7ms
+[OCCUPANCY] state=occupied centroid=(0.124,0.848,-0.139) points=20
+[TIMING] n=12 parse=4.0ms feat=24.5ms ae=99.4ms rf=825.3ms lock=4.4ms log=4.2ms
+[OCCUPANCY] state=occupied centroid=(0.067,1.229,-0.057) points=6
+[TIMING] n=13 parse=0.0ms feat=25.4ms ae=115.6ms rf=886.3ms lock=36.4ms log=19.6ms
+[OCCUPANCY] state=occupied centroid=(0.292,1.192,-0.048) points=6
+[TIMING] n=7 parse=4.2ms feat=14.7ms ae=62.4ms rf=495.6ms lock=16.1ms log=30.3ms
+[OCCUPANCY] state=occupied centroid=(0.228,1.081,0.016) points=4
+[TIMING] n=10 parse=5.5ms feat=22.8ms ae=90.2ms rf=710.4ms lock=24.9ms log=2.3ms
+[16:45:24] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.138,1.001,0.152) points=6
+[TIMING] n=13 parse=0.0ms feat=34.4ms ae=111.4ms rf=886.1ms lock=5.1ms log=2.2ms
+[OCCUPANCY] state=occupied centroid=(0.074,1.290,0.146) points=11
+[TIMING] n=23 parse=6.9ms feat=42.9ms ae=132.1ms rf=273.7ms lock=5.2ms log=4.6ms
+[TIMING] n=8 parse=2.2ms feat=17.4ms ae=68.0ms rf=547.5ms lock=6.0ms log=4.4ms
+[OCCUPANCY] state=occupied centroid=(-0.622,2.244,-0.519) points=3
+[TIMING] n=8 parse=2.6ms feat=16.9ms ae=70.3ms rf=543.4ms lock=5.8ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(-0.391,1.865,-0.434) points=3
+[OCCUPANCY] state=occupied centroid=(0.102,1.277,-0.004) points=19
+[TIMING] n=9 parse=3.6ms feat=20.0ms ae=75.4ms rf=616.9ms lock=5.0ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(0.373,1.167,-0.163) points=18
+[TIMING] n=12 parse=3.9ms feat=27.5ms ae=97.8ms rf=818.5ms lock=5.3ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(0.289,1.156,0.005) points=6
+[TIMING] n=12 parse=0.0ms feat=21.8ms ae=113.3ms rf=835.1ms lock=43.4ms log=24.2ms
+[OCCUPANCY] state=occupied centroid=(0.294,1.156,0.009) points=6
+[TIMING] n=7 parse=5.0ms feat=14.7ms ae=67.6ms rf=493.0ms lock=12.4ms log=8.9ms
+[16:45:35] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.286,1.268,0.225) points=7
+[TIMING] n=12 parse=4.9ms feat=26.7ms ae=107.7ms rf=822.8ms lock=5.7ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.292,1.181,-0.104) points=6
+[TIMING] n=13 parse=0.0ms feat=28.8ms ae=104.6ms rf=905.6ms lock=5.8ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.097,1.228,-0.027) points=12
+[TIMING] n=22 parse=7.8ms feat=47.0ms ae=132.0ms rf=204.4ms lock=6.3ms log=3.7ms
+[TIMING] n=8 parse=2.3ms feat=16.5ms ae=64.5ms rf=551.0ms lock=5.0ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.141,1.121,0.020) points=3
+[TIMING] n=8 parse=2.3ms feat=16.7ms ae=69.4ms rf=541.1ms lock=5.2ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.037,1.277,-0.017) points=5
+[OCCUPANCY] state=occupied centroid=(-0.596,2.273,-0.414) points=1
+[TIMING] n=10 parse=2.7ms feat=18.3ms ae=85.1ms rf=683.4ms lock=22.4ms log=17.9ms
+[OCCUPANCY] state=occupied centroid=(-0.157,1.433,-0.098) points=9
+[TIMING] n=12 parse=3.9ms feat=24.7ms ae=96.2ms rf=825.4ms lock=11.9ms log=7.6ms
+[OCCUPANCY] state=occupied centroid=(0.236,1.386,0.071) points=5
+[TIMING] n=13 parse=0.0ms feat=25.8ms ae=107.6ms rf=893.8ms lock=25.4ms log=13.6ms
+[OCCUPANCY] state=occupied centroid=(0.210,1.037,0.023) points=5
+[TIMING] n=7 parse=4.0ms feat=12.3ms ae=59.4ms rf=491.4ms lock=24.8ms log=14.0ms
+[OCCUPANCY] state=occupied centroid=(0.215,1.028,0.021) points=5
+[TIMING] n=10 parse=4.1ms feat=28.5ms ae=83.5ms rf=695.6ms lock=9.2ms log=5.0ms
+[16:45:45] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.270,1.240,0.123) points=5
+[TIMING] n=13 parse=0.0ms feat=29.5ms ae=112.9ms rf=896.1ms lock=13.4ms log=8.4ms
+[OCCUPANCY] state=occupied centroid=(0.057,1.285,0.082) points=10
+[TIMING] n=22 parse=6.7ms feat=44.1ms ae=139.7ms rf=207.2ms lock=5.3ms log=3.9ms
+[TIMING] n=7 parse=2.2ms feat=16.4ms ae=59.4ms rf=509.2ms lock=5.2ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.204,1.571,-0.213) points=9
+[TIMING] n=8 parse=2.7ms feat=16.5ms ae=72.7ms rf=555.8ms lock=5.2ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(0.122,1.649,-0.160) points=14
+[16:45:50] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.185,1.292,-0.177) points=12
+[TIMING] n=10 parse=3.0ms feat=20.3ms ae=74.7ms rf=615.5ms lock=5.8ms log=0.1ms
+[TIMING] n=19 parse=3.9ms feat=36.7ms ae=123.3ms rf=74.8ms lock=2.2ms log=8.6ms
+[OCCUPANCY] state=occupied centroid=(0.141,1.219,-0.100) points=7
+[TIMING] n=8 parse=2.1ms feat=17.2ms ae=66.8ms rf=544.9ms lock=9.9ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(-0.596,2.267,-0.443) points=1
+[TIMING] n=8 parse=2.7ms feat=15.5ms ae=67.5ms rf=552.5ms lock=9.5ms log=6.6ms
+[OCCUPANCY] state=occupied centroid=(0.003,0.810,-0.101) points=20
+[TIMING] n=6 parse=3.4ms feat=16.4ms ae=51.0ms rf=416.5ms lock=146.6ms log=7.7ms
+[OCCUPANCY] state=occupied centroid=(0.158,1.494,0.093) points=10
+[TIMING] n=7 parse=0.0ms feat=17.1ms ae=64.4ms rf=478.2ms lock=531.3ms log=58.8ms
+[OCCUPANCY] state=occupied centroid=(0.093,1.232,-0.043) points=6
+[TIMING] n=7 parse=5.5ms feat=14.5ms ae=58.1ms rf=478.2ms lock=79.4ms log=10.7ms
+[OCCUPANCY] state=occupied centroid=(0.210,1.038,0.027) points=5
+[TIMING] n=13 parse=0.0ms feat=28.9ms ae=108.5ms rf=885.0ms lock=6.8ms log=3.9ms
+[16:45:58] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.095,1.335,-0.064) points=5
+[TIMING] n=25 parse=5.8ms feat=52.9ms ae=152.3ms rf=410.7ms lock=6.9ms log=3.3ms
+[OCCUPANCY] state=occupied centroid=(0.014,1.652,0.053) points=16
+[TIMING] n=8 parse=5.8ms feat=17.9ms ae=68.0ms rf=538.3ms lock=4.6ms log=4.5ms
+[OCCUPANCY] state=occupied centroid=(0.123,1.327,0.110) points=13
+[OCCUPANCY] state=occupied centroid=(-0.025,0.779,0.162) points=2
+[TIMING] n=11 parse=2.8ms feat=22.5ms ae=90.1ms rf=746.6ms lock=6.1ms log=3.3ms
+[OCCUPANCY] state=occupied centroid=(-0.142,1.560,-0.363) points=5
+[TIMING] n=12 parse=3.2ms feat=23.2ms ae=104.2ms rf=810.0ms lock=10.0ms log=7.2ms
+[OCCUPANCY] state=occupied centroid=(-0.064,1.275,-0.021) points=8
+[TIMING] n=13 parse=0.0ms feat=28.9ms ae=102.0ms rf=889.3ms lock=5.6ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.179,1.247,0.012) points=6
+[TIMING] n=8 parse=3.9ms feat=16.7ms ae=74.2ms rf=552.4ms lock=19.0ms log=11.2ms
+[OCCUPANCY] state=occupied centroid=(0.234,1.288,0.066) points=7
+[TIMING] n=8 parse=4.2ms feat=15.1ms ae=79.5ms rf=565.1ms lock=37.0ms log=23.6ms
+[OCCUPANCY] state=occupied centroid=(0.220,1.027,0.038) points=5
+[TIMING] n=13 parse=0.0ms feat=25.9ms ae=111.9ms rf=897.2ms lock=14.3ms log=15.7ms
+[OCCUPANCY] state=occupied centroid=(0.061,1.163,-0.045) points=7
+[TIMING] n=8 parse=5.8ms feat=19.0ms ae=72.0ms rf=551.5ms lock=11.3ms log=3.9ms
+[16:46:09] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.323,1.258,-0.072) points=5
+[TIMING] n=13 parse=0.0ms feat=27.6ms ae=105.7ms rf=888.6ms lock=5.9ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.016,1.359,0.016) points=24
+[TIMING] n=20 parse=6.9ms feat=36.5ms ae=105.3ms rf=80.5ms lock=6.0ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(-0.137,1.461,-0.190) points=6
+[TIMING] n=8 parse=2.3ms feat=16.7ms ae=66.1ms rf=545.0ms lock=5.1ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.230,1.583,0.182) points=9
+[TIMING] n=8 parse=3.0ms feat=16.2ms ae=65.3ms rf=539.3ms lock=4.9ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(-0.001,1.592,-0.242) points=11
+[TIMING] n=9 parse=3.2ms feat=19.9ms ae=76.7ms rf=612.8ms lock=5.6ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.015,0.716,-0.190) points=14
+[TIMING] n=13 parse=4.2ms feat=27.0ms ae=107.8ms rf=880.2ms lock=5.9ms log=3.3ms
+[OCCUPANCY] state=occupied centroid=(0.194,1.632,0.141) points=12
+[TIMING] n=12 parse=0.0ms feat=23.8ms ae=101.9ms rf=831.4ms lock=53.3ms log=38.1ms
+[OCCUPANCY] state=occupied centroid=(0.242,1.635,0.130) points=10
+[TIMING] n=7 parse=4.0ms feat=13.9ms ae=69.6ms rf=495.6ms lock=25.8ms log=31.0ms
+[16:46:19] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.266,1.330,0.111) points=9
+[TIMING] n=11 parse=5.6ms feat=24.5ms ae=99.1ms rf=754.4ms lock=22.6ms log=5.2ms
+[OCCUPANCY] state=occupied centroid=(0.215,1.027,0.036) points=5
+[TIMING] n=13 parse=0.0ms feat=28.8ms ae=109.3ms rf=889.6ms lock=5.7ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.016,1.329,0.018) points=19
+[TIMING] n=23 parse=9.7ms feat=46.2ms ae=138.0ms rf=271.7ms lock=11.3ms log=6.8ms
+[16:46:22] [CMD] resolve from 172.20.10.12
+[TIMING] n=8 parse=2.3ms feat=18.4ms ae=70.2ms rf=553.9ms lock=4.8ms log=2.9ms
+[OCCUPANCY] state=occupied centroid=(0.177,1.239,-0.220) points=10
+[OCCUPANCY] state=occupied centroid=(-0.036,1.933,-0.145) points=8
+[TIMING] n=17 parse=5.1ms feat=31.6ms ae=104.5ms rf=351.5ms lock=4.9ms log=4.2ms
+[TIMING] n=9 parse=3.2ms feat=18.2ms ae=71.2ms rf=138.0ms lock=5.6ms log=2.8ms
+[OCCUPANCY] state=occupied centroid=(-0.158,1.547,-0.222) points=8
+[TIMING] n=8 parse=2.4ms feat=16.4ms ae=66.4ms rf=544.4ms lock=6.7ms log=3.4ms
+[OCCUPANCY] state=occupied centroid=(0.034,1.495,-0.029) points=15
+[TIMING] n=8 parse=3.3ms feat=17.8ms ae=74.8ms rf=555.7ms lock=9.0ms log=5.5ms
+[OCCUPANCY] state=occupied centroid=(0.120,1.212,0.096) points=4
+[OCCUPANCY] state=occupied centroid=(0.302,1.244,0.144) points=5
+[TIMING] n=8 parse=3.5ms feat=15.1ms ae=67.6ms rf=563.5ms lock=27.3ms log=15.5ms
+[OCCUPANCY] state=occupied centroid=(0.268,1.100,-0.008) points=4
+[TIMING] n=12 parse=0.0ms feat=23.4ms ae=109.5ms rf=844.8ms lock=18.8ms log=15.7ms
+[OCCUPANCY] state=occupied centroid=(0.391,1.374,-0.103) points=6
+[TIMING] n=7 parse=4.7ms feat=16.0ms ae=72.0ms rf=497.7ms lock=8.8ms log=3.2ms
+[16:46:30] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.338,1.313,-0.101) points=7
+[TIMING] n=11 parse=4.0ms feat=22.9ms ae=84.0ms rf=673.3ms lock=4.9ms log=0.1ms
+[OCCUPANCY] state=occupied centroid=(0.196,1.068,-0.094) points=15
+[TIMING] n=22 parse=4.8ms feat=44.7ms ae=142.6ms rf=284.2ms lock=2.7ms log=4.3ms
+[OCCUPANCY] state=occupied centroid=(-0.009,1.274,-0.365) points=11
+[TIMING] n=8 parse=2.5ms feat=17.0ms ae=71.1ms rf=540.0ms lock=5.6ms log=2.8ms
+[OCCUPANCY] state=occupied centroid=(0.247,1.270,-0.245) points=6
+[TIMING] n=8 parse=2.7ms feat=16.6ms ae=68.0ms rf=549.8ms lock=4.2ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.132,1.405,-0.119) points=8
+[TIMING] n=12 parse=4.6ms feat=25.1ms ae=99.9ms rf=819.0ms lock=5.6ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(0.215,1.026,0.047) points=5
+[TIMING] n=12 parse=0.0ms feat=23.4ms ae=108.0ms rf=827.2ms lock=28.3ms log=16.1ms
+[OCCUPANCY] state=occupied centroid=(0.146,1.344,-0.137) points=7
+[TIMING] n=8 parse=4.1ms feat=17.3ms ae=68.7ms rf=556.0ms lock=20.8ms log=13.1ms
+[OCCUPANCY] state=occupied centroid=(0.175,0.986,0.056) points=6
+[TIMING] n=8 parse=5.5ms feat=16.8ms ae=66.2ms rf=550.6ms lock=5.2ms log=3.0ms
+[OCCUPANCY] state=occupied centroid=(0.303,1.523,0.203) points=6
+[TIMING] n=13 parse=0.0ms feat=30.0ms ae=113.1ms rf=888.3ms lock=5.1ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(0.057,1.472,-0.168) points=8
+[TIMING] n=8 parse=5.8ms feat=17.5ms ae=71.8ms rf=546.3ms lock=4.7ms log=4.1ms
+[16:46:41] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(-0.055,1.361,-0.069) points=7
+[TIMING] n=13 parse=0.0ms feat=27.6ms ae=110.5ms rf=887.2ms lock=6.1ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(0.162,1.120,-0.101) points=8
+[TIMING] n=20 parse=7.4ms feat=43.9ms ae=116.2ms rf=74.3ms lock=5.7ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(-0.159,0.913,0.122) points=10
+[TIMING] n=8 parse=2.4ms feat=16.5ms ae=66.9ms rf=541.6ms lock=5.4ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.127,1.543,0.142) points=13
+[TIMING] n=8 parse=2.7ms feat=17.8ms ae=65.8ms rf=539.4ms lock=5.3ms log=4.3ms
+[OCCUPANCY] state=occupied centroid=(0.035,1.148,-0.013) points=13
+[TIMING] n=8 parse=3.5ms feat=16.7ms ae=65.6ms rf=542.0ms lock=5.7ms log=4.6ms
+[OCCUPANCY] state=occupied centroid=(0.210,1.037,0.032) points=5
+[TIMING] n=12 parse=4.3ms feat=28.4ms ae=104.5ms rf=823.3ms lock=19.5ms log=10.8ms
+[OCCUPANCY] state=occupied centroid=(0.087,1.409,-0.166) points=7
+[TIMING] n=12 parse=0.0ms feat=22.0ms ae=111.8ms rf=842.0ms lock=36.5ms log=22.2ms
+[OCCUPANCY] state=occupied centroid=(0.141,1.576,-0.163) points=9
+[TIMING] n=8 parse=6.5ms feat=17.0ms ae=71.2ms rf=555.8ms lock=5.8ms log=3.9ms
+[16:46:50] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.221,1.090,-0.040) points=4
+[TIMING] n=11 parse=4.2ms feat=25.3ms ae=91.0ms rf=686.7ms lock=5.5ms log=0.1ms
+[OCCUPANCY] state=occupied centroid=(0.044,1.348,0.071) points=7
+[TIMING] n=23 parse=4.8ms feat=47.6ms ae=157.4ms rf=343.4ms lock=2.9ms log=2.4ms
+[OCCUPANCY] state=occupied centroid=(-0.135,1.017,0.054) points=17
+[TIMING] n=8 parse=3.7ms feat=18.4ms ae=65.9ms rf=561.0ms lock=3.7ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.119,1.232,-0.140) points=13
+[TIMING] n=10 parse=3.0ms feat=21.9ms ae=91.4ms rf=689.9ms lock=9.0ms log=6.3ms
+[OCCUPANCY] state=occupied centroid=(-0.063,1.378,-0.228) points=19
+[TIMING] n=12 parse=3.5ms feat=26.6ms ae=102.8ms rf=827.8ms lock=6.0ms log=2.8ms
+[OCCUPANCY] state=occupied centroid=(0.089,1.427,0.084) points=14
+[TIMING] n=13 parse=0.0ms feat=27.4ms ae=111.1ms rf=902.4ms lock=4.8ms log=15.3ms
+[OCCUPANCY] state=occupied centroid=(0.237,1.641,0.117) points=11
+[TIMING] n=7 parse=4.1ms feat=14.6ms ae=58.2ms rf=483.4ms lock=30.3ms log=10.4ms
+[OCCUPANCY] state=occupied centroid=(0.095,1.334,-0.082) points=5
+[TIMING] n=9 parse=4.8ms feat=17.6ms ae=80.3ms rf=617.2ms lock=51.6ms log=37.7ms
+[OCCUPANCY] state=occupied centroid=(0.130,1.249,-0.003) points=8
+[TIMING] n=13 parse=0.0ms feat=27.0ms ae=117.0ms rf=892.6ms lock=5.8ms log=3.4ms
+[OCCUPANCY] state=occupied centroid=(0.068,1.304,-0.090) points=5
+[TIMING] n=8 parse=6.8ms feat=17.5ms ae=69.0ms rf=544.6ms lock=4.7ms log=3.7ms
+[16:47:02] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.097,1.457,-0.029) points=8
+[TIMING] n=13 parse=0.0ms feat=28.7ms ae=109.3ms rf=890.4ms lock=5.7ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.088,1.319,-0.103) points=17
+[TIMING] n=21 parse=7.8ms feat=39.7ms ae=120.4ms rf=139.5ms lock=6.1ms log=8.2ms
+[OCCUPANCY] state=occupied centroid=none points=0
+[TIMING] n=8 parse=2.3ms feat=17.7ms ae=66.2ms rf=554.5ms lock=9.7ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.092,1.423,-0.334) points=10
+[TIMING] n=8 parse=4.1ms feat=16.4ms ae=69.9ms rf=547.1ms lock=5.2ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.077,1.184,0.080) points=16
+[TIMING] n=10 parse=3.9ms feat=21.7ms ae=82.4ms rf=679.5ms lock=5.7ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(0.267,1.158,0.149) points=6
+[TIMING] n=8 parse=0.0ms feat=23.6ms ae=74.2ms rf=541.2ms lock=498.5ms log=23.1ms
+[OCCUPANCY] state=occupied centroid=(0.163,1.398,-0.087) points=6
+[TIMING] n=8 parse=5.3ms feat=14.2ms ae=68.8ms rf=548.8ms lock=31.0ms log=16.6ms
+[OCCUPANCY] state=occupied centroid=(0.215,1.028,0.028) points=5
+[16:47:10] [CMD] resolve from 172.20.10.12
+[TIMING] n=13 parse=0.0ms feat=28.0ms ae=109.9ms rf=895.3ms lock=16.1ms log=9.7ms
+[OCCUPANCY] state=occupied centroid=(0.062,1.445,-0.007) points=8
+[TIMING] n=23 parse=9.2ms feat=41.8ms ae=124.3ms rf=277.3ms lock=4.1ms log=3.0ms
+[OCCUPANCY] state=occupied centroid=(0.023,1.337,-0.107) points=20
+[TIMING] n=8 parse=3.2ms feat=17.6ms ae=67.1ms rf=555.0ms lock=4.4ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.295,1.413,0.092) points=13
+[TIMING] n=8 parse=2.9ms feat=17.4ms ae=72.5ms rf=554.2ms lock=5.0ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.050,1.337,-0.073) points=12
+[TIMING] n=10 parse=4.8ms feat=20.9ms ae=82.5ms rf=683.9ms lock=5.6ms log=2.9ms
+[OCCUPANCY] state=occupied centroid=(0.219,1.622,-0.119) points=9
+[TIMING] n=11 parse=0.0ms feat=22.6ms ae=99.3ms rf=761.8ms lock=143.8ms log=7.3ms
+[OCCUPANCY] state=occupied centroid=(0.347,1.240,-0.022) points=5
+[TIMING] n=4 parse=4.9ms feat=9.9ms ae=38.5ms rf=272.0ms lock=290.5ms log=19.3ms
+[OCCUPANCY] state=occupied centroid=(0.175,0.987,0.052) points=6
+[TIMING] n=11 parse=0.0ms feat=21.3ms ae=99.4ms rf=761.4ms lock=109.4ms log=27.4ms
+[OCCUPANCY] state=occupied centroid=(0.341,1.285,-0.062) points=7
+[16:47:19] [CMD] resolve from 172.20.10.12
+[TIMING] n=8 parse=6.5ms feat=17.1ms ae=71.2ms rf=551.1ms lock=6.7ms log=5.4ms
+[OCCUPANCY] state=occupied centroid=(0.345,1.278,-0.060) points=7
+[TIMING] n=13 parse=0.0ms feat=27.7ms ae=109.9ms rf=881.8ms lock=5.8ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.264,1.056,-0.126) points=4
+[TIMING] n=21 parse=5.2ms feat=44.1ms ae=129.9ms rf=405.4ms lock=6.5ms log=4.2ms
+[OCCUPANCY] state=occupied centroid=(0.130,1.028,-0.276) points=12
+[TIMING] n=11 parse=3.0ms feat=22.7ms ae=82.7ms rf=474.2ms lock=5.9ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.070,1.037,0.042) points=9
+[TIMING] n=8 parse=3.2ms feat=17.9ms ae=64.1ms rf=549.1ms lock=5.3ms log=4.4ms
+[OCCUPANCY] state=occupied centroid=(0.237,1.389,-0.059) points=8
+[TIMING] n=8 parse=3.5ms feat=19.4ms ae=70.0ms rf=549.2ms lock=79.7ms log=8.4ms
+[OCCUPANCY] state=occupied centroid=(0.210,1.037,0.039) points=5
+[TIMING] n=10 parse=0.0ms feat=18.9ms ae=85.0ms rf=694.6ms lock=229.4ms log=17.5ms
+[OCCUPANCY] state=occupied centroid=(0.066,1.440,-0.107) points=8
+[TIMING] n=8 parse=5.0ms feat=17.8ms ae=65.9ms rf=552.0ms lock=3.6ms log=2.0ms
+[16:47:26] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(-0.019,1.571,-0.164) points=11
+[TIMING] n=10 parse=5.3ms feat=21.2ms ae=79.7ms rf=626.3ms lock=3.6ms log=0.2ms
+[OCCUPANCY] state=occupied centroid=(0.167,1.083,0.072) points=11
+[TIMING] n=23 parse=5.0ms feat=51.2ms ae=146.7ms rf=358.0ms lock=3.2ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.000,1.317,-0.182) points=18
+[TIMING] n=8 parse=2.6ms feat=17.5ms ae=68.1ms rf=554.6ms lock=7.5ms log=4.3ms
+[OCCUPANCY] state=occupied centroid=(-0.015,1.192,-0.097) points=11
+[TIMING] n=10 parse=3.4ms feat=21.8ms ae=84.3ms rf=683.0ms lock=4.7ms log=4.2ms
+[OCCUPANCY] state=occupied centroid=(0.063,1.169,0.040) points=14
+[TIMING] n=13 parse=3.9ms feat=27.9ms ae=108.0ms rf=879.8ms lock=6.2ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.234,1.069,0.020) points=4
+[TIMING] n=13 parse=0.0ms feat=26.8ms ae=104.2ms rf=903.7ms lock=16.4ms log=9.1ms
+[OCCUPANCY] state=occupied centroid=(-0.006,1.492,-0.108) points=6
+[TIMING] n=8 parse=4.0ms feat=14.2ms ae=69.4ms rf=548.0ms lock=28.4ms log=16.4ms
+[OCCUPANCY] state=occupied centroid=(0.288,1.201,-0.044) points=6
+[TIMING] n=9 parse=5.3ms feat=17.4ms ae=73.6ms rf=620.5ms lock=16.1ms log=10.2ms
+[16:47:36] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.297,1.198,-0.040) points=6
+[TIMING] n=13 parse=0.0ms feat=29.5ms ae=108.1ms rf=906.3ms lock=5.6ms log=2.5ms
+[OCCUPANCY] state=occupied centroid=(-0.068,1.585,0.103) points=7
+[TIMING] n=22 parse=7.6ms feat=41.3ms ae=124.0ms rf=202.5ms lock=4.8ms log=3.3ms
+[TIMING] n=8 parse=2.2ms feat=16.1ms ae=64.9ms rf=543.5ms lock=4.6ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(-0.025,0.766,0.211) points=3
+[TIMING] n=8 parse=2.8ms feat=17.4ms ae=68.3ms rf=544.0ms lock=5.3ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.084,1.602,-0.082) points=11
+[TIMING] n=8 parse=3.2ms feat=17.5ms ae=71.0ms rf=541.6ms lock=5.2ms log=4.2ms
+[OCCUPANCY] state=occupied centroid=(0.088,1.463,-0.135) points=19
+[OCCUPANCY] state=occupied centroid=(-0.240,1.476,-0.194) points=7
+[TIMING] n=12 parse=3.4ms feat=24.9ms ae=96.3ms rf=821.5ms lock=6.1ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(0.022,1.370,-0.273) points=6
+[TIMING] n=13 parse=0.0ms feat=25.5ms ae=105.2ms rf=878.7ms lock=6.1ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.010,1.082,-0.080) points=16
+[TIMING] n=8 parse=3.7ms feat=16.5ms ae=61.0ms rf=540.1ms lock=5.0ms log=3.8ms
+[OCCUPANCY] state=occupied centroid=(0.244,1.384,0.007) points=9
+[TIMING] n=8 parse=5.4ms feat=16.7ms ae=71.9ms rf=548.7ms lock=5.1ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.118,1.147,0.099) points=4
+[TIMING] n=13 parse=0.0ms feat=28.5ms ae=111.3ms rf=884.6ms lock=12.6ms log=7.4ms
+[OCCUPANCY] state=occupied centroid=(0.351,1.281,-0.085) points=5
+[TIMING] n=8 parse=7.7ms feat=14.5ms ae=68.5ms rf=547.6ms lock=23.6ms log=13.6ms
+[OCCUPANCY] state=occupied centroid=(0.237,1.136,-0.014) points=7
+[TIMING] n=12 parse=5.8ms feat=24.7ms ae=106.9ms rf=838.6ms lock=17.3ms log=9.9ms
+[16:47:49] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.275,1.275,-0.030) points=7
+[TIMING] n=13 parse=0.0ms feat=27.2ms ae=111.7ms rf=905.6ms lock=4.8ms log=2.4ms
+[OCCUPANCY] state=occupied centroid=(0.213,1.071,-0.025) points=5
+[TIMING] n=24 parse=7.6ms feat=48.9ms ae=146.1ms rf=340.7ms lock=5.2ms log=3.4ms
+[OCCUPANCY] state=occupied centroid=(-0.168,1.593,0.142) points=4
+[TIMING] n=8 parse=2.5ms feat=18.9ms ae=67.3ms rf=552.0ms lock=4.7ms log=2.9ms
+[OCCUPANCY] state=occupied centroid=(-0.019,1.253,-0.070) points=23
+[TIMING] n=8 parse=3.8ms feat=18.4ms ae=66.9ms rf=560.3ms lock=4.2ms log=4.0ms
+[OCCUPANCY] state=occupied centroid=(0.023,1.407,-0.025) points=13
+[TIMING] n=9 parse=3.2ms feat=19.4ms ae=71.8ms rf=619.8ms lock=5.5ms log=2.9ms
+[OCCUPANCY] state=occupied centroid=(0.094,1.247,-0.164) points=11
+[TIMING] n=13 parse=3.8ms feat=28.3ms ae=110.2ms rf=896.5ms lock=5.0ms log=5.0ms
+[OCCUPANCY] state=occupied centroid=(0.215,0.798,-0.074) points=4
+[TIMING] n=13 parse=0.0ms feat=27.7ms ae=105.6ms rf=883.2ms lock=7.0ms log=3.3ms
+[OCCUPANCY] state=occupied centroid=(0.292,1.471,-0.106) points=6
+[TIMING] n=8 parse=4.8ms feat=14.9ms ae=67.8ms rf=554.5ms lock=20.8ms log=12.0ms
+[OCCUPANCY] state=occupied centroid=(0.215,1.026,0.039) points=5
+[TIMING] n=10 parse=5.5ms feat=18.3ms ae=83.5ms rf=682.9ms lock=33.9ms log=21.0ms
+[OCCUPANCY] state=occupied centroid=(0.250,1.501,-0.151) points=7
+[TIMING] n=13 parse=0.0ms feat=27.1ms ae=107.2ms rf=891.0ms lock=5.7ms log=3.5ms
+[16:48:01] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.312,1.179,-0.032) points=3
+[TIMING] n=8 parse=5.0ms feat=17.1ms ae=65.7ms rf=557.9ms lock=4.9ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(0.194,1.268,0.104) points=8
+[TIMING] n=13 parse=0.0ms feat=26.7ms ae=107.1ms rf=882.3ms lock=5.5ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(-0.141,1.548,-0.040) points=11
+[TIMING] n=20 parse=8.2ms feat=40.5ms ae=112.1ms rf=70.5ms lock=11.0ms log=6.4ms
+[OCCUPANCY] state=occupied centroid=(0.022,1.412,-0.304) points=9
+[TIMING] n=8 parse=2.2ms feat=15.9ms ae=65.2ms rf=547.4ms lock=4.2ms log=4.3ms
+[OCCUPANCY] state=occupied centroid=(-0.068,1.518,-0.156) points=14
+[TIMING] n=8 parse=3.8ms feat=17.4ms ae=69.3ms rf=541.6ms lock=5.6ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(-0.036,1.654,0.111) points=11
+[TIMING] n=9 parse=3.6ms feat=18.9ms ae=74.3ms rf=609.5ms lock=10.3ms log=7.0ms
+[OCCUPANCY] state=occupied centroid=(0.167,1.285,-0.096) points=10
+[TIMING] n=12 parse=4.0ms feat=22.8ms ae=104.3ms rf=839.1ms lock=44.7ms log=26.8ms
+[OCCUPANCY] state=occupied centroid=(0.103,0.834,0.076) points=4
+[TIMING] n=13 parse=0.0ms feat=29.5ms ae=114.0ms rf=895.4ms lock=10.2ms log=6.6ms
+[16:48:10] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.258,1.167,0.143) points=6
+[TIMING] n=8 parse=5.3ms feat=16.2ms ae=68.4ms rf=548.0ms lock=4.7ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.294,1.155,-0.003) points=6
+[TIMING] n=10 parse=4.3ms feat=21.5ms ae=73.2ms rf=617.4ms lock=5.4ms log=0.1ms
+[OCCUPANCY] state=occupied centroid=(-0.117,1.518,0.106) points=5
+[TIMING] n=22 parse=4.4ms feat=47.1ms ae=138.1ms rf=276.9ms lock=2.8ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(-0.225,0.658,0.239) points=2
+[TIMING] n=8 parse=2.7ms feat=17.2ms ae=69.5ms rf=544.7ms lock=5.2ms log=4.6ms
+[OCCUPANCY] state=occupied centroid=(-0.012,1.287,0.295) points=13
+[TIMING] n=10 parse=3.5ms feat=21.7ms ae=80.9ms rf=682.8ms lock=6.3ms log=4.2ms
+[OCCUPANCY] state=occupied centroid=(0.316,1.605,-0.116) points=7
+[TIMING] n=12 parse=3.9ms feat=24.5ms ae=103.8ms rf=828.1ms lock=55.3ms log=40.5ms
+[OCCUPANCY] state=occupied centroid=(0.289,1.157,0.004) points=6
+[TIMING] n=12 parse=0.0ms feat=29.5ms ae=113.1ms rf=851.2ms lock=40.8ms log=26.5ms
+[OCCUPANCY] state=occupied centroid=(0.180,1.433,-0.190) points=6
+[TIMING] n=8 parse=5.2ms feat=17.9ms ae=70.1ms rf=551.6ms lock=6.5ms log=5.4ms
+[16:48:19] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.243,1.602,-0.120) points=9
+[TIMING] n=11 parse=5.2ms feat=24.1ms ae=82.2ms rf=698.5ms lock=5.5ms log=0.1ms
+[OCCUPANCY] state=occupied centroid=(0.084,1.320,0.176) points=5
+[TIMING] n=23 parse=5.2ms feat=45.0ms ae=148.5ms rf=356.3ms lock=2.6ms log=4.8ms
+[OCCUPANCY] state=occupied centroid=(0.106,1.205,-0.152) points=10
+[TIMING] n=8 parse=2.4ms feat=17.6ms ae=65.8ms rf=544.0ms lock=6.1ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(-0.288,0.780,0.240) points=10
+[TIMING] n=9 parse=3.4ms feat=19.1ms ae=78.9ms rf=617.4ms lock=5.0ms log=4.5ms
+[OCCUPANCY] state=occupied centroid=(0.023,1.536,0.122) points=7
+[TIMING] n=13 parse=3.5ms feat=28.2ms ae=110.5ms rf=879.4ms lock=6.5ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(0.032,1.784,-0.285) points=8
+[TIMING] n=13 parse=0.0ms feat=27.6ms ae=107.1ms rf=885.1ms lock=8.0ms log=7.2ms
+[OCCUPANCY] state=occupied centroid=(0.240,1.110,-0.015) points=7
+[TIMING] n=8 parse=3.8ms feat=19.2ms ae=66.1ms rf=550.8ms lock=7.1ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(0.231,1.244,-0.041) points=8
+[TIMING] n=8 parse=4.5ms feat=16.6ms ae=70.4ms rf=540.7ms lock=4.9ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(0.165,1.530,-0.148) points=7
+[TIMING] n=13 parse=0.0ms feat=27.7ms ae=111.2ms rf=874.4ms lock=6.1ms log=4.9ms
+[OCCUPANCY] state=occupied centroid=(0.349,1.474,0.113) points=9
+[TIMING] n=8 parse=5.1ms feat=18.6ms ae=65.1ms rf=541.2ms lock=6.1ms log=2.2ms
+[OCCUPANCY] state=occupied centroid=(0.043,1.238,0.093) points=6
+[TIMING] n=13 parse=5.1ms feat=27.1ms ae=104.7ms rf=879.0ms lock=4.1ms log=3.5ms
+[OCCUPANCY] state=occupied centroid=(0.120,1.335,-0.131) points=12
+[TIMING] n=13 parse=0.0ms feat=28.8ms ae=107.7ms rf=881.1ms lock=5.4ms log=4.1ms
+[OCCUPANCY] state=occupied centroid=(-0.132,0.920,0.129) points=18
+[TIMING] n=8 parse=3.9ms feat=16.7ms ae=66.1ms rf=540.3ms lock=5.3ms log=4.2ms
+[OCCUPANCY] state=occupied centroid=(-0.301,0.852,0.215) points=14
+[TIMING] n=13 parse=0.0ms feat=28.3ms ae=106.5ms rf=888.4ms lock=6.1ms log=3.9ms
+[OCCUPANCY] state=occupied centroid=(0.328,1.399,-0.160) points=2
+[TIMING] n=8 parse=4.2ms feat=16.6ms ae=66.3ms rf=551.3ms lock=5.2ms log=3.7ms
+[OCCUPANCY] state=occupied centroid=(-0.057,1.579,0.273) points=18
+[TIMING] n=13 parse=5.6ms feat=28.6ms ae=117.9ms rf=909.1ms lock=5.5ms log=2.5ms
+[OCCUPANCY] state=occupied centroid=(0.001,1.369,-0.066) points=9
+[TIMING] n=12 parse=0.0ms feat=22.6ms ae=103.3ms rf=832.7ms lock=44.7ms log=32.1ms
+[OCCUPANCY] state=occupied centroid=(0.103,0.834,0.083) points=4
+[TIMING] n=8 parse=6.0ms feat=17.0ms ae=67.8ms rf=553.0ms lock=9.2ms log=6.9ms
+[OCCUPANCY] state=occupied centroid=(0.244,1.104,0.016) points=7
+[TIMING] n=13 parse=0.0ms feat=28.8ms ae=108.2ms rf=880.2ms lock=5.9ms log=3.7ms
+[16:48:41] [CMD] resolve from 172.20.10.12
+[OCCUPANCY] state=occupied centroid=(0.288,1.201,-0.059) points=6
+[TIMING] n=25 parse=5.6ms feat=54.8ms ae=158.0ms rf=418.0ms lock=6.9ms log=3.6ms
+[OCCUPANCY] state=occupied centroid=(-0.132,1.587,-0.120) points=11
+[TIMING] n=8 parse=2.8ms feat=17.3ms ae=65.5ms rf=546.4ms lock=4.8ms log=3.7ms
+[16:48:43] [CMD] exit from 172.20.10.12
+[OCCUPANCY] state=vacant centroid=(0.048,1.284,0.102) points=11
+[OCCUPANCY] state=vacant centroid=(0.156,1.348,-0.055) points=11
+[OCCUPANCY] state=vacant centroid=(0.051,1.188,0.137) points=12
+[OCCUPANCY] state=vacant centroid=(0.020,0.929,-0.049) points=22
+[OCCUPANCY] state=vacant centroid=(-0.291,1.192,0.229) points=15
+[OCCUPANCY] state=vacant centroid=(0.064,1.152,-0.054) points=4
+[OCCUPANCY] state=vacant centroid=(0.351,1.284,-0.071) points=5
+[OCCUPANCY] state=vacant centroid=(0.243,1.141,-0.048) points=7
+[OCCUPANCY] state=vacant centroid=(0.345,1.280,-0.065) points=7
+[OCCUPANCY] state=vacant centroid=(0.145,1.601,-0.048) points=8
+[OCCUPANCY] state=vacant centroid=(0.218,1.069,-0.019) points=5
+[OCCUPANCY] state=vacant centroid=(0.357,1.355,0.013) points=8
+[OCCUPANCY] state=vacant centroid=(0.406,1.359,-0.180) points=7
+[OCCUPANCY] state=vacant centroid=(0.071,1.453,-0.147) points=8
+[OCCUPANCY] state=vacant centroid=(0.403,1.370,-0.109) points=6
+[OCCUPANCY] state=vacant centroid=(0.094,1.422,-0.112) points=10
+[OCCUPANCY] state=vacant centroid=(0.349,1.360,0.050) points=6
+[OCCUPANCY] state=vacant centroid=(0.247,1.133,-0.024) points=7
+[OCCUPANCY] state=vacant centroid=(0.322,1.280,0.070) points=7
+[OCCUPANCY] state=vacant centroid=(0.177,1.631,-0.050) points=9
+[OCCUPANCY] state=vacant centroid=(0.313,1.402,-0.099) points=6
+[OCCUPANCY] state=vacant centroid=(0.403,1.370,-0.096) points=6
+[OCCUPANCY] state=vacant centroid=(0.404,1.389,-0.130) points=4
+[OCCUPANCY] state=vacant centroid=(0.077,1.387,-0.099) points=9
+[OCCUPANCY] state=vacant centroid=(0.345,1.279,-0.050) points=7
+[OCCUPANCY] state=vacant centroid=(0.288,1.194,-0.039) points=6
+[OCCUPANCY] state=vacant centroid=(0.236,1.241,-0.034) points=8
+[OCCUPANCY] state=vacant centroid=(0.301,1.382,-0.084) points=6
+[OCCUPANCY] state=vacant centroid=(0.247,1.134,-0.010) points=7
+[OCCUPANCY] state=vacant centroid=(0.318,1.257,-0.046) points=5
+[OCCUPANCY] state=vacant centroid=(0.060,1.456,-0.087) points=8
+[OCCUPANCY] state=vacant centroid=(0.078,1.467,-0.135) points=8
+[OCCUPANCY] state=vacant centroid=(0.293,1.201,-0.047) points=6
+[OCCUPANCY] state=vacant centroid=(0.165,1.339,-0.133) points=7
+[OCCUPANCY] state=vacant centroid=(0.044,1.384,-0.080) points=9
+[OCCUPANCY] state=vacant centroid=(0.071,1.451,-0.173) points=8
+[OCCUPANCY] state=vacant centroid=(0.345,1.281,-0.060) points=7
+[OCCUPANCY] state=vacant centroid=(0.288,1.192,-0.038) points=6
+[OCCUPANCY] state=vacant centroid=(0.292,1.193,-0.043) points=6
+[OCCUPANCY] state=vacant centroid=(0.066,1.401,-0.088) points=9
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.045) points=6
+[OCCUPANCY] state=vacant centroid=(0.323,1.259,-0.065) points=5
+[OCCUPANCY] state=vacant centroid=(0.162,1.343,-0.152) points=7
+[OCCUPANCY] state=vacant centroid=(0.297,1.192,-0.040) points=6
+[OCCUPANCY] state=vacant centroid=(0.318,1.368,-0.078) points=8
+[OCCUPANCY] state=vacant centroid=(0.411,1.387,-0.143) points=4
+[OCCUPANCY] state=vacant centroid=(0.108,1.565,-0.053) points=10
+[OCCUPANCY] state=vacant centroid=(0.299,1.217,-0.041) points=8
+[OCCUPANCY] state=vacant centroid=(0.404,1.390,-0.118) points=4
+[OCCUPANCY] state=vacant centroid=(0.243,1.135,-0.018) points=7
+[OCCUPANCY] state=vacant centroid=(0.292,1.194,-0.048) points=6
+[OCCUPANCY] state=vacant centroid=(0.119,1.487,-0.083) points=9
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.036) points=6
+[OCCUPANCY] state=vacant centroid=(-0.015,1.530,-0.127) points=6
+[OCCUPANCY] state=vacant centroid=(0.247,1.134,-0.013) points=7
+[OCCUPANCY] state=vacant centroid=(0.080,1.454,-0.170) points=8
+[OCCUPANCY] state=vacant centroid=(0.247,1.134,-0.012) points=7
+[OCCUPANCY] state=vacant centroid=(0.247,1.133,-0.022) points=7
+[OCCUPANCY] state=vacant centroid=(0.049,1.461,-0.074) points=8
+[OCCUPANCY] state=vacant centroid=(0.292,1.193,-0.058) points=6
+[OCCUPANCY] state=vacant centroid=(0.417,1.432,0.024) points=7
+[OCCUPANCY] state=vacant centroid=(0.288,1.200,-0.048) points=6
+[OCCUPANCY] state=vacant centroid=(0.247,1.134,-0.022) points=7
+[OCCUPANCY] state=vacant centroid=(0.313,1.403,-0.087) points=6
+[OCCUPANCY] state=vacant centroid=(0.099,1.366,-0.190) points=5
+[OCCUPANCY] state=vacant centroid=(0.288,1.200,-0.068) points=6
+[OCCUPANCY] state=vacant centroid=(0.386,1.358,-0.111) points=7
+[OCCUPANCY] state=vacant centroid=(0.247,1.134,-0.013) points=7
+[OCCUPANCY] state=vacant centroid=(0.240,1.243,-0.034) points=8
+[OCCUPANCY] state=vacant centroid=(0.210,1.036,0.033) points=5
+[OCCUPANCY] state=vacant centroid=(0.247,1.135,-0.018) points=7
+[OCCUPANCY] state=vacant centroid=(-0.006,1.469,-0.186) points=8
+[OCCUPANCY] state=vacant centroid=(0.215,1.400,-0.138) points=8
+[OCCUPANCY] state=vacant centroid=(0.403,1.370,-0.089) points=6
+[OCCUPANCY] state=vacant centroid=(0.318,1.267,-0.083) points=5
+[OCCUPANCY] state=vacant centroid=(0.376,1.372,0.051) points=6
+[OCCUPANCY] state=vacant centroid=(0.299,1.219,-0.032) points=8
+[OCCUPANCY] state=vacant centroid=(0.356,1.284,-0.081) points=5
+[OCCUPANCY] state=vacant centroid=(0.247,1.134,-0.020) points=7
+[OCCUPANCY] state=vacant centroid=(0.357,1.350,0.029) points=8
+[OCCUPANCY] state=vacant centroid=(0.068,1.449,-0.169) points=8
+[OCCUPANCY] state=vacant centroid=(0.318,1.268,-0.093) points=5
+[OCCUPANCY] state=vacant centroid=(0.323,1.259,-0.079) points=5
+[OCCUPANCY] state=vacant centroid=(0.243,1.141,-0.062) points=7
+[OCCUPANCY] state=vacant centroid=(0.292,1.194,-0.047) points=6
+[OCCUPANCY] state=vacant centroid=(0.341,1.287,-0.064) points=7
+[OCCUPANCY] state=vacant centroid=(0.149,1.546,-0.139) points=10
+[OCCUPANCY] state=vacant centroid=(0.380,1.349,-0.083) points=6
+[OCCUPANCY] state=vacant centroid=(0.090,1.464,-0.110) points=8
+[OCCUPANCY] state=vacant centroid=(0.224,1.136,0.103) points=7
+[OCCUPANCY] state=vacant centroid=(0.213,1.080,-0.038) points=5
+[OCCUPANCY] state=vacant centroid=(0.351,1.281,-0.069) points=5
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.056) points=6
+[OCCUPANCY] state=vacant centroid=(0.145,1.492,-0.157) points=9
+[OCCUPANCY] state=vacant centroid=(0.247,1.135,-0.011) points=7
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.027) points=6
+[OCCUPANCY] state=vacant centroid=(0.155,1.334,-0.139) points=7
+[OCCUPANCY] state=vacant centroid=(0.357,1.351,0.028) points=8
+[OCCUPANCY] state=vacant centroid=(0.291,1.262,0.103) points=5
+[OCCUPANCY] state=vacant centroid=(0.247,1.136,-0.018) points=7
+[OCCUPANCY] state=vacant centroid=(0.292,1.193,-0.036) points=6
+[OCCUPANCY] state=vacant centroid=(0.134,1.503,-0.135) points=9
+[OCCUPANCY] state=vacant centroid=(0.175,0.987,0.048) points=6
+[OCCUPANCY] state=vacant centroid=(0.061,1.385,-0.092) points=9
+[OCCUPANCY] state=vacant centroid=(0.292,1.193,-0.041) points=6
+[OCCUPANCY] state=vacant centroid=(0.071,1.459,-0.127) points=8
+[OCCUPANCY] state=vacant centroid=(0.292,1.193,-0.034) points=6
+[OCCUPANCY] state=vacant centroid=(0.124,1.538,-0.104) points=8
+[OCCUPANCY] state=vacant centroid=(0.345,1.286,-0.069) points=7
+[OCCUPANCY] state=vacant centroid=(0.288,1.202,-0.053) points=6
+[OCCUPANCY] state=vacant centroid=(0.351,1.285,-0.092) points=5
+[OCCUPANCY] state=vacant centroid=(0.351,1.284,-0.086) points=5
+[OCCUPANCY] state=vacant centroid=(-0.013,1.414,-0.101) points=7
+[OCCUPANCY] state=vacant centroid=(0.295,1.223,-0.064) points=8
+[OCCUPANCY] state=vacant centroid=(0.258,1.395,-0.060) points=8
+[OCCUPANCY] state=vacant centroid=(0.288,1.202,-0.045) points=6
+[OCCUPANCY] state=vacant centroid=(0.288,1.201,-0.054) points=6
+[OCCUPANCY] state=vacant centroid=(0.193,1.451,-0.109) points=6
+[OCCUPANCY] state=vacant centroid=(0.247,1.135,-0.018) points=7
+[OCCUPANCY] state=vacant centroid=(0.178,1.023,0.000) points=6
+[OCCUPANCY] state=vacant centroid=(0.292,1.193,-0.048) points=6
+[OCCUPANCY] state=vacant centroid=(0.381,1.345,-0.064) points=8
+[OCCUPANCY] state=vacant centroid=(0.166,1.353,-0.121) points=7
+[OCCUPANCY] state=vacant centroid=(0.315,1.377,-0.088) points=8
+[OCCUPANCY] state=vacant centroid=(0.292,1.193,-0.041) points=6
+[OCCUPANCY] state=vacant centroid=(0.210,1.037,0.033) points=5
+[OCCUPANCY] state=vacant centroid=(0.301,1.294,0.081) points=5
+[OCCUPANCY] state=vacant centroid=(0.351,1.286,-0.090) points=5
+[OCCUPANCY] state=vacant centroid=(0.292,1.193,-0.041) points=6
+[OCCUPANCY] state=vacant centroid=(0.269,1.151,-0.104) points=8
+[OCCUPANCY] state=vacant centroid=(0.072,1.684,-0.184) points=6
+[OCCUPANCY] state=vacant centroid=(0.313,1.405,-0.092) points=6
+[OCCUPANCY] state=vacant centroid=(0.399,1.421,0.025) points=7
+[OCCUPANCY] state=vacant centroid=(0.058,1.383,-0.099) points=9
+[OCCUPANCY] state=vacant centroid=(0.318,1.369,-0.071) points=8
+[OCCUPANCY] state=vacant centroid=(0.151,1.422,-0.134) points=6
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.044) points=6
+[OCCUPANCY] state=vacant centroid=(0.268,1.100,0.015) points=4
+[OCCUPANCY] state=vacant centroid=(0.127,1.504,0.005) points=9
+[OCCUPANCY] state=vacant centroid=(0.218,1.072,-0.028) points=5
+[OCCUPANCY] state=vacant centroid=(0.071,1.564,-0.129) points=7
+[OCCUPANCY] state=vacant centroid=(0.323,1.260,-0.057) points=5
+[OCCUPANCY] state=vacant centroid=(0.217,1.322,-0.089) points=9
+[OCCUPANCY] state=vacant centroid=(0.218,1.071,-0.027) points=5
+[OCCUPANCY] state=vacant centroid=(0.456,1.471,-0.135) points=5
+[OCCUPANCY] state=vacant centroid=(0.318,1.268,-0.067) points=5
+[OCCUPANCY] state=vacant centroid=(0.260,1.503,-0.100) points=7
+[OCCUPANCY] state=vacant centroid=(0.071,1.445,-0.196) points=8
+[OCCUPANCY] state=vacant centroid=(0.351,1.283,-0.076) points=5
+[OCCUPANCY] state=vacant centroid=(0.240,1.103,0.021) points=7
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.046) points=6
+[OCCUPANCY] state=vacant centroid=(0.265,1.309,-0.064) points=7
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.052) points=6
+[OCCUPANCY] state=vacant centroid=(0.299,1.218,-0.038) points=8
+[OCCUPANCY] state=vacant centroid=(0.062,1.534,-0.201) points=7
+[OCCUPANCY] state=vacant centroid=(0.345,1.279,-0.065) points=7
+[OCCUPANCY] state=vacant centroid=(0.288,1.202,-0.063) points=6
+[OCCUPANCY] state=vacant centroid=(0.341,1.286,-0.070) points=7
+[OCCUPANCY] state=vacant centroid=(0.292,1.193,-0.053) points=6
+[OCCUPANCY] state=vacant centroid=(0.323,1.257,-0.073) points=5
+[OCCUPANCY] state=vacant centroid=(0.092,1.565,-0.151) points=7
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.043) points=6
+[OCCUPANCY] state=vacant centroid=(0.288,1.201,-0.053) points=6
+[OCCUPANCY] state=vacant centroid=(0.351,1.283,-0.094) points=5
+[OCCUPANCY] state=vacant centroid=(0.204,1.567,-0.170) points=5
+[OCCUPANCY] state=vacant centroid=(0.227,1.401,-0.124) points=8
+[OCCUPANCY] state=vacant centroid=(0.143,1.264,-0.109) points=8
+[OCCUPANCY] state=vacant centroid=(0.355,1.299,-0.085) points=8
+[OCCUPANCY] state=vacant centroid=(0.283,1.200,-0.050) points=6
+[OCCUPANCY] state=vacant centroid=(0.142,1.517,-0.168) points=9
+[OCCUPANCY] state=vacant centroid=(0.295,1.219,-0.033) points=8
+[OCCUPANCY] state=vacant centroid=(0.118,1.430,-0.128) points=10
+[OCCUPANCY] state=vacant centroid=(0.162,1.349,-0.128) points=7
+[OCCUPANCY] state=vacant centroid=(0.075,1.433,-0.230) points=8
+[OCCUPANCY] state=vacant centroid=(0.292,1.194,-0.049) points=6
+[OCCUPANCY] state=vacant centroid=(0.168,1.423,-0.127) points=8
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.045) points=6
+[OCCUPANCY] state=vacant centroid=(0.258,1.392,-0.073) points=8
+[OCCUPANCY] state=vacant centroid=(0.348,1.293,-0.172) points=7
+[OCCUPANCY] state=vacant centroid=(0.351,1.284,-0.099) points=5
+[OCCUPANCY] state=vacant centroid=(0.068,1.472,-0.069) points=8
+[OCCUPANCY] state=vacant centroid=(0.247,1.133,-0.029) points=7
+[OCCUPANCY] state=vacant centroid=(0.288,1.201,-0.040) points=6
+[OCCUPANCY] state=vacant centroid=(0.247,1.135,-0.020) points=7
+[OCCUPANCY] state=vacant centroid=(0.247,1.134,-0.019) points=7
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.050) points=6
+[OCCUPANCY] state=vacant centroid=(0.318,1.269,-0.078) points=5
+[OCCUPANCY] state=vacant centroid=(0.292,1.194,-0.040) points=6
+[OCCUPANCY] state=vacant centroid=(0.077,1.466,-0.118) points=8
+[OCCUPANCY] state=vacant centroid=(0.090,1.466,-0.104) points=8
+[OCCUPANCY] state=vacant centroid=(0.086,1.336,-0.116) points=7
+[OCCUPANCY] state=vacant centroid=(0.345,1.283,-0.090) points=5
+[OCCUPANCY] state=vacant centroid=(0.090,1.466,-0.116) points=8
+[OCCUPANCY] state=vacant centroid=(0.265,1.179,-0.045) points=6
+[OCCUPANCY] state=vacant centroid=(0.082,1.568,-0.119) points=7
+[OCCUPANCY] state=vacant centroid=(0.247,1.135,-0.034) points=7
+[OCCUPANCY] state=vacant centroid=(0.351,1.285,-0.090) points=5
+[OCCUPANCY] state=vacant centroid=(0.167,1.344,-0.090) points=7
+[OCCUPANCY] state=vacant centroid=(0.069,1.389,-0.074) points=9
+[OCCUPANCY] state=vacant centroid=(0.268,1.303,-0.082) points=7
+[OCCUPANCY] state=vacant centroid=(0.160,1.420,-0.104) points=6
+[OCCUPANCY] state=vacant centroid=(0.345,1.279,-0.060) points=7
+[OCCUPANCY] state=vacant centroid=(0.248,1.140,-0.052) points=6
+[OCCUPANCY] state=vacant centroid=(0.351,1.285,-0.093) points=5
+[OCCUPANCY] state=vacant centroid=(0.351,1.283,-0.091) points=5
+[OCCUPANCY] state=vacant centroid=(-0.015,1.334,-0.082) points=8
+[OCCUPANCY] state=vacant centroid=(0.058,1.538,-0.220) points=7
+[OCCUPANCY] state=vacant centroid=(0.214,1.195,-0.017) points=9
+[OCCUPANCY] state=vacant centroid=(0.403,1.370,-0.097) points=6
+[OCCUPANCY] state=vacant centroid=(0.247,1.133,-0.014) points=7
+[OCCUPANCY] state=vacant centroid=(0.247,1.134,-0.008) points=7
+[OCCUPANCY] state=vacant centroid=(0.297,1.191,-0.056) points=6
+[OCCUPANCY] state=vacant centroid=(0.319,1.226,-0.174) points=8
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.048) points=6
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.049) points=6
+[OCCUPANCY] state=vacant centroid=(0.299,1.218,-0.038) points=8
+[OCCUPANCY] state=vacant centroid=(0.403,1.370,-0.106) points=6
+[OCCUPANCY] state=vacant centroid=(0.404,1.388,-0.116) points=4
+[OCCUPANCY] state=vacant centroid=(0.080,1.447,-0.182) points=8
+[OCCUPANCY] state=vacant centroid=(0.292,1.194,-0.061) points=6
+[OCCUPANCY] state=vacant centroid=(0.323,1.258,-0.071) points=5
+[OCCUPANCY] state=vacant centroid=(0.145,1.491,-0.167) points=9
+[OCCUPANCY] state=vacant centroid=(0.299,1.217,-0.032) points=8
+[OCCUPANCY] state=vacant centroid=(0.313,1.400,-0.145) points=6
+[OCCUPANCY] state=vacant centroid=(0.068,1.472,-0.074) points=8
+[OCCUPANCY] state=vacant centroid=(0.351,1.284,-0.089) points=5
+[OCCUPANCY] state=vacant centroid=(0.288,1.200,-0.040) points=6
+[OCCUPANCY] state=vacant centroid=(0.351,1.285,-0.091) points=5
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.053) points=6
+[OCCUPANCY] state=vacant centroid=(0.243,1.241,-0.038) points=8
+[OCCUPANCY] state=vacant centroid=(0.156,1.335,-0.108) points=7
+[OCCUPANCY] state=vacant centroid=(0.092,1.571,-0.123) points=7
+[OCCUPANCY] state=vacant centroid=(0.162,1.351,-0.129) points=7
+[OCCUPANCY] state=vacant centroid=(0.323,1.258,-0.075) points=5
+[OCCUPANCY] state=vacant centroid=(0.142,1.270,-0.095) points=8
+[OCCUPANCY] state=vacant centroid=(0.351,1.285,-0.072) points=5
+[OCCUPANCY] state=vacant centroid=(0.345,1.279,-0.049) points=7
+[OCCUPANCY] state=vacant centroid=(0.218,1.071,-0.033) points=5
+[OCCUPANCY] state=vacant centroid=(0.178,1.022,0.003) points=6
+[OCCUPANCY] state=vacant centroid=(0.313,1.223,-0.115) points=9
+[OCCUPANCY] state=vacant centroid=(0.033,1.452,-0.053) points=8
+[OCCUPANCY] state=vacant centroid=(0.111,1.440,-0.199) points=9
+[OCCUPANCY] state=vacant centroid=(0.299,1.217,-0.033) points=8
+[OCCUPANCY] state=vacant centroid=(0.341,1.287,-0.071) points=7
+[OCCUPANCY] state=vacant centroid=(0.218,1.071,-0.030) points=5
+[OCCUPANCY] state=vacant centroid=(0.345,1.283,-0.093) points=5
+[OCCUPANCY] state=vacant centroid=(0.303,1.399,-0.134) points=6
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.051) points=6
+[OCCUPANCY] state=vacant centroid=(0.247,1.134,-0.035) points=7
+[OCCUPANCY] state=vacant centroid=(0.345,1.285,-0.078) points=5
+[OCCUPANCY] state=vacant centroid=(0.293,1.199,-0.058) points=6
+[OCCUPANCY] state=vacant centroid=(0.274,1.315,-0.066) points=7
+[OCCUPANCY] state=vacant centroid=(0.404,1.389,-0.137) points=4
+[OCCUPANCY] state=vacant centroid=(0.288,1.200,-0.050) points=6
+[OCCUPANCY] state=vacant centroid=(0.292,1.193,-0.044) points=6
+[OCCUPANCY] state=vacant centroid=(0.090,1.518,-0.165) points=9
+[OCCUPANCY] state=vacant centroid=(0.260,1.174,-0.055) points=9
+[OCCUPANCY] state=vacant centroid=(0.305,1.358,-0.074) points=8
+[OCCUPANCY] state=vacant centroid=(0.167,1.341,-0.108) points=7
+[OCCUPANCY] state=vacant centroid=(0.322,1.282,0.056) points=7
+[OCCUPANCY] state=vacant centroid=(0.345,1.281,-0.064) points=7
+[OCCUPANCY] state=vacant centroid=(0.087,1.468,-0.146) points=8
+[OCCUPANCY] state=vacant centroid=(0.243,1.140,-0.064) points=7
+[OCCUPANCY] state=vacant centroid=(0.051,1.448,-0.125) points=8
+[OCCUPANCY] state=vacant centroid=(0.182,1.439,-0.142) points=6
+[OCCUPANCY] state=vacant centroid=(0.214,1.487,-0.022) points=7
+[OCCUPANCY] state=vacant centroid=(0.323,1.260,-0.063) points=5
+[OCCUPANCY] state=vacant centroid=(0.322,1.268,-0.055) points=7
+[OCCUPANCY] state=vacant centroid=(0.178,1.022,-0.016) points=6
+[OCCUPANCY] state=vacant centroid=(0.127,1.487,-0.138) points=9
+[OCCUPANCY] state=vacant centroid=(0.068,1.466,-0.129) points=8
+[OCCUPANCY] state=vacant centroid=(0.060,1.558,-0.158) points=7
+[OCCUPANCY] state=vacant centroid=(0.062,1.523,-0.254) points=7
+[OCCUPANCY] state=vacant centroid=(0.103,1.569,-0.162) points=7
+[OCCUPANCY] state=vacant centroid=(0.152,1.336,-0.109) points=7
+[OCCUPANCY] state=vacant centroid=(0.158,1.356,-0.164) points=7
+[OCCUPANCY] state=vacant centroid=(0.277,1.308,-0.062) points=7
+[OCCUPANCY] state=vacant centroid=(0.239,1.394,-0.174) points=9
+[OCCUPANCY] state=vacant centroid=(0.087,1.466,-0.154) points=8
+[OCCUPANCY] state=vacant centroid=(0.210,1.036,0.041) points=5
+[OCCUPANCY] state=vacant centroid=(0.322,1.268,-0.054) points=7
+[OCCUPANCY] state=vacant centroid=(0.059,1.467,-0.096) points=8
+[OCCUPANCY] state=vacant centroid=(0.118,1.504,-0.089) points=9
+[OCCUPANCY] state=vacant centroid=(0.265,1.179,-0.043) points=6
+[OCCUPANCY] state=vacant centroid=(0.274,1.314,-0.061) points=7
+[OCCUPANCY] state=vacant centroid=(0.068,1.463,-0.157) points=8
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.047) points=6
+[OCCUPANCY] state=vacant centroid=(0.194,1.324,-0.125) points=9
+[OCCUPANCY] state=vacant centroid=(0.398,1.370,-0.095) points=6
+[OCCUPANCY] state=vacant centroid=(0.135,1.426,-0.129) points=10
+[OCCUPANCY] state=vacant centroid=(0.323,1.257,-0.085) points=5
+[OCCUPANCY] state=vacant centroid=(0.318,1.267,-0.099) points=5
+[OCCUPANCY] state=vacant centroid=(0.292,1.193,-0.057) points=6
+[OCCUPANCY] state=vacant centroid=(0.215,1.028,0.025) points=5
+[OCCUPANCY] state=vacant centroid=(0.351,1.278,0.056) points=7
+[OCCUPANCY] state=vacant centroid=(0.351,1.283,-0.091) points=5
+[OCCUPANCY] state=vacant centroid=(0.297,1.192,-0.035) points=6
+[OCCUPANCY] state=vacant centroid=(0.403,1.372,-0.100) points=6
+[OCCUPANCY] state=vacant centroid=(0.351,1.282,-0.075) points=5
+[OCCUPANCY] state=vacant centroid=(0.268,1.101,-0.006) points=4
+[OCCUPANCY] state=vacant centroid=(0.072,1.670,-0.243) points=6
+[OCCUPANCY] state=vacant centroid=(0.062,1.545,-0.157) points=7
+[OCCUPANCY] state=vacant centroid=(0.125,1.589,-0.079) points=8
+[OCCUPANCY] state=vacant centroid=(0.351,1.283,-0.106) points=5
+[OCCUPANCY] state=vacant centroid=(0.145,1.454,-0.145) points=11
+[OCCUPANCY] state=vacant centroid=(0.288,1.199,-0.059) points=6
+[OCCUPANCY] state=vacant centroid=(0.341,1.287,-0.065) points=7
+[OCCUPANCY] state=vacant centroid=(0.338,1.285,-0.064) points=7
+[OCCUPANCY] state=vacant centroid=(0.292,1.193,-0.051) points=6
+[OCCUPANCY] state=vacant centroid=(0.347,1.394,-0.107) points=7
+[OCCUPANCY] state=vacant centroid=(0.292,1.193,-0.039) points=6
+[OCCUPANCY] state=vacant centroid=(0.121,1.427,-0.087) points=10
+[OCCUPANCY] state=vacant centroid=(0.383,1.527,-0.073) points=8
+[OCCUPANCY] state=vacant centroid=(0.071,1.450,-0.171) points=8
+[OCCUPANCY] state=vacant centroid=(0.092,1.602,-0.157) points=8
+[OCCUPANCY] state=vacant centroid=(0.265,1.311,-0.088) points=7
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.036) points=6
+[OCCUPANCY] state=vacant centroid=(0.292,1.192,-0.042) points=6
+[OCCUPANCY] state=vacant centroid=(0.084,1.508,-0.168) points=9
+[OCCUPANCY] state=vacant centroid=(0.228,1.505,-0.072) points=7
+[OCCUPANCY] state=vacant centroid=(0.313,1.399,-0.134) points=6
+[OCCUPANCY] state=vacant centroid=(0.351,1.284,-0.097) points=5
+[OCCUPANCY] state=vacant centroid=(0.090,1.458,-0.162) points=8
+[OCCUPANCY] state=vacant centroid=(0.163,1.342,-0.115) points=7
+[OCCUPANCY] state=vacant centroid=(0.041,1.545,-0.099) points=7
+[OCCUPANCY] state=vacant centroid=(0.075,1.444,-0.186) points=8
+[OCCUPANCY] state=vacant centroid=(0.408,1.367,-0.235) points=5
+[OCCUPANCY] state=vacant centroid=(0.247,1.134,-0.023) points=7
+[OCCUPANCY] state=vacant centroid=(0.351,1.285,-0.099) points=5
+[OCCUPANCY] state=vacant centroid=(0.135,1.428,-0.110) points=10
+[OCCUPANCY] state=vacant centroid=(0.155,1.423,-0.141) points=6
+[OCCUPANCY] state=vacant centroid=(0.186,1.054,-0.016) points=5
+[OCCUPANCY] state=vacant centroid=(0.082,1.566,-0.160) points=7
+[OCCUPANCY] state=vacant centroid=(0.245,1.292,-0.077) points=7
+[OCCUPANCY] state=vacant centroid=(0.292,1.193,-0.032) points=6
+[OCCUPANCY] state=vacant centroid=(0.288,1.200,-0.049) points=6
+[OCCUPANCY] state=vacant centroid=(0.132,1.277,-0.050) points=8
+[OCCUPANCY] state=vacant centroid=(0.247,1.135,-0.024) points=7
+[OCCUPANCY] state=vacant centroid=(0.261,1.311,-0.096) points=7
+[OCCUPANCY] state=vacant centroid=(0.292,1.194,-0.049) points=6
+[OCCUPANCY] state=vacant centroid=(0.269,1.151,-0.113) points=8
+[OCCUPANCY] state=vacant centroid=(0.285,1.321,-0.038) points=8
+[OCCUPANCY] state=vacant centroid=(0.288,1.200,-0.045) points=6
+[OCCUPANCY] state=vacant centroid=(0.351,1.285,-0.100) points=5
+[OCCUPANCY] state=vacant centroid=(0.052,1.387,-0.049) points=9
+[OCCUPANCY] state=vacant centroid=(0.247,1.134,-0.019) points=7
+[OCCUPANCY] state=vacant centroid=(0.404,1.390,-0.137) points=4
+[OCCUPANCY] state=vacant centroid=(0.141,1.270,-0.104) points=8
+[OCCUPANCY] state=vacant centroid=(0.239,1.147,-0.055) points=7
+[OCCUPANCY] state=vacant centroid=(0.247,1.134,-0.018) points=7
+[OCCUPANCY] state=vacant centroid=(0.069,1.197,-0.063) points=7
