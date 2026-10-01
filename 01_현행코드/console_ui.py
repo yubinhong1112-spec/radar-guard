@@ -2114,6 +2114,54 @@ class AiIconButton(QtWidgets.QToolButton):
         p.end()
 
 
+def build_chat_request(question, alert=None, pkt=None, vectorstore=None):
+    """질의 AI 의 '검색 → 프롬프트 조립'. 반환 prompt 를 그대로 Ollama 에 보낸다.
+
+    반환: {'prompt': str, 'event': str|None, 'sources': list[str], 'context': str}
+
+    [10/01] AssistantDrawer._work_locked 에서 떼어냈다. Qt 없이 평가 스크립트
+    (eval/chat_eval.py)가 같은 프롬프트를 만들어야 기준선 측정이 현행과 같은
+    것을 재는 것이 되기 때문이다. 문구·순서·절단 길이는 한 글자도 바꾸지 않았고
+    eval/test_chat_prompt_same.py 가 분리 전 요청 본문과 바이트 단위로 비교한다.
+    vectorstore 를 넘기면 그것을 쓴다 — 측정 때 매 문항 재연결을 피하기 위한
+    주입구이고, None 이면 분리 전과 똑같이 여기서 만든다.
+    """
+    event = AssistantDrawer._event_for(question)
+    sources, context = [], ''
+    if event:
+        category = core.EVENT_CATEGORY.get(event)
+        if vectorstore is None:
+            vectorstore = core.PGVector(
+                connection_string=core.CONN_STR,
+                embedding_function=core.OllamaEmbeddings(model=EMBED_MODEL),
+                collection_name='safety_manual')
+        docs = core.search_sop_documents(
+            vectorstore, event, core.SOP_QUERY[event], category)
+        context = '\n'.join(d.page_content for d in docs)[:1400]
+        sources = sorted({d.metadata.get('source_file', '?') for d in docs})
+    live = ''
+    if alert:
+        facts = SopEngineV2.build_facts(alert, pkt, 0)
+        live = SopEngineV2._fact_block(facts)
+    task_rule = (
+        '공식 매뉴얼에 근거한 조치를 번호로 답하되, 확정 즉시조치와 현장 '
+        '책임자 지시가 우선임을 지켜라.' if event else
+        '질문의 주어와 이유를 첫 문장에 포함해 2~4문장으로 직접 답하라. '
+        '질문을 되묻거나 질문 예시를 만들지 마라.')
+    live_section = f'[현재 젯슨 실측]\n{live}\n' if live else ''
+    prompt = (
+        '너는 Radar-Guard 관제 시스템 전용 보조 AI다. 아래 시스템 명세와 '
+        '공식 매뉴얼, 현재 실측값에 있는 내용만 사용해 한국어로 간결하게 '
+        '답하라. 모르면 모른다고 말하고 차단·경보해제·전원복구를 실행했다고 '
+        f'말하지 마라. {task_rule}\n'
+        f'[시스템 명세]\n{AssistantDrawer.SYSTEM_CONTEXT}\n'
+        f'[공식 매뉴얼]\n{context or "해당 없음"}\n'
+        f'{live_section}'
+        f'[질문]\n{question}')
+    return {'prompt': prompt, 'event': event, 'sources': sources,
+            'context': context}
+
+
 class AssistantDrawer(QtWidgets.QDialog):
     """전역 시스템 보조 AI 팝업. 차단·복구 명령은 실행하지 않는다."""
     visibility_changed = QtCore.pyqtSignal(bool)
@@ -2365,38 +2413,11 @@ class AssistantDrawer(QtWidgets.QDialog):
         import urllib.request
         started = time.perf_counter()
         try:
-            event = self._event_for(question)
-            sources, context = [], ''
-            if event:
-                category = core.EVENT_CATEGORY.get(event)
-                vectorstore = core.PGVector(
-                    connection_string=core.CONN_STR,
-                    embedding_function=core.OllamaEmbeddings(model=EMBED_MODEL),
-                    collection_name='safety_manual')
-                docs = core.search_sop_documents(
-                    vectorstore, event, core.SOP_QUERY[event], category)
-                context = '\n'.join(d.page_content for d in docs)[:1400]
-                sources = sorted({d.metadata.get('source_file', '?') for d in docs})
-            live = ''
             c = self.console
-            if c and c.alert:
-                facts = SopEngineV2.build_facts(c.alert, c.pkt, 0)
-                live = SopEngineV2._fact_block(facts)
-            task_rule = (
-                '공식 매뉴얼에 근거한 조치를 번호로 답하되, 확정 즉시조치와 현장 '
-                '책임자 지시가 우선임을 지켜라.' if event else
-                '질문의 주어와 이유를 첫 문장에 포함해 2~4문장으로 직접 답하라. '
-                '질문을 되묻거나 질문 예시를 만들지 마라.')
-            live_section = f'[현재 젯슨 실측]\n{live}\n' if live else ''
-            prompt = (
-                '너는 Radar-Guard 관제 시스템 전용 보조 AI다. 아래 시스템 명세와 '
-                '공식 매뉴얼, 현재 실측값에 있는 내용만 사용해 한국어로 간결하게 '
-                '답하라. 모르면 모른다고 말하고 차단·경보해제·전원복구를 실행했다고 '
-                f'말하지 마라. {task_rule}\n'
-                f'[시스템 명세]\n{self.SYSTEM_CONTEXT}\n'
-                f'[공식 매뉴얼]\n{context or "해당 없음"}\n'
-                f'{live_section}'
-                f'[질문]\n{question}')
+            built = build_chat_request(
+                question, alert=(c.alert if c else None),
+                pkt=(c.pkt if c else None))
+            prompt, sources = built['prompt'], built['sources']
             body = json.dumps({
                 'model': core.LLM_MODEL, 'prompt': prompt, 'stream': False,
                 'keep_alive': '30m',

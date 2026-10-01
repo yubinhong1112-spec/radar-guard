@@ -2,6 +2,23 @@
 
 > 질문·차단 요소·불일치·판단 요청. triage 후 이동하고 여기서 지운다. 최대 10개.
 
+### OUT-011  CLAUDE.md 동결 SHA-256 기준선이 실제 파일과 다르다
+- From: Claude Code
+- Type: 불일치
+- Needs: 결정
+
+CLAUDE.md 15~19줄의 "8/24 기준선" 표와 10/01 실측 해시가 두 파일에서 다르다. 되돌리지 않고 결정만 요청한다.
+
+| 파일 | CLAUDE.md 기준선 | 10/01 실측 |
+|---|---|---|
+| `jetson_sender.py` | `18d2ede3…` | `afb5470a…` |
+| `verify_jetson_safe.py` | `2c931a73…` | `75f10ee4…` |
+| `train_fall_safety.py` | `30023bdf…` | `30023bdf…` (같다) |
+
+`jetson_sender.py` 는 8/27 배포 때문이라고 `01_ClaudeCode_지시.md` 가 미리 밝힌 값과 일치한다. `verify_jetson_safe.py` 의 차이는 사유가 적힌 문서가 보이지 않는다. 이번 세션의 판정 기준은 시작 해시 == 종료 해시이고 두 파일 모두 변동이 없다.
+
+선택지 — A) 표를 10/01 실측값으로 갱신하고 "갱신일"을 적는다, B) `verify_jetson_safe.py` 가 바뀐 경위를 먼저 git log 로 추적한 뒤 갱신한다. A 는 기준선이 지금 무의미해지는 상태를 즉시 끝내고, B 는 동결 위반이 있었는지 확인하는 값이 있다. 권장은 B 후 A 다.
+
 ### OUT-010  9/02 최종 환경 낙상 통합 검출률 49/50 = 98.0%
 - From: Codex
 - Type: 실측 결과

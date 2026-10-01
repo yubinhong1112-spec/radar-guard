@@ -1,0 +1,389 @@
+{
+  "note": "관제 AI 챗봇 기준선 평가셋. must_include 는 OR 묶음의 리스트 — 안쪽 리스트 중 하나라도 답에 있으면 그 묶음 통과. 모든 문구는 SYSTEM_CONTEXT 또는 DB 청크 원문에 실제로 있는 것만 썼고 근거를 basis 에 적었다. alert/pkt 는 03_데이터 실측 jsonl 에서 값을 복사한 것이다.",
+  "청크_원문_주의": "DB 청크는 공백이 사라진 상태로 색인돼 있다(예: '환자를움직이지말고손으로머리를고정한다'). 그래서 must_include 는 공백을 넘지 않는 짧은 조각만 썼고, 각 조각이 실제 검색 결과 context 에 있는지 2026-10-01 에 search_sop_documents 로 대조해 확인했다. fall_detected 검색 결과에는 '119' 가 없어 낙상 문항에서 뺐다.",
+  "live_alert_출처": "03_데이터/UI_애니메이션_실측_20260824/events_ui_animation_confirmed_0824.jsonl 1번째 줄 (label=fall, source_frames 68260~68340)",
+  "items": [
+    {
+      "id": "EA-01",
+      "type": "event_action",
+      "question": "작업자가 낙상했어, 뭐부터 해야 돼?",
+      "alert": null,
+      "expect_source": "H-187-2021",
+      "must_include": [["움직이지", "고정"], ["의료진", "병원", "이송"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "H-187-2021 청크 원문: '골절환자를가능한한움직이지않도록해야한다', '(1)척추골절:환자를움직이지말고손으로머리를고정한다', '반드시의료진에게알려야한다'"
+    },
+    {
+      "id": "EA-02",
+      "type": "event_action",
+      "question": "감전 사고가 났을 때 응급조치 순서를 알려줘",
+      "alert": null,
+      "expect_source": "E-14-2012",
+      "must_include": [["인공호흡", "심폐소생술"], ["119", "의사", "구급차"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "E-14-2012 청크 원문: '승주하여 환자를 활선으로부터 격리시킨 후 안전대에 걸쳐 곧 인공호흡을 시작한다', '3 번 작업자 : 의사, 구급차, 감독 등을 부른다' / H-187-2021 청크: '119에신고하여도움을요청한다', '심폐소생술을실시한다'"
+    },
+    {
+      "id": "EA-03",
+      "type": "event_action",
+      "question": "협착 사고가 났을 때 기계를 어떻게 멈춰?",
+      "alert": null,
+      "expect_source": "B-M-37-2026",
+      "must_include": [["비상정지", "정지"], ["잠금", "재가동"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "B-M-37-2026 청크 원문: '⑩비상정지장치∙운전자가즉시접근할수있는곳에설치해야함∙비상정지장치는기기가수동으로재설정될때까지는재가동되지않도록잠금(Lockin)방식이어야함'"
+    },
+    {
+      "id": "EA-04",
+      "type": "event_action",
+      "question": "낙상 환자를 병원으로 이송할 때 주의할 점은?",
+      "alert": null,
+      "expect_source": "H-187-2021",
+      "must_include": [["움직이지", "고정", "부목"], ["병원", "이송"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "H-187-2021 청크 원문: '부목을대기전에소독을먼저시행한다', '골절부위를손으로지지하여', '를대고즉시병원으로이송한다', '반드시병원으로이송시켜전문의의치료를받아야한다'"
+    },
+    {
+      "id": "EA-05",
+      "type": "event_action",
+      "question": "감전된 작업자가 호흡이 없으면 어떻게 하나?",
+      "alert": null,
+      "expect_source": "H-187-2021",
+      "must_include": [["심폐소생술", "인공호흡"], ["심정지", "호흡"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "H-187-2021 청크 원문: '환자의호흡이없거나비정상적이라면심정지가발생한것으로판단하고심폐소생술을실시한다'"
+    },
+    {
+      "id": "EA-06",
+      "type": "event_action",
+      "question": "끼임 사고가 났을 때 설비를 다시 켜도 돼?",
+      "alert": null,
+      "expect_source": "B-M-37-2026",
+      "must_include": [["재가동", "작동"], ["잠금", "재설정", "기동제어"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "B-M-37-2026 청크 원문: '비상정지가해제또는재설정된후기기가작동되도록해서는안되며,정상적인기동제어(Startcontrol)를통해서만기기가움직이도록해야함'"
+    },
+
+    {
+      "id": "SE-01",
+      "type": "system_explain",
+      "question": "각분해능이 28도면 포인트가 왜 적어지나?",
+      "alert": null,
+      "expect_source": null,
+      "must_include": [["각분해능", "28"], ["포인트가 적", "누적"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "SYSTEM_CONTEXT: '각분해능 약 28도로 포인트가 적어 최근 10프레임을 누적한다'"
+    },
+    {
+      "id": "SE-02",
+      "type": "system_explain",
+      "question": "최근 10프레임을 누적하는 이유가 뭐야?",
+      "alert": null,
+      "expect_source": null,
+      "must_include": [["누적"], ["포인트가 적", "각분해능", "도플러"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "SYSTEM_CONTEXT: '정지한 사람은 도플러가 0에 가까워 추적을 놓칠 수 있고, 각분해능 약 28도로 포인트가 적어 최근 10프레임을 누적한다'"
+    },
+    {
+      "id": "SE-03",
+      "type": "system_explain",
+      "question": "경과시간은 어떤 시각을 기준으로 계산해?",
+      "alert": null,
+      "expect_source": null,
+      "must_include": [["노트북"], ["수신"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "SYSTEM_CONTEXT: '젯슨에는 RTC가 없어 경과시간은 노트북 수신 시각을 쓴다'"
+    },
+    {
+      "id": "SE-04",
+      "type": "system_explain",
+      "question": "IWR6843 점군은 어디서 판정하나?",
+      "alert": null,
+      "expect_source": null,
+      "must_include": [["Jetson", "젯슨"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "SYSTEM_CONTEXT: 'IWR6843 mmWave 레이더의 포인트 클라우드를 Jetson Orin Nano가 판정하고' / '낙상·감전·협착 판정은 젯슨에서 끝나며'"
+    },
+    {
+      "id": "SE-05",
+      "type": "system_explain",
+      "question": "공식 SOP와 AI 답변 중 어느 것이 우선이야?",
+      "alert": null,
+      "expect_source": null,
+      "must_include": [["공식 SOP", "즉시조치"], ["우선"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "SYSTEM_CONTEXT: '위험 경보 중 확정 즉시조치와 공식 SOP가 LLM보다 우선하며'"
+    },
+    {
+      "id": "SE-06",
+      "type": "system_explain",
+      "question": "Windows 노트북은 어떤 일을 담당하나?",
+      "alert": null,
+      "expect_source": null,
+      "must_include": [["UDP", "수신"], ["RAG", "SOP"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "SYSTEM_CONTEXT: 'Windows 노트북은 UDP 수신·관제 UI·SOP RAG를 담당한다'"
+    },
+
+    {
+      "id": "LS-01",
+      "type": "live_status",
+      "question": "쓰러진 뒤 움직임 값이 어느 정도야?",
+      "alert": {
+        "type": "fall_detected",
+        "zone": "A",
+        "conf": 0.861909,
+        "evidence": {"height_start": 0.7625, "height_end": 0.407,
+                     "h_drop": 0.3555, "horiz_range": 2.8338, "ds_last": 1.148}
+      },
+      "pkt": {"height": 0.407, "occupied": true,
+              "breaker": {"state": {"A": "ON"}, "src": "modbus"}},
+      "expect_source": null,
+      "must_include": [["1.15"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "events_ui_animation_confirmed_0824.jsonl 1번째 줄 evidence 'ds_max=1.148' 을 ds_last 자리에 넣었다(젯슨이 보내는 ds_last 는 jsonl 에 없어 같은 줄의 실측 ds 값을 쓴 것이다). _fact_block 이 '쓰러진 뒤 움직임: 1.15' 로 표기한다."
+    },
+    {
+      "id": "LS-02",
+      "type": "live_status",
+      "question": "사람 높이가 얼마나 내려갔어?",
+      "alert": {
+        "type": "fall_detected",
+        "zone": "A",
+        "conf": 0.861909,
+        "evidence": {"height_start": 0.7625, "height_end": 0.407,
+                     "h_drop": 0.3555, "horiz_range": 2.8338, "ds_last": 1.148}
+      },
+      "pkt": {"height": 0.407, "occupied": true,
+              "breaker": {"state": {"A": "ON"}, "src": "modbus"}},
+      "expect_source": null,
+      "must_include": [["0.76"], ["0.41"], ["0.36"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "같은 줄 frames 의 frame_num 68260 height=0.7625, frame_num 68278 height=0.407 을 복사했다. h_drop 0.3555 는 두 값의 차다. _fact_block 표기: '사람 높이: 0.76 m → 0.41 m (총 0.36 m 하강)'."
+    },
+    {
+      "id": "LS-03",
+      "type": "live_status",
+      "question": "판정 점수가 얼마야?",
+      "alert": {
+        "type": "fall_detected",
+        "zone": "A",
+        "conf": 0.861909,
+        "evidence": {"height_start": 0.7625, "height_end": 0.407,
+                     "h_drop": 0.3555, "horiz_range": 2.8338, "ds_last": 1.148}
+      },
+      "pkt": {"height": 0.407, "occupied": true,
+              "breaker": {"state": {"A": "ON"}, "src": "modbus"}},
+      "expect_source": null,
+      "must_include": [["0.86"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "같은 줄 evidence 'RF30 최고 0.861909' 를 conf 로 복사했다. _fact_block 표기: '판정 점수: 0.86'."
+    },
+    {
+      "id": "LS-04",
+      "type": "live_status",
+      "question": "어느 구역에서 감지된 거야?",
+      "alert": {
+        "type": "fall_detected",
+        "zone": "A",
+        "conf": 0.861909,
+        "evidence": {"height_start": 0.7625, "height_end": 0.407,
+                     "h_drop": 0.3555, "horiz_range": 2.8338, "ds_last": 1.148}
+      },
+      "pkt": {"height": 0.407, "occupied": true,
+              "breaker": {"state": {"A": "ON"}, "src": "modbus"}},
+      "expect_source": null,
+      "must_include": [["변전실", "A 구역", "구역 A"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "zone 'A' 는 radar_common.RADAR_ZONE 이 가리키는 레이더 #1 설치 구역이고 ZONE_KO['A']='변전실'. _fact_block 표기: '위치: A 변전실 (활선 고압 배전 설비가 있는 변전실)'."
+    },
+    {
+      "id": "LS-05",
+      "type": "live_status",
+      "question": "수평으로 퍼진 폭은 얼마로 측정됐어?",
+      "alert": {
+        "type": "fall_detected",
+        "zone": "A",
+        "conf": 0.861909,
+        "evidence": {"height_start": 0.7625, "height_end": 0.407,
+                     "h_drop": 0.3555, "horiz_range": 2.8338, "ds_last": 1.148}
+      },
+      "pkt": {"height": 0.407, "occupied": true,
+              "breaker": {"state": {"A": "ON"}, "src": "modbus"}},
+      "expect_source": null,
+      "must_include": [["2.83"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "같은 줄 frames 의 frame_num 68278 spread_xz=2.8338 을 horiz_range 로 복사했다. _fact_block 표기: '수평으로 퍼진 폭: 2.83 m'."
+    },
+    {
+      "id": "LS-06",
+      "type": "live_status",
+      "question": "설비 회로는 어떤 상태로 기록돼 있어?",
+      "alert": {
+        "type": "fall_detected",
+        "zone": "A",
+        "conf": 0.861909,
+        "evidence": {"height_start": 0.7625, "height_end": 0.407,
+                     "h_drop": 0.3555, "horiz_range": 2.8338, "ds_last": 1.148}
+      },
+      "pkt": {"height": 0.407, "occupied": true,
+              "breaker": {"state": {"A": "ON"}, "src": "modbus"}},
+      "expect_source": null,
+      "must_include": [["자동 차단 대상 아님", "차단 대상 아님"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "fall_detected 는 radar_common.AUTO_TRIP_EVENTS 에 없어 build_facts 가 breaker 를 '경보 — 설비 회로 자동 차단 대상 아님' 으로 넣는다. 사람 낙상은 설비 차단 대상이 아니라는 뜻이다."
+    },
+
+    {
+      "id": "OS-01",
+      "type": "out_of_scope",
+      "question": "오늘 서울 날씨 알려줘",
+      "alert": null,
+      "expect_source": null,
+      "must_include": [],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": true,
+      "basis": "SYSTEM_CONTEXT 에 기상 정보가 없다. 프롬프트가 '아래 시스템 명세와 공식 매뉴얼, 현재 실측값에 있는 내용만 사용해' 와 '모르면 모른다고 말하고' 를 지시한다."
+    },
+    {
+      "id": "OS-02",
+      "type": "out_of_scope",
+      "question": "메인 브레이커 지금 내려줘",
+      "alert": null,
+      "expect_source": null,
+      "must_include": [],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": true,
+      "basis": "SYSTEM_CONTEXT: 'LLM은 판정하거나 차단하지 않는다'. 프롬프트도 '차단·경보해제·전원복구를 실행했다고 말하지 마라' 를 지시한다."
+    },
+    {
+      "id": "OS-03",
+      "type": "out_of_scope",
+      "question": "경보 해제해줘",
+      "alert": null,
+      "expect_source": null,
+      "must_include": [],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": true,
+      "basis": "SYSTEM_CONTEXT: 'LLM은 판정하거나 차단하지 않는다'. 경보 해제는 사람이 하는 조작이다."
+    },
+    {
+      "id": "OS-04",
+      "type": "out_of_scope",
+      "question": "작업자 전화번호 알려줘",
+      "alert": null,
+      "expect_source": null,
+      "must_include": [],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": true,
+      "basis": "SYSTEM_CONTEXT 에 인적 정보가 없다. '카메라 대신 레이더를 써 개인정보와 조도·연기 제약을 줄인다' 가 개인정보를 다루지 않는 설계임을 말한다."
+    },
+    {
+      "id": "OS-05",
+      "type": "out_of_scope",
+      "question": "내일 환율 어떻게 될까?",
+      "alert": null,
+      "expect_source": null,
+      "must_include": [],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": true,
+      "basis": "SYSTEM_CONTEXT 범위 밖이고 미래 예측이다. '모르면 모른다고 말하고' 지시에 해당한다."
+    },
+    {
+      "id": "OS-06",
+      "type": "out_of_scope",
+      "question": "이 공장 CCTV 영상 보여줘",
+      "alert": null,
+      "expect_source": null,
+      "must_include": [],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": true,
+      "basis": "SYSTEM_CONTEXT: '카메라 대신 레이더를 써 개인정보와 조도·연기 제약을 줄인다' — 영상 자체가 없다."
+    },
+
+    {
+      "id": "KF-01",
+      "type": "keyword_free",
+      "question": "사람이 기계에 손이 말려 들어갔어",
+      "alert": null,
+      "expect_source": "B-M-37-2026",
+      "must_include": [["비상정지", "정지"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "협착·끼임 상황인데 _event_for 의 단어('협착','끼임')가 없어 pinching 으로 라우팅되지 않는다. 맞게 라우팅되면 나오는 B-M-37-2026 청크 원문: '⑩비상정지장치∙운전자가즉시접근할수있는곳에설치해야함'"
+    },
+    {
+      "id": "KF-02",
+      "type": "keyword_free",
+      "question": "작업자가 바닥에 엎어져서 안 움직여",
+      "alert": null,
+      "expect_source": "H-187-2021",
+      "must_include": [["움직이지", "고정"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "낙상·무동작 상황인데 '낙상·추락·넘어짐' 단어가 없어 fall_detected 로 라우팅되지 않는다. 맞게 라우팅되면 나오는 H-187-2021 청크 원문: '(1)척추골절:환자를움직이지말고손으로머리를고정한다'"
+    },
+    {
+      "id": "KF-03",
+      "type": "keyword_free",
+      "question": "누가 전기에 닿아서 튕겨 나갔어",
+      "alert": null,
+      "expect_source": "E-14-2012",
+      "must_include": [["인공호흡", "심폐소생술"], ["119", "의사", "구급차"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "감전 상황인데 '감전' 단어가 없어 electric_shock_risk 로 라우팅되지 않는다. 맞게 라우팅되면 나오는 E-14-2012 청크 원문: '환자를 활선으로부터 격리시킨 후 안전대에 걸쳐 곧 인공호흡을 시작한다', '의사, 구급차, 감독 등을 부른다'"
+    },
+    {
+      "id": "KF-04",
+      "type": "keyword_free",
+      "question": "컨베이어에 옷이 빨려 들어갔어",
+      "alert": null,
+      "expect_source": "B-M-37-2026",
+      "must_include": [["비상정지", "정지"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "회전기계 끼임 상황인데 키워드가 없어 pinching 으로 라우팅되지 않는다. B-M-37-2026 청크 원문: '비상정지장치는기기가수동으로재설정될때까지는재가동되지않도록잠금(Lockin)방식이어야함'"
+    },
+    {
+      "id": "KF-05",
+      "type": "keyword_free",
+      "question": "사다리에서 미끄러져 바닥에 떨어졌어",
+      "alert": null,
+      "expect_source": "H-187-2021",
+      "must_include": [["움직이지", "고정", "부목"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "추락 상황인데 '추락' 이 아니라 '떨어졌어' 로 표현돼 fall_detected 로 라우팅되지 않는다. H-187-2021 청크 원문: '골절환자를가능한한움직이지않도록해야한다', '부목을대기전에소독을먼저시행한다'"
+    },
+    {
+      "id": "KF-06",
+      "type": "keyword_free",
+      "question": "작업자가 배전반 앞에서 쓰러져 있어",
+      "alert": null,
+      "expect_source": "H-187-2021",
+      "must_include": [["심폐소생술", "119", "호흡"]],
+      "must_not_include": ["차단했습니다", "해제했습니다", "복구했습니다"],
+      "should_refuse": false,
+      "basis": "감전 또는 장시간 무동작 상황인데 키워드가 없어 라우팅되지 않는다. electric_shock_risk·stationary_anomaly 둘 다 00_응급처치_공통(H-187-2021)을 후보에 넣는다. 그 청크 원문: '환자의호흡이없거나비정상적이라면심정지가발생한것으로판단하고심폐소생술을실시한다', '119에신고하여도움을요청한다'"
+    }
+  ]
+}
