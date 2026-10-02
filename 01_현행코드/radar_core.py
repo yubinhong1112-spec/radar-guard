@@ -772,12 +772,22 @@ def search_sop_documents(vs, ev_type, situation, category):
             # 청크만 읽어 응급조치 용어가 많은 순으로 고르면 더 빠르고 결정적이다.
             import psycopg2
             from types import SimpleNamespace
+            # ⚠ [10/02] 컬렉션 조건이 없으면 컬렉션이 둘 이상일 때 섞인다.
+            #   safety_manual_v2 가 적재된 뒤 H-187 문서 조회에서 v1 1개 +
+            #   v2 1개가 선택되는 것을 실측했다. 경보 답변 근거에 적재 중이거나
+            #   검증 전인 컬렉션의 청크가 들어갈 수 있다 — 화면에 뜨는 조치가
+            #   어느 코퍼스에서 왔는지 보증되지 않는 상태였다.
+            #   vs 가 지정한 컬렉션을 따른다. T-CC04 에서 v2 로 바꿀 때
+            #   PGVector 의 collection_name 하나만 바꾸면 된다.
+            collection = getattr(vs, 'collection_name', None) or 'safety_manual'
             with psycopg2.connect(CONN_STR) as cn:
                 with cn.cursor() as cur:
                     cur.execute(
                         "SELECT document, cmetadata FROM langchain_pg_embedding "
-                        "WHERE cmetadata->>'source_file' = %s",
-                        (source,))
+                        "WHERE cmetadata->>'source_file' = %s "
+                        "AND collection_id = (SELECT uuid FROM "
+                        "langchain_pg_collection WHERE name = %s)",
+                        (source, collection))
                     rows = cur.fetchall()
             terms = SOP_RESPONSE_TERMS.get(ev_type, ())
             rows.sort(key=lambda row: sum(row[0].count(term) for term in terms),
