@@ -72,6 +72,9 @@ VARIANT_CALL = {
     'R+P+N':    {'options': {'num_predict': 220}},
     'R+P+N+Q':  {'model': 'qwen2.5:3b-instruct-q4_K_M',
                  'options': {'num_predict': 220}},
+    # [10/02 T-CC03] I 는 호출 옵션을 기준선 그대로 쓴다. I+Q 는 모델만 바꾼다.
+    'I':        {},
+    'I+Q':      {'model': 'qwen2.5:3b-instruct-q4_K_M'},
 }
 
 # 거절·회피로 인정할 표현. out_of_scope 채점에만 쓴다.
@@ -215,14 +218,20 @@ def run(items, vectorstore, variant='baseline'):
             item['question'], alert=item.get('alert'),
             pkt=item.get('pkt'), vectorstore=vectorstore, variant=variant)
         search_sec = round(time.perf_counter() - t0, 3)
+        route = built.get('route')
         if item['type'] == 'event_action' and not built['sources']:
             raise SystemExit(
                 f"측정 중단 — {item['id']} event_action 인데 검색 결과 0건이다. "
                 '챗봇 성능이 아니라 DB/검색 문제일 수 있으므로 기록하지 않는다.')
-        raw, elapsed = call_ollama(built['prompt'], variant)
-        answer = (raw.get('response') or '').strip()
+        if built.get('fixed_answer'):
+            # 조작 요청 — LLM 을 타지 않는다. 시간은 라우팅 비용뿐이다.
+            answer, elapsed = built['fixed_answer'], search_sec
+            raw = {'done_reason': 'fixed'}
+        else:
+            raw, elapsed = call_ollama(built['prompt'], variant)
+            answer = (raw.get('response') or '').strip()
         row = dict(item, rule_path=False, answer=answer, elapsed=elapsed,
-                   variant=variant, search_sec=search_sec,
+                   variant=variant, search_sec=search_sec, route=route,
                    event=built['event'], sources=built['sources'],
                    source_hit=source_hit(item.get('expect_source'),
                                          built['sources']),
@@ -236,6 +245,7 @@ def run(items, vectorstore, variant='baseline'):
         rows.append(row)
         flag = '잘림' if row['done_reason'] == 'length' else ''
         print(f"  {item['id']} {elapsed:6.1f}초 "
+              f"[{route or '-'}] "
               f"(검색 {search_sec:4.1f} / 적재 {row['load_sec']} / "
               f"프롬프트 {row['prompt_eval_sec']} / 생성 {row['eval_sec']}) "
               f"묶음 {row['must_include_passed']}/{row['must_include_total']} "
@@ -311,13 +321,34 @@ def summarize(rows, chunks, variant='baseline'):
             f"| 전체(elapsed) | {med('elapsed')} | {tot('elapsed')} | "
             'HTTP 왕복 전체 |']
 
+    # 경로별 p50 — 채택 기준이 system·other·control 과 incident 를 따로 본다.
+    if any(r.get('route') for r in scored):
+        out += ['', '## 경로(route)별', '',
+                '| route | 문항 | p50 초 | 최대 초 | 묶음 | 금지 | 거절 성공 |',
+                '|---|---|---|---|---|---|---|']
+        for rt in ('control', 'incident', 'system', 'other'):
+            grp = [r for r in scored if r.get('route') == rt]
+            if not grp:
+                out.append(f'| {rt} | 0 | — | — | — | — | — |')
+                continue
+            el = sorted(r['elapsed'] for r in grp)
+            tot = sum(r['must_include_total'] for r in grp)
+            psd = sum(r['must_include_passed'] for r in grp)
+            ban = sum(len(r['must_not_include_hits']) for r in grp)
+            refs = [r for r in grp if r['refuse_ok'] is not None]
+            ref = (f"{sum(1 for r in refs if r['refuse_ok'])}/{len(refs)}"
+                   if refs else '—')
+            out.append(f'| {rt} | {len(grp)} | {statistics.median(el):.1f} | '
+                       f'{max(el):.1f} | {psd}/{tot} | {ban}건 | {ref} |')
+
     out += ['', '## 문항별', '',
-            '| id | 유형 | 질문 | 출처 적중 | 묶음 | 금지 | 잘림 | 전체 초 | '
-            '검색 | 적재 | 프롬프트 | 생성 | prompt자 | eval_count |',
-            '|---|---|---|---|---|---|---|---|---|---|---|---|---|---|']
+            '| id | 유형 | route | 질문 | 출처 적중 | 묶음 | 금지 | 잘림 | '
+            '전체 초 | 검색 | 적재 | 프롬프트 | 생성 | prompt자 | eval_count |',
+            '|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|']
     for r in scored:
         out.append(
-            f"| {r['id']} | {r['type']} | {r['question']} | {r['source_hit']} | "
+            f"| {r['id']} | {r['type']} | {r.get('route') or '—'} | "
+            f"{r['question']} | {r['source_hit']} | "
             f"{r['must_include_passed']}/{r['must_include_total']} | "
             f"{len(r['must_not_include_hits'])} | "
             f"{'예' if r['done_reason'] == 'length' else '아니오'} | "
@@ -331,6 +362,66 @@ def summarize(rows, chunks, variant='baseline'):
         out += ['', '## 금지 발언 적발', '']
         out += [f'- {i}: `{w}`' for i, w in bans]
     return '\n'.join(out) + '\n'
+
+
+def route_check():
+    """라우터만 채점한다. LLM·DB 를 쓰지 않아 즉시 끝난다.
+
+    평가셋 30문항은 유형에서 기대 route 를 끌어내고(지시서 §6-2 표),
+    미공개 12문항은 route_holdout.json 의 expect_route 를 쓴다.
+    """
+    # 유형 → 기대 route. out_of_scope 는 조작형만 control 이라 자동 판정에서
+    # 빼고(expect=None) 결과만 적는다. live_status 는 '문항 성격대로' 라
+    # 같은 이유로 빼고 적기만 한다.
+    EXPECT = {'event_action': 'incident', 'keyword_free': 'incident',
+              'system_explain': 'system', 'out_of_scope': None,
+              'live_status': None}
+    with open(EVAL_SET, encoding='utf-8') as fp:
+        items = json.load(fp)['items']
+    out = ['# 라우터 판정 — ' + time.strftime('%Y-%m-%d %H:%M'), '',
+           '## 평가셋 30문항', '',
+           '| id | 유형 | 질문 | route | event | 기대 | 판정 |',
+           '|---|---|---|---|---|---|---|']
+    ng = 0
+    checked = 0
+    for it in items:
+        route, event = ui.route_question(it['question'])
+        want = EXPECT[it['type']]
+        if want is None:
+            verdict = '—'
+        else:
+            checked += 1
+            ok = route == want
+            ng += 0 if ok else 1
+            verdict = 'OK' if ok else '**NG**'
+        out.append(f"| {it['id']} | {it['type']} | {it['question']} | "
+                   f"{route} | {event or '—'} | {want or '—'} | {verdict} |")
+    print(f'평가셋 30문항 — 기대값이 정해진 {checked}문항 중 NG {ng}건')
+
+    with open(os.path.join(HERE, 'route_holdout.json'), encoding='utf-8') as fp:
+        hold = json.load(fp)['items']
+    out += ['', f'- 기대값이 정해진 {checked}문항 중 NG {ng}건 '
+            '(out_of_scope·live_status 는 유형만으로 기대 route 가 정해지지 '
+            '않아 판정에서 뺐다)',
+            '', '## 미공개 12문항 (사전 튜닝에 쓰지 않았다)', '',
+            '| 질문 | route | event | 기대 | 판정 |',
+            '|---|---|---|---|---|']
+    hit = 0
+    for it in hold:
+        route, event = ui.route_question(it['question'])
+        ok = route == it['expect_route']
+        hit += 1 if ok else 0
+        out.append(f"| {it['question']} | {route} | {event or '—'} | "
+                   f"{it['expect_route']} | {'OK' if ok else '**NG**'} |")
+    out += ['', f'- **{hit}/{len(hold)} 적중**']
+    print(f'미공개 12문항 — {hit}/{len(hold)} 적중')
+
+    os.makedirs(RESULTS, exist_ok=True)
+    dst = os.path.join(RESULTS, f'route_{time.strftime("%Y%m%d_%H%M")}.md')
+    with open(dst, 'w', encoding='utf-8') as fp:
+        fp.write('\n'.join(out) + '\n')
+    print(f'기록: {dst}')
+    return 0
 
 
 def rescore(path):
@@ -410,8 +501,12 @@ def main():
                     help='측정할 변형 (기본 baseline = 1단계 동작)')
     ap.add_argument('--rescore', metavar='JSONL',
                     help='저장된 답 원문으로 재채점만 한다(LLM 재호출 없음)')
+    ap.add_argument('--route-check', action='store_true',
+                    help='라우터 판정만 채점한다(LLM·DB 불필요)')
     args = ap.parse_args()
 
+    if args.route_check:
+        return route_check()
     if args.rescore:
         return rescore(args.rescore)
 

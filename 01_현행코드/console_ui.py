@@ -2132,12 +2132,101 @@ CHAT_VARIANTS = {
     'R+P':      {'search': 'question', 'prompt': 'v2'},
     'R+P+N':    {'search': 'question', 'prompt': 'v2'},
     'R+P+N+Q':  {'search': 'question', 'prompt': 'v2'},
+    # [10/02 T-CC03] 질문 의도를 먼저 나눈다. route_question 참고.
+    'I':        {'search': 'intent',   'prompt': 'intent'},
+    'I+Q':      {'search': 'intent',   'prompt': 'intent'},
 }
 
 # prompt v2 가 SYSTEM_CONTEXT 대신 남기는 안전 규칙 2문장.
 CHAT_SAFETY_RULES = (
     'LLM 은 위험 판정·차단·경보 해제·전원 재투입을 실행하지 않는다.\n'
     '확정 즉시조치와 현장 책임자 지시가 이 답변보다 우선한다.')
+
+# ══ [10/02 T-CC03] 질문 의도 라우터 ═══════════════════════════════════
+#  왜 규칙인가: LLM·임베딩으로 의도를 분류하면 모든 질문에 수 초가 붙는다
+#  (T-CC02 실측 — 질문 임베딩 7.2초, 모델 재적재 9.0초). 규칙은 0.001초다.
+#
+#  ⚠ 사전 단어는 매뉴얼 원문(H-187·E-14)·radar_core.SOP_RESPONSE_TERMS·
+#    일반적인 상해 동사에서만 골랐다. 평가셋 문항 문장을 넣지 않는다 —
+#    넣으면 평가셋만 맞고 현장 질문에서 무너진다. 일반화는 미공개 12문항
+#    (eval/route_holdout.json)으로 따로 본다.
+
+# 조작 요청: 명령형 동사와 대상어가 **함께** 있을 때만. 동사를 느슨하게 잡으면
+# "설비를 다시 켜도 돼?"(끼임 사고 질문)가 조작 요청으로 빠진다.
+CONTROL_VERBS = ('내려줘', '내려 줘', '내려주', '내려라', '올려줘', '올려 줘',
+                 '올려주', '올려라', '꺼줘', '꺼 줘', '꺼주', '켜줘', '켜 줘',
+                 '켜주', '차단해', '해제해', '복구해', '재투입해', '리셋해',
+                 '내려줄', '올려줄')
+CONTROL_TARGETS = ('차단기', '브레이커', '전원', '경보', '설비', '회로', '배전반')
+
+# 사고: 사람이 다쳤거나 이상 상태라는 표현. 짧은 조각(끼·숨·피)은 '끼니·숨기·
+# 커피' 같은 오검출이 나므로 쓰지 않고, 어미까지 붙은 형태만 쓴다.
+INCIDENT_TERMS = (
+    # 낙상·추락
+    '쓰러', '엎어', '넘어졌', '넘어져', '떨어졌', '떨어져', '미끄러', '주저앉',
+    # 협착·끼임
+    '말려 들어', '말려들어', '빨려 들어', '빨려들어', '끼었', '끼였', '감겼',
+    '물렸',
+    # 감전
+    '전기에 닿', '감전됐', '찌릿', '저리다', '저려', '튕겨',
+    # 의식·호흡·외상 (H-187·E-14 원문 용어)
+    '의식이 없', '대답이 없', '반응이 없', '호흡이 없', '숨을 안', '숨을 못',
+    '숨이 안', '심정지', '움직이지 못', '움직이지 않', '안 움직', '못 움직',
+    '피를 흘', '출혈', '골절', '화상', '다쳤', '부상')
+
+# 사고 종류까지 추정되는 표현. 추정되면 1단계 고정 출처 지름길을 탈 수 있다
+# (임베딩 없이 정답 문서로 간다). 추정 안 되면 event=None 으로 둔다.
+INCIDENT_EVENT_TERMS = (
+    (('전기에 닿', '감전됐', '찌릿', '저리다', '저려', '튕겨'),
+     'electric_shock_risk'),
+    (('말려 들어', '말려들어', '빨려 들어', '빨려들어', '끼었', '끼였',
+      '감겼', '물렸'), 'pinching'),
+    (('쓰러', '엎어', '넘어졌', '넘어져', '떨어졌', '떨어져', '미끄러',
+      '주저앉'), 'fall_detected'),
+)
+
+# 시스템 구성·원리 질문. 명사가 있어야 인정한다 — '왜·어떻게' 만으로는
+# "내일 환율 어떻게 될까?" 가 시스템 질문이 된다.
+SYSTEM_NOUNS = ('레이더', '젯슨', 'Jetson', '노트북', '판정', '포인트', '점군',
+                '프레임', '카메라', 'CCTV', '개인정보', '도플러', '각분해능',
+                'SOP', 'LLM', 'AI', '시스템', '경과시간', 'RAG', 'UDP',
+                'IWR6843', 'mmWave', '확신도', '임계', '누적')
+
+# 조작 요청에 돌려주는 고정 문구. LLM 을 타지 않으므로 안전 발언 금지 위반이
+# 구조적으로 0 이 된다. 표현은 _local_answer 의 재투입 안내와 SYSTEM_CONTEXT
+# ('LLM은 판정하거나 차단하지 않는다')에서 가져왔다.
+CHAT_CONTROL_REPLY = (
+    '관제 AI 는 차단·경보 해제·전원 재투입을 실행하지 않습니다. '
+    '유자격자가 절연·누설·설비 상태를 확인한 뒤 [전기 설비] 의 확인 절차를 '
+    '따르십시오. 확정 즉시조치와 현장 책임자 지시가 이 답변보다 우선합니다.')
+
+# 사고 질문에서 볼 카테고리. 예방 문서는 뺀다 — T-CC02 의 R 에서
+# M-59(넘어짐 위험성 평가)가 사고 대응 답변 근거로 섞여 들어왔다.
+# '사고 확정 → 응급처치 문서만' 이라는 8/25 EVENT_CATEGORY 원칙과 같다.
+INCIDENT_CATEGORIES = ('00_응급처치_공통', '01_감전_대응')
+
+
+def route_question(question):
+    """질문 의도를 나눈다. 반환: (route, event)
+
+    route 는 'control' · 'incident' · 'system' · 'other' 넷 중 하나.
+    event 는 사고 종류를 알 때만 채운다(모르면 None).
+    LLM·임베딩을 호출하지 않는다.
+    """
+    if (any(v in question for v in CONTROL_VERBS)
+            and any(t in question for t in CONTROL_TARGETS)):
+        return 'control', None
+    event = AssistantDrawer._event_for(question)
+    if event:
+        return 'incident', event
+    if any(t in question for t in INCIDENT_TERMS):
+        for terms, ev in INCIDENT_EVENT_TERMS:
+            if any(t in question for t in terms):
+                return 'incident', ev
+        return 'incident', None
+    if any(n in question for n in SYSTEM_NOUNS):
+        return 'system', None
+    return 'other', None
 
 
 def _search_by_question(vectorstore, question, event):
@@ -2164,11 +2253,85 @@ def _search_by_question(vectorstore, question, event):
     return docs
 
 
+def _new_vectorstore():
+    return core.PGVector(
+        connection_string=core.CONN_STR,
+        embedding_function=core.OllamaEmbeddings(model=EMBED_MODEL),
+        collection_name='safety_manual')
+
+
+def _live_block(alert, pkt):
+    """젯슨 실측 블록. 경보가 없으면 빈 문자열. route 와 무관하게 붙는다."""
+    if not alert:
+        return ''
+    return SopEngineV2._fact_block(SopEngineV2.build_facts(alert, pkt, 0))
+
+
+def _build_intent_request(question, alert, pkt, vectorstore):
+    """변형 I — 질문 의도를 먼저 나누고 사고 질문만 매뉴얼 경로를 탄다.
+
+    T-CC02 에서 R 은 '키워드 없음' 을 '사고 질문' 으로 싸잡았다. 시스템 설명·
+    범위 밖 질문도 매뉴얼 검색을 타고 v2 프롬프트를 받아 SYSTEM_CONTEXT 가
+    사라졌고, system_explain 10/11 → 1/11, 거절 5/6 → 1/6 이 됐다.
+    여기서는 route 가 'incident' 일 때만 매뉴얼·v2 를 쓴다.
+    """
+    route, event = route_question(question)
+    live_section = (f'[현재 젯슨 실측]\n{_live_block(alert, pkt)}\n'
+                    if _live_block(alert, pkt) else '')
+    if route == 'control':
+        # LLM 을 타지 않는다. 안전 발언 금지 위반이 구조적으로 0 이 된다.
+        return {'prompt': '', 'event': None, 'sources': [], 'context': '',
+                'route': route, 'fixed_answer': CHAT_CONTROL_REPLY}
+    sources, context = [], ''
+    if route == 'incident':
+        vectorstore = vectorstore or _new_vectorstore()
+        if event:
+            # 1단계 고정 출처 지름길 — 임베딩을 안 쓰고 출처 6/6 이 검증됐다.
+            docs = core.search_sop_documents(
+                vectorstore, event, core.SOP_QUERY[event],
+                core.EVENT_CATEGORY.get(event))
+        else:
+            docs = []
+            for cat in INCIDENT_CATEGORIES:
+                docs += vectorstore.similarity_search(
+                    question, k=1, filter={'category': cat})
+        context = '\n'.join(d.page_content for d in docs)[:1400]
+        sources = sorted({d.metadata.get('source_file', '?') for d in docs})
+    if context:
+        # 안전 규칙을 별도 블록으로 두고 옮겨 적지 말라고 못박는다 —
+        # T-CC02 KF-01 에서 2B 모델이 이 문장을 조치 번호로 베껴 적었다.
+        prompt = (
+            '아래 [공식 매뉴얼] 에 있는 조치만 번호로 답하라. 매뉴얼에 없는 '
+            '내용과 시스템 설명을 넣지 마라. 한국어로 간결하게 답한다.\n'
+            '[지켜야 할 것] — 이 블록의 문장은 답에 옮겨 적지 마라.\n'
+            f'{CHAT_SAFETY_RULES}\n'
+            f'[공식 매뉴얼]\n{context}\n'
+            f'{live_section}'
+            f'[질문]\n{question}')
+    else:
+        # 시스템·범위밖 질문은 1단계 프롬프트 그대로. SYSTEM_CONTEXT 가 있어야
+        # 답할 근거가 있고, 거절 규칙도 여기에 들어 있다.
+        prompt = (
+            '너는 Radar-Guard 관제 시스템 전용 보조 AI다. 아래 시스템 명세와 '
+            '공식 매뉴얼, 현재 실측값에 있는 내용만 사용해 한국어로 간결하게 '
+            '답하라. 모르면 모른다고 말하고 차단·경보해제·전원복구를 실행했다고 '
+            '말하지 마라. 질문의 주어와 이유를 첫 문장에 포함해 2~4문장으로 '
+            '직접 답하라. 질문을 되묻거나 질문 예시를 만들지 마라.\n'
+            f'[시스템 명세]\n{AssistantDrawer.SYSTEM_CONTEXT}\n'
+            f'[공식 매뉴얼]\n해당 없음\n'
+            f'{live_section}'
+            f'[질문]\n{question}')
+    return {'prompt': prompt, 'event': event, 'sources': sources,
+            'context': context, 'route': route, 'fixed_answer': None}
+
+
 def build_chat_request(question, alert=None, pkt=None, vectorstore=None,
                        variant='baseline'):
     """질의 AI 의 '검색 → 프롬프트 조립'. 반환 prompt 를 그대로 Ollama 에 보낸다.
 
     반환: {'prompt': str, 'event': str|None, 'sources': list[str], 'context': str}
+           변형 I 는 'route' 와 'fixed_answer' 를 더 준다. fixed_answer 가 있으면
+           LLM 을 호출하지 않고 그 문자열을 답으로 쓴다(조작 요청).
 
     [10/01] AssistantDrawer._work_locked 에서 떼어냈다. Qt 없이 평가 스크립트
     (eval/chat_eval.py)가 같은 프롬프트를 만들어야 기준선 측정이 현행과 같은
@@ -2179,15 +2342,14 @@ def build_chat_request(question, alert=None, pkt=None, vectorstore=None,
     variant 는 CHAT_VARIANTS 의 키다. 'baseline' 이 1단계 동작이다.
     """
     mode = CHAT_VARIANTS[variant]
+    if mode['search'] == 'intent':
+        return _build_intent_request(question, alert, pkt, vectorstore)
     event = AssistantDrawer._event_for(question)
     sources, context = [], ''
     need_search = bool(event) or mode['search'] == 'question'
     if need_search:
         if vectorstore is None:
-            vectorstore = core.PGVector(
-                connection_string=core.CONN_STR,
-                embedding_function=core.OllamaEmbeddings(model=EMBED_MODEL),
-                collection_name='safety_manual')
+            vectorstore = _new_vectorstore()
         if mode['search'] == 'question':
             docs = _search_by_question(vectorstore, question, event)
         else:

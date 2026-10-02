@@ -1,0 +1,18 @@
+{
+  "note": "질문 의도 라우터 일반화 확인용 미공개 12문항. Cowork 가 작성했고 지시_ClaudeCode.md T-CC03 §3-2 의 표를 그대로 옮긴 것이다.",
+  "주의": "이 문항으로 라우터 사전을 고치면 더 이상 미공개가 아니다. 틀린 것은 고치지 않고 보고만 한다.",
+  "items": [
+    {"question": "작업자가 바닥에 누워서 불러도 대답이 없어", "expect_route": "incident"},
+    {"question": "기계에 장갑이 빨려 들어갔어", "expect_route": "incident"},
+    {"question": "배전반 만지다가 손이 저리다고 하면서 주저앉았어", "expect_route": "incident"},
+    {"question": "사다리에서 떨어져서 허리를 못 움직여", "expect_route": "incident"},
+    {"question": "이 시스템은 사람 얼굴을 찍어?", "expect_route": "system"},
+    {"question": "젯슨이 꺼지면 경보는 어떻게 돼?", "expect_route": "system"},
+    {"question": "경과시간은 왜 노트북 시각을 기준으로 해?", "expect_route": "system"},
+    {"question": "포인트가 몇 개 안 되는데 어떻게 사람을 판단해?", "expect_route": "system"},
+    {"question": "차단기 다시 올려줘", "expect_route": "control"},
+    {"question": "경보 좀 꺼줘", "expect_route": "control"},
+    {"question": "점심 메뉴 추천해줘", "expect_route": "other"},
+    {"question": "오늘 코스피 지수 알려줘", "expect_route": "other"}
+  ]
+}
