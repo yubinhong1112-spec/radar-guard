@@ -2114,7 +2114,58 @@ class AiIconButton(QtWidgets.QToolButton):
         p.end()
 
 
-def build_chat_request(question, alert=None, pkt=None, vectorstore=None):
+# 사고 대응 문서가 들어 있는 카테고리. 키워드가 없는 질문은 사고 종류를 모르니
+# 이 넷을 다 본다(합 238청크). 예방·예지보전·색인제외는 대응 문서가 아니다.
+RESPONSE_CATEGORIES = ('00_응급처치_공통', '01_감전_대응', '02_협착_예방',
+                       '03_낙상_예방')
+
+# [10/01 T-CC02] 챗봇 개선 변형. 한 번에 하나씩 바꿔 무엇이 효과였는지 가른다.
+#   search 'keyword'  = 1단계 동작. _event_for 가 키워드를 찾은 경우만 검색하고,
+#                       검색어는 고정문 SOP_QUERY[event] 다(질문을 쓰지 않는다).
+#   search 'question' = 질문을 검색어로 쓴다. 키워드가 없어도 검색한다.
+#   prompt 'v1'       = 1단계 프롬프트. 'v2' = 매뉴얼 우선 프롬프트.
+# num_predict·모델은 프롬프트가 아니라 호출 옵션이라 eval/chat_eval.py 가 쥔다.
+# ⚠ 'baseline' 경로는 eval/test_chat_prompt_same.py 가 바이트 단위로 고정한다.
+CHAT_VARIANTS = {
+    'baseline': {'search': 'keyword',  'prompt': 'v1'},
+    'R':        {'search': 'question', 'prompt': 'v1'},
+    'R+P':      {'search': 'question', 'prompt': 'v2'},
+    'R+P+N':    {'search': 'question', 'prompt': 'v2'},
+    'R+P+N+Q':  {'search': 'question', 'prompt': 'v2'},
+}
+
+# prompt v2 가 SYSTEM_CONTEXT 대신 남기는 안전 규칙 2문장.
+CHAT_SAFETY_RULES = (
+    'LLM 은 위험 판정·차단·경보 해제·전원 재투입을 실행하지 않는다.\n'
+    '확정 즉시조치와 현장 책임자 지시가 이 답변보다 우선한다.')
+
+
+def _search_by_question(vectorstore, question, event):
+    """R 변형의 검색. 질문을 검색어로 쓰고, 키워드가 없으면 대응 문서 전체를 본다.
+
+    ⚠ 1단계의 search_sop_documents 는 사고 종류별 고정 출처가 있으면 임베딩을
+    아예 건너뛰고 그 문서의 청크를 용어 빈도로 고른다. 질문을 검색어로 쓰려면
+    그 지름길을 지나칠 수밖에 없다 — 그래서 R 은 문항마다 bge-m3 임베딩이
+    한 번 더 돈다. 지연이 늘면 그 비용인지 모델 재적재인지 측정에서 가른다.
+    """
+    if event:
+        situation = f'{question} {core.SOP_QUERY[event]}'
+        category = core.EVENT_CATEGORY.get(event)
+        cats = (category if isinstance(category, (list, tuple))
+                else (category,))
+    else:
+        situation = question
+        cats = RESPONSE_CATEGORIES
+    count = 2 if len(cats) == 1 else 1
+    docs = []
+    for cat in cats:
+        docs += vectorstore.similarity_search(
+            situation, k=count, filter={'category': cat} if cat else None)
+    return docs
+
+
+def build_chat_request(question, alert=None, pkt=None, vectorstore=None,
+                       variant='baseline'):
     """질의 AI 의 '검색 → 프롬프트 조립'. 반환 prompt 를 그대로 Ollama 에 보낸다.
 
     반환: {'prompt': str, 'event': str|None, 'sources': list[str], 'context': str}
@@ -2125,30 +2176,48 @@ def build_chat_request(question, alert=None, pkt=None, vectorstore=None):
     eval/test_chat_prompt_same.py 가 분리 전 요청 본문과 바이트 단위로 비교한다.
     vectorstore 를 넘기면 그것을 쓴다 — 측정 때 매 문항 재연결을 피하기 위한
     주입구이고, None 이면 분리 전과 똑같이 여기서 만든다.
+    variant 는 CHAT_VARIANTS 의 키다. 'baseline' 이 1단계 동작이다.
     """
+    mode = CHAT_VARIANTS[variant]
     event = AssistantDrawer._event_for(question)
     sources, context = [], ''
-    if event:
-        category = core.EVENT_CATEGORY.get(event)
+    need_search = bool(event) or mode['search'] == 'question'
+    if need_search:
         if vectorstore is None:
             vectorstore = core.PGVector(
                 connection_string=core.CONN_STR,
                 embedding_function=core.OllamaEmbeddings(model=EMBED_MODEL),
                 collection_name='safety_manual')
-        docs = core.search_sop_documents(
-            vectorstore, event, core.SOP_QUERY[event], category)
+        if mode['search'] == 'question':
+            docs = _search_by_question(vectorstore, question, event)
+        else:
+            docs = core.search_sop_documents(
+                vectorstore, event, core.SOP_QUERY[event],
+                core.EVENT_CATEGORY.get(event))
         context = '\n'.join(d.page_content for d in docs)[:1400]
         sources = sorted({d.metadata.get('source_file', '?') for d in docs})
     live = ''
     if alert:
         facts = SopEngineV2.build_facts(alert, pkt, 0)
         live = SopEngineV2._fact_block(facts)
+    live_section = f'[현재 젯슨 실측]\n{live}\n' if live else ''
+    if mode['prompt'] == 'v2' and context:
+        # 사고 대응 질문에서 시스템 설명으로 새는 것을 막는다 — 매뉴얼을 먼저
+        # 놓고 시스템 명세는 안전 규칙 2문장으로 줄인다.
+        prompt = (
+            '아래 [공식 매뉴얼] 에 있는 조치만 번호로 답하라. 매뉴얼에 없는 '
+            '내용과 시스템 설명을 넣지 마라. 한국어로 간결하게 답한다.\n'
+            f'{CHAT_SAFETY_RULES}\n'
+            f'[공식 매뉴얼]\n{context}\n'
+            f'{live_section}'
+            f'[질문]\n{question}')
+        return {'prompt': prompt, 'event': event, 'sources': sources,
+                'context': context}
     task_rule = (
         '공식 매뉴얼에 근거한 조치를 번호로 답하되, 확정 즉시조치와 현장 '
         '책임자 지시가 우선임을 지켜라.' if event else
         '질문의 주어와 이유를 첫 문장에 포함해 2~4문장으로 직접 답하라. '
         '질문을 되묻거나 질문 예시를 만들지 마라.')
-    live_section = f'[현재 젯슨 실측]\n{live}\n' if live else ''
     prompt = (
         '너는 Radar-Guard 관제 시스템 전용 보조 AI다. 아래 시스템 명세와 '
         '공식 매뉴얼, 현재 실측값에 있는 내용만 사용해 한국어로 간결하게 '
