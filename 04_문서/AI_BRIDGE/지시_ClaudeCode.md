@@ -5,125 +5,64 @@
 
 | 항목 | 값 |
 |---|---|
-| 작업 ID | **T-CC03** |
-| 상태 | **대기** (대기=착수 보고 후 확인받고 시작 / 진행중=이어서 / 완료=아무것도 하지 말고 "T-CC03 완료 상태"라고 답) |
-| 작업 | 질문 의도 라우터(사고 / 시스템 / 조작 요청 / 기타) 구현과 측정 → 그 위에서 2B·3B 비교 → 지연 분해용 baseline 재측정 |
+| 작업 ID | **T-CC04** — 개선계획 0단계(계측 정비) |
+| 상태 | **대기** (대기=착수 보고 후 확인받고 시작 / 진행중=이어서 / 완료=아무것도 하지 말고 "T-CC04 완료 상태"라고 답) |
+| 계획 문서 | `04_문서/설계/RAG_LLM_고도화_1001/개선계획_1003_1021.md` (문제 ID A~L 은 여기 기준) — 먼저 읽는다 |
 | 권장 모델 | Opus 5.5 |
-| 병렬 상대 | 없음. Codex T-CX04 는 10/02 완료·Cowork 검증 끝. 후속 T-CX05(v2 재적재, **Ollama bge-m3 사용**)는 **이 작업의 측정이 끝난 뒤** 실행한다(10/02 사용자 결정). `sop_ingest_v2.py`·`tmp/ingest_v2/`·`보고_Codex.md` 는 열지 않는다 |
-| 이전 작업 | T-CC02 부분 완료(R·R+P·R+P+N 미채택, push `eb1fa76`). 보고: `_이전/지시_ClaudeCode_T-CC02.md`, 결과 `01_현행코드/eval/results/` |
+| 병렬 상대 | Codex T-CX05(`safety_manual_v2` 삭제 후 재적재, Ollama bge-m3 사용, 약 3분). **사용자가 "T-CX05 끝남"이라고 하기 전에는 Ollama·DB 를 쓰는 실행(§4)을 하지 않는다.** 코드 작성(§1~3)은 그 전에 해도 된다. `sop_ingest_v2.py`·`tmp/ingest_v2/`·`보고_Codex.md` 는 열지 않는다 |
+| 이전 작업 | T-CC03 완료(`f07b9f1`, `74b7fc7`). 지시: `_이전/지시_ClaudeCode_T-CC03.md` |
 | 우선순위 | 이 파일 > `HANDOFF.md` |
 
-## 공통 규칙 (모든 작업)
+## 공통 규칙
 
-1. 착수 전 `CLAUDE.md` §10 '착수 보고' 6항목으로 보고하고, 사용자가 "확인"·"진행"이라고 답한 뒤에만 시작한다.
-2. 동결 해시는 CLAUDE.md 표(10/01 갱신)와 "시작 시 값 == 종료 시 값" 둘 다 확인한다.
-3. `git add -A`/`git add .` 금지. 이번 작업에서 만든·고친 파일만 경로 지정 커밋.
-4. OUTBOX 에는 결과 요약을 쓰지 않는다. 결정 요청은 보고 파일 '판단 요청'에 쓴다.
-5. 실행·검증하지 않은 것을 완료라고 쓰지 않는다. 안 돌렸으면 "실행 안 함".
-6. **지시서에 없는 변형·측정을 즉석으로 추가하지 않는다.** 필요하다고 보면 '판단 요청'에 설계안으로만 적는다(T-CC02 에서 하이브리드를 즉석 제안한 건 이 규칙으로 막는다).
+1. 착수 전 `CLAUDE.md` §10 '착수 보고' 6항목 → 사용자 "진행" 후 시작.
+2. 동결 해시: CLAUDE.md 표 대조 + 시작==종료.
+3. `git add -A`/`git add .` 금지. 경로 지정 커밋.
+4. 실행·검증하지 않은 것을 완료라고 쓰지 않는다.
+5. 지시서에 없는 변형·측정을 즉석 추가하지 않는다. 필요하면 '판단 요청'에.
+6. **이번 작업은 제품 코드(`console_ui.py`·`radar_core.py`·`radar_common.py`·`facility.py`)를 한 줄도 바꾸지 않는다.** 측정은 `eval/` 안에서 기존 함수를 호출·인자 주입으로 한다. 제품 코드 변경이 꼭 필요하면 멈추고 판단 요청.
+7. 측정 전 가용 메모리(`\Memory\Available MBytes`) ≥ 2000 확인. 미달이면 시작하지 말고 멈춰 보고.
 
-## 보고 규칙
+## 왜 이 작업인가
 
-- 끝나거나, 막혀서 멈추거나, 세션이 끊기기 직전이면 `04_문서/AI_BRIDGE/보고_ClaudeCode.md` 를 **덮어쓴다.** 형식은 `04_문서/설계/RAG_LLM_고도화_1001/보고/_양식.md`. 첫 줄에 작업 ID.
-- 보고 파일도 커밋에 포함한다. 마지막에 채팅에 "보고 작성 완료: T-CC03" 한 줄.
+10/03 확인: 경보 SOP 6종(`SopEngineV2.PREPARE_EVENTS`)은 앱 시작 때 `qwen2.5:3b`(PREPARE_MODEL, console_ui.py 2831)가 v1 매뉴얼 발췌 700자로 4줄을 생성하고, `_cacheable_sop`(2978)는 **형식만** 검사한다. 내용을 잰 적이 없다(문제 A). 사전 생성이 실패한 유형은 경보 순간 `gemma2:2b` 가 실측값과 함께 스트리밍 생성한다(2915). 이 경로가 심사에서 가장 먼저 보이는 화면인데 평가셋 30문항에 없다. 또 모델 통일(문제 B)을 결정하려면 두 경로를 같은 기준으로 재야 한다. 이번 작업은 **그 자를 만드는 것**이고, 결정은 다음 단계다.
 
----
+## 1. 경보 SOP 평가 도구 `01_현행코드/eval/sop_eval.py` (신규)
 
-## 0. 먼저 — Cowork 변경분 커밋 (Ollama 불필요)
+- 인자: `--model {qwen2.5:3b-instruct-q4_K_M, gemma2:2b}` · `--collection {safety_manual, safety_manual_v2}` · `--facts {none, sample}` · `--tag`.
+- 대상: `PREPARE_EVENTS` 6종 전부.
+- 절차(제품 코드와 같은 함수를 쓴다): 검색은 `core.search_sop_documents(vs, ev, core.SOP_QUERY..., core.EVENT_CATEGORY...)` 를 `--collection` 으로 만든 `vs` 로 호출(=`SopEngineV2._search` 와 같은 순서, 컬렉션만 인자). 생성은 `SopEngineV2._gen_facts(ev, ctx, facts)` 를 호출하되 모델은 `SopEngineV2.PREPARE_MODEL`(facts 없음)·`core.LLM_MODEL`(facts 있음)을 **스크립트 안에서만** 임시 교체해 주입한다. 옵션(temperature 0, num_predict 160, num_ctx 1536)은 제품 그대로.
+- `--facts sample`: 이벤트별 실측값 예시는 `eval/chat_eval_set.json` 의 alert evidence 가 있으면 그것을, 없으면 `events_ui_animation_confirmed_0824.jsonl` 에서 해당 유형 첫 줄을 쓴다. 출처를 결과에 적는다.
+- 기록(jsonl, 이벤트당 1줄): 사용 청크 **전문**·`chunk_id`(v2)/`source_file`·`page`, 생성문 전문, `_cacheable_sop` 통과 여부, 줄별 글자 수, elapsed·load·eval 시간, eval_count, 가용 메모리(시작·끝).
+- 채점은 아직 하지 않는다 — 정답 기준(`eval/sop_eval_set.json`)은 Cowork 가 초안을 쓰고 사용자가 승인한다(계획 0-b). 파일이 있으면 `must_include`(조치 핵심어)·`must_not_include`(금지 표현)로 채점하고, 없으면 채점 열을 "기준 미승인"으로 둔다.
 
-경로 지정으로 따로 커밋. 메시지: "Codex 지시를 채팅 방식으로 전환하고 next-task 를 지시 파일 우선으로 수정".
-`.claude/skills/next-task/SKILL.md` · `.agents/skills/next-task/SKILL.md` · `04_문서/AI_BRIDGE/지시_ClaudeCode.md` · `04_문서/AI_BRIDGE/지시_Codex.md` · `04_문서/AI_BRIDGE/_이전/` · `04_문서/AI_BRIDGE/COWORK_인계.md` · `04_문서/AI_BRIDGE/_대기/`
-- `README.md` 의 미커밋 변경(9/26 고도화 계획안 + 10/01~02 항목)은 **커밋하지 않는다** — 사용자 판단.
-- `01_현행코드_보고서용/` 로컬 폴더는 Cowork 가 10/01 에 이미 지웠다(T-CC02 판단 요청 4 해결).
-- 커밋 전 `python scripts\sync_agent_docs.py --check`·`python scripts\validate_ai_bridge.py` 종료코드 0.
+## 2. 챗봇 평가 보강 `01_현행코드/eval/chat_eval.py` (수정)
 
-## 1. 왜 이 설계인가 (T-CC02 결과에서)
+- `--temperature` 인자 추가. 기본값은 지금 값(0.2) 유지 — 기존 결과와 비교가 깨지지 않게.
+- 검색 본문 `context` 를 jsonl 에 기록(T-CC03 발견 4).
+- preflight 청크 수를 컬렉션별로 출력(T-CC03 판단 요청 5).
+- **사실 오류 검사 열 `fact_errors` 를 별도로 추가**(문제 J). 기존 `must_not_include` 는 건드리지 않는다(이전 점수 유지). 첫 항목: OS-06 계열 — 답에 `영상을 분석`·`영상 분석`·`CCTV 영상을 활용` 이 있으면 사실 오류. 목록은 `eval/fact_error_terms.json` 으로 분리해 Cowork 가 늘릴 수 있게.
 
-- R 의 라우팅은 맞았다: keyword_free 정답 문서 0/6 → 6/6.
-- 실패 원인은 **"키워드 없음"을 "사고 질문"으로 취급한 것.** 시스템 설명·범위 밖 질문도 키워드가 없어 매뉴얼 검색을 탔고, P 가 SYSTEM_CONTEXT 를 지워 system_explain 10/11 → 1/11, 거절 5/6 → 1/6. 게다가 검색·재적재로 p50 7.6 → 20.7초.
-- 그러므로 **질문 의도를 먼저 나누고, 사고 질문만 매뉴얼 경로를 탄다.** T-CC02 판단 요청 1(하이브리드)의 "키워드 없을 때만 R" 은 시스템·범위밖 질문도 키워드가 없어 같은 문제가 남으므로 채택하지 않는다.
+## 3. 조각 선택 덤프 `01_현행코드/eval/chunk_select_dump.py` (신규)
 
-## 2. 구현 — `console_ui.py` 에 `variant='I'` (Intent) 추가
+- `SOP_RESPONSE_SOURCE` 의 (이벤트, 카테고리) 쌍마다, 고정 출처 문서의 **모든 후보 청크**를 `SOP_RESPONSE_TERMS` 점수와 함께 순위대로 나열하고, 실제 선택되는 상위 N개(코드와 같은 규칙)를 표시한다.
+- 출력: `eval/results/chunk_select_<컬렉션>_<날짜>.md` — 후보마다 순위·점수·chunk_id(또는 page)·본문 앞 200자.
+- 목적: 문제 E(EA-05 감전 질문에 화상 절) 원인 확인과, 다음 단계 '사람이 검토한 chunk_id 고정'의 재료.
 
-기본값은 계속 `'baseline'`. 판정 코드·`SopEngineV2`(경보 SOP 사전 생성 경로)·`_local_answer` 는 건드리지 않는다.
+## 4. 실행 (사용자가 "T-CX05 끝남" 이라고 한 뒤에만)
 
-### 2-1. 라우터 `route_question(question) -> (route, event)` — 규칙 기반, LLM·임베딩 호출 없음
+순서와 각 조건 사이 `ollama stop`:
+1. `chunk_select_dump` — v1, v2 (Ollama 불필요, DB 만)
+2. `sop_eval` 현행 운영 조건: `--model qwen2.5:3b… --collection safety_manual --facts none` (= 지금 시연에 뜨는 것)
+3. `sop_eval --model gemma2:2b --collection safety_manual --facts sample` (= 사전 생성 실패 시 뜨는 것)
+4. `chat_eval` baseline `--temperature 0` (재현성 확인용 1회. 같은 조건 2회 돌려 답이 바이트 동일한지 30문항 비교)
 
-LLM 이나 임베딩으로 의도를 분류하면 모든 질문에 수 초가 붙는다(T-CC02 실측 검색 7초·재적재 9초). 그래서 규칙으로 한다. 판정 순서:
+모델×컬렉션 4조건 전체 비교는 다음 단계(T-CC05)에서 한다 — 이번에는 위 4개만.
 
-1. **조작 요청 `control`**: 차단기·전원·경보·설비를 바꾸라는 명령형 — 예: `내려줘|올려줘|꺼줘|켜줘|차단해|해제해|복구해|재투입해|리셋해` 와 대상어(차단기·전원·경보·브레이커·설비·회로)가 함께 있을 때. → **LLM 없이 고정 거절 문구.** 문구는 기존 `_local_answer`·SYSTEM_CONTEXT 의 표현을 재사용해 "관제 AI 는 차단·해제·재투입을 실행하지 않으며 [전기 설비] 확인 절차를 따라야 한다"는 취지로 쓴다. 안전 발언 금지 위반을 0으로 고정하는 목적이다.
-2. **사고 `incident`**: 기존 `_event_for` 가 이벤트를 찾으면 그 이벤트. 못 찾으면 **확장 사전**으로 판정 — 사람 + 상해·이상 상태 표현(예: 쓰러·넘어·엎어·떨어·말려·끼·빨려·감겼·전기·찌릿·저리·튕겨·의식·대답이 없·숨·피·움직이지 못·안 움직). 사전으로 이벤트까지 추정되면 그 이벤트, 추정 안 되면 `event=None`.
-3. **시스템 `system`**: 시스템 구성·원리 질문 — 레이더·젯슨·노트북·판정·포인트·카메라·개인정보·경보 흐름·왜/어떻게 등.
-4. 나머지 `other`.
+## 5. 끝나기 전
 
-⚠ **과적합 금지.** 사전 단어는 매뉴얼 원문(H-187·E-14)·`SOP_RESPONSE_TERMS`·일반적인 상해 동사에서 고른다. 평가셋 문항 문장을 그대로 사전에 넣지 않는다. 아래 3-2 의 미공개 문항으로 일반화를 따로 확인한다.
-
-### 2-2. 경로별 처리
-
-| route | 검색 | 프롬프트 | 비고 |
-|---|---|---|---|
-| control | 없음 | 없음(고정 문구) | 0.1초 내 목표 |
-| incident + event 있음 | **1단계 고정 출처 지름길**(`search_sop_documents`, 임베딩 없음) | **v2(P)** — 매뉴얼 먼저, 안전 규칙 2문장 | 출처 6/6 이미 검증된 경로라 빠르다 |
-| incident + event 없음 | 질문 임베딩 검색, 카테고리는 **`00_응급처치_공통`·`01_감전_대응` 만** | v2(P) | 예방 카테고리(`02_협착_예방`·`03_낙상_예방`)는 뺀다 — R 에서 M-59(넘어짐 **위험성 평가**)가 사고 답변 근거로 섞였다. 사고 확정 후엔 응급처치 문서만이라는 8/25 원칙(`EVENT_CATEGORY` 주석)과 같다 |
-| system | 없음 | **v1(baseline) 그대로**, SYSTEM_CONTEXT 포함 | 기준선 10/11 을 지킨다 |
-| other | 없음 | v1 그대로(거절 규칙 포함) | 기준선 거절 5/6 을 지킨다 |
-
-- live_status 문항(경보 상태 주입)은 지금처럼 실측 블록을 넣는다. route 와 무관.
-- **P 의 안전 규칙 문장이 조치 번호로 베껴지는 문제**(T-CC02 KF-01): v2 프롬프트에서 안전 규칙을 `[지켜야 할 것]` 같은 별도 블록으로 두고 "이 블록의 문장은 답에 옮겨 적지 말 것"을 명시한다. 문구 수정은 이 한 가지만 한다.
-
-## 3. 측정
-
-**선행 조건**: 가용 메모리 2 GB 이상(브라우저·ChatGPT 앱 등 종료, `ollama ps` → `ollama stop`). 숫자를 보고에 적는다. **Codex 작업(T-CX05 포함)이 돌고 있지 않은지 사용자에게 확인받는다.**
-
-### 3-1. 기존 평가셋 30문항 (v1 DB, 확장 채점기, 변형마다 워밍업 1회 별도, 문항별 시간 분해 기록)
-
-순서: `baseline`(지연 분해용 재측정) → `I` → `I+Q`(모델 `qwen2.5:3b-instruct-q4_K_M`, I 와 동일 조건). 각 변형 사이 `ollama stop` 으로 모델을 내린다.
-- baseline 재측정은 품질 숫자가 아니라 **`load_duration`·`search_sec` 분해**가 목적이다. 품질 숫자는 1단계 재채점본을 before 로 계속 쓴다(답이 달라져도 before 를 바꾸지 않는다).
-
-### 3-2. 미공개 문항 12개 — 라우터 일반화 확인 (Cowork 작성, 사전 튜닝에 쓰지 말 것)
-
-`01_현행코드/eval/route_holdout.json` 으로 저장하고 **route 판정만** 채점한다(LLM 호출 불필요, 3-1 과 별개로 즉시 실행 가능).
-
-| 문항 | 기대 route |
-|---|---|
-| 작업자가 바닥에 누워서 불러도 대답이 없어 | incident |
-| 기계에 장갑이 빨려 들어갔어 | incident |
-| 배전반 만지다가 손이 저리다고 하면서 주저앉았어 | incident |
-| 사다리에서 떨어져서 허리를 못 움직여 | incident |
-| 이 시스템은 사람 얼굴을 찍어? | system |
-| 젯슨이 꺼지면 경보는 어떻게 돼? | system |
-| 경과시간은 왜 노트북 시각을 기준으로 해? | system |
-| 포인트가 몇 개 안 되는데 어떻게 사람을 판단해? | system |
-| 차단기 다시 올려줘 | control |
-| 경보 좀 꺼줘 | control |
-| 점심 메뉴 추천해줘 | other |
-| 오늘 코스피 지수 알려줘 | other |
-
-결과는 12개 중 맞힌 수와 틀린 문항·이유. 틀린 것을 맞추려고 사전을 고치면 **그 문항은 더 이상 미공개가 아니다** — 고치지 말고 보고만 한다.
-
-## 4. 채택 기준 (I 를 기본값으로 바꾸는 조건)
-
-기준선(재채점본) 대비 아래를 **모두** 만족할 때만 `build_chat_request` 와 `AssistantDrawer` 의 기본 동작을 `I` 로 바꾼다.
-- system_explain 필수 문구 ≥ 10/11, 거절 성공 ≥ 5/6, 금지 발언 0건
-- 정답 문서 적중 ≥ 12/12 (keyword_free 포함)
-- event_action 필수 문구 ≥ 4/12 (나빠지지 않음)
-- 지연: system·other·control 문항 p50 ≤ 기준선 p50 + 2초, incident 문항 p50 ≤ 15초
-- 미공개 라우터 12문항 중 ≥ 10개
-하나라도 미달이면 반영하지 않고 숫자와 원인만 보고한다.
-
-**모델(Q)은 어떤 결과든 기본값을 바꾸지 않는다** — OUT-007(모델 교체는 사용자 사전 승인). I 와 I+Q 를 나란히 놓고 '판단 요청'으로 올린다.
-
-## 5. 하지 말 것
-
-- 스트리밍, `SopEngineV2`, `_local_answer`, 판정 코드·동결 파일, `safety_manual` 쓰기.
-- `keep_alive` 변경(T-CC02 판단 요청 2 — 품질 확정 후 별도 작업).
-- v2 DB(`safety_manual_v2`) 사용 — Codex 재적재 결과 확인 후 T-CC04 에서 비교한다.
-- 지시서에 없는 변형 추가.
-
-## 6. 끝나기 전
-
-1. ui-verify(pyflakes + 4종) 0건, `test_chat_prompt_same.py`(baseline 경로 바이트 동일) 통과.
-2. 라우터 단위 검사: 기존 30문항 각각의 route 를 표로(기대값: event_action·keyword_free=incident, system_explain=system, out_of_scope 중 조작형=control·나머지=other, live_status=문항 성격대로) 보고에 싣는다.
-3. 동결 해시 시작==종료.
-4. 커밋 → `git push origin main` → 보고 최종본 커밋·push.
-5. 보고 핵심 표는 "기준선(재채점) / I / I+Q" 세 열 + 경로별(route) p50 표 + 미공개 12문항 결과.
+1. 제품 코드 무변경 확인(`git diff --stat` 에 console_ui·radar_core·radar_common·facility 없음).
+2. ui-verify 4종·`test_chat_prompt_same.py`·`test_sop_collection_filter.py` 통과(제품 코드 무변경이라 같은 결과여야 한다).
+3. 동결 해시 시작==종료. `sync_agent_docs.py --check`·`validate_ai_bridge.py` 0.
+4. 커밋·push. 0단계로 Cowork 변경분(`04_문서/설계/RAG_LLM_고도화_1001/개선계획_1003_1021.md`, `04_문서/AI_BRIDGE/COWORK_인계.md`, `04_문서/AI_BRIDGE/지시_ClaudeCode.md`, `04_문서/AI_BRIDGE/_이전/지시_ClaudeCode_T-CC03.md`, `04_문서/AI_BRIDGE/_대기/T-CX05_Codex_프롬프트.md`)을 먼저 따로 커밋한다.
+5. 보고 `보고_ClaudeCode.md` 덮어쓰기(양식 `04_문서/설계/RAG_LLM_고도화_1001/보고/_양식.md`). 핵심 표: 경보 SOP 6종 × 2조건의 생성문 전문(표 아래 원문 그대로)·형식 통과·시간, 재현성 결과(30문항 중 바이트 동일 수), 조각 선택 덤프 요약(이벤트별 1위 청크가 무슨 절인지).

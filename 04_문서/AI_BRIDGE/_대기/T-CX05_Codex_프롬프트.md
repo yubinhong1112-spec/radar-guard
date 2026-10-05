@@ -1,13 +1,15 @@
 # T-CX05 — M-121·M-123 잔여 전각 쪽번호 제거 후 safety_manual_v2 재적재 (Codex 채팅에 그대로 붙여 넣기)
 
-> 실행 시점: Claude Code T-CC03 측정이 끝난 뒤. Ollama 를 쓰는 다른 작업이 돌고 있으면 시작하지 않는다.
-> 작성: Cowork 2026-10-02. 이 프롬프트가 유일한 지시다. HANDOFF.md·옛 지시서·`지시_Codex.md` 는 읽지 않는다.
+> 실행 시점: T-CC03 완료(10/03 01:13 KST) 뒤. Ollama 를 쓰는 다른 작업이 돌고 있으면 시작하지 않는다.
+> 작성: Cowork 2026-10-02, 10/03 갱신. 이 프롬프트가 유일한 지시다. HANDOFF.md·옛 지시서·`지시_Codex.md` 는 읽지 않는다.
 
 ## 배경 (Cowork 가 chunks_v2.jsonl 을 재계산해 확인한 사실)
 - T-CX04 는 `WIDE_PAGE_NUMBER_RE = r"－\s*－\s*\d{1,3}(?!\d)"` 로 M-59·M-131·M-146 의 `－ －N` 형태를 제거했다.
 - 같은 문서군 중 M-121-2012·M-123-2012 는 쪽번호가 `－ －- 3 -` 형태(전각 2개 + 반각 하이픈으로 감싼 숫자)라 정규식에 걸리지 않았다.
 - 현재 `tmp/ingest_v2/chunks_v2.jsonl` 기준 잔존: M-121-2012 16곳(12청크), M-123-2012 21곳(19청크), 합계 37곳·31청크. 이 상태로 `safety_manual_v2` 537개가 적재돼 있다.
 - 잔존 `－` 중 쪽번호가 아닌 것은 M-146-2012 의 `연성－취성` 1곳뿐이다. 이것은 지우면 안 된다.
+
+- [10/03] 커밋 `802afb0` 으로 경보 SOP 고정 출처 질의가 `safety_manual` 컬렉션만 보도록 고쳐졌다. 그래서 `safety_manual_v2` 를 지우고 다시 적재하는 동안에도 운영 경보 답변에는 영향이 없다. 그래도 v2 가 비어 있는 시간은 최소로 한다(삭제 직후 바로 `--apply`).
 
 ## 할 일
 0. [착수 보고] 6항목(CLAUDE.md §10)을 먼저 내고 사용자 "진행" 후 시작.
@@ -20,7 +22,7 @@
 ## 금지
 - git 쓰기(커밋·add·stash 포함) 금지. 커밋은 Claude Code 가 한다.
 - `safety_manual` 변경, 다른 정제 규칙 변경, 분할 규칙 변경 금지.
-- 판정 코드(`jetson_sender.py`, `verify_jetson_safe.py`, `radar_core.py` 판정부) 수정 금지.
+- `01_현행코드/sop_ingest_v2.py` 외 코드 파일 수정 금지(`radar_core.py`·`console_ui.py`·`eval/` 포함). 동결 파일(`jetson_sender.py`·`verify_jetson_safe.py`·`train_fall_safety.py`)은 열지도 않는다.
 
 ## 보고
 `04_문서/AI_BRIDGE/보고_Codex.md` 를 덮어쓴다. 첫 줄은 `# Codex 결과 보고 — T-CX05`. 양식은 `04_문서/설계/RAG_LLM_고도화_1001/보고/_양식.md`.
