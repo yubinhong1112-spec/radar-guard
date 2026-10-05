@@ -47,6 +47,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 CODE = os.path.dirname(HERE)
 EVAL_SET = os.path.join(HERE, 'chat_eval_set.json')
 FIXTURE = os.path.join(HERE, 'fixtures', 'prompts_before.json')
+FACT_TERMS = os.path.join(HERE, 'fact_error_terms.json')
 RESULTS = os.path.join(HERE, 'results')
 
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
@@ -61,6 +62,9 @@ import console_ui as ui            # noqa: E402
 REQ = {'model': core.LLM_MODEL, 'stream': False, 'keep_alive': '30m',
        'options': {'num_ctx': 2048, 'num_predict': 100, 'temperature': 0.2}}
 TIMEOUT = 600          # LS-05 가 817초 걸린 전례가 있어 조용히 넘기지 않는다
+# 실제로 보낼 temperature. --temperature 로만 바꾼다. 기본은 현행(0.2) 이라
+# 기존 결과와 비교가 깨지지 않는다. [10/05 T-CC04]
+TEMPERATURE = REQ['options']['temperature']
 
 # 변형별로 바꾸는 호출 옵션. 프롬프트 쪽 변경은 console_ui.CHAT_VARIANTS 가 쥔다.
 #   N = num_predict 100→220 / Q = 모델 2B→3B
@@ -89,6 +93,21 @@ REFUSE_EXT = ('제공되지', '정보는 없')
 BANNED_EXT = ('복구를 진행', '해제를 진행', '차단하겠', '재투입하', '차단을 진행')
 
 
+def fact_error_terms():
+    """사실 오류 표현. 없으면 빈 목록 — 채점을 멈추지 않는다.
+
+    [10/05 T-CC04] 금지 발언과 **별개 열**이다. must_not_include 는 안전 발언
+    위반(차단했다·해제했다)을 보고, 이쪽은 시스템 명세와 어긋나는 서술을 본다
+    (OS-06 "레이더를 사용하여 영상을 분석"). 기존 열을 건드리지 않으므로
+    이전 측정의 점수는 그대로 비교할 수 있다.
+    """
+    try:
+        with open(FACT_TERMS, encoding='utf-8') as fp:
+            return tuple(t['term'] for t in json.load(fp).get('terms', []))
+    except FileNotFoundError:
+        return ()
+
+
 def preflight(variant='baseline'):
     """DB·Ollama 가 실제로 응답하는지 본다. 실패하면 측정하지 않는다."""
     bad = []
@@ -96,11 +115,19 @@ def preflight(variant='baseline'):
         import psycopg2
         with psycopg2.connect(core.CONN_STR) as cn:
             with cn.cursor() as cur:
-                cur.execute('SELECT count(*) FROM langchain_pg_embedding')
-                chunks = cur.fetchone()[0]
-        print(f'pgvector: 청크 {chunks}개')
+                # [10/05] 컬렉션별로 센다. 전체 수만 찍으면 v2 가 적재된 뒤
+                # "1177개" 로 보여 측정이 v2 를 쓰는 줄 오해한다(T-CC03 에서
+                # 실제로 한 번 멈췄다). 측정이 쓰는 것은 safety_manual 뿐이다.
+                cur.execute(
+                    'SELECT c.name, count(*) FROM langchain_pg_embedding e '
+                    'JOIN langchain_pg_collection c ON c.uuid = e.collection_id '
+                    'GROUP BY 1 ORDER BY 1')
+                per = cur.fetchall()
+        shown = ' · '.join(f'{n} {k}개' for n, k in per) or '컬렉션 없음'
+        chunks = dict(per).get('safety_manual', 0)
+        print(f'pgvector: {shown} → 측정이 쓰는 safety_manual {chunks}개')
         if not chunks:
-            bad.append('langchain_pg_embedding 이 비어 있다')
+            bad.append('safety_manual 컬렉션이 비어 있다')
     except Exception as e:
         bad.append(f'pgvector 접속 실패: {e}')
         chunks = 0
@@ -119,11 +146,15 @@ def preflight(variant='baseline'):
     except Exception as e:
         bad.append(f'ollama 접속 실패: {e}')
     # 호출 파라미터가 현행과 같은지 — 기준 덤프의 본문과 대조한다.
+    # temperature 는 --temperature 로 일부러 바꿀 수 있으므로 기본값으로 비교한다.
     with open(FIXTURE, encoding='utf-8') as fp:
         ref = next(iter(json.load(fp).values()))
     ours = dict(REQ, prompt=ref['prompt'])
     if json.dumps(ours, sort_keys=True) != json.dumps(ref, sort_keys=True):
         bad.append('호출 파라미터가 console_ui 현행과 다르다 — REQ 를 확인하라')
+    if TEMPERATURE != REQ['options']['temperature']:
+        print(f'⚠ temperature {REQ["options"]["temperature"]} → {TEMPERATURE} '
+              '— 현행과 다른 조건이다. 기존 결과와 직접 비교하지 말 것')
     return chunks, bad
 
 
@@ -152,6 +183,7 @@ def req_body(variant, prompt):
     body = dict(REQ, prompt=prompt)
     body.update({k: v for k, v in over.items() if k != 'options'})
     body['options'] = dict(REQ['options'], **over.get('options', {}))
+    body['options']['temperature'] = TEMPERATURE
     return body
 
 
@@ -200,6 +232,8 @@ def score(item, answer, ext=False):
         'must_not_include_hits': banned,
         'refused': refused,
         'refuse_ok': (refused if item.get('should_refuse') else None),
+        # 금지 발언과 별개 열. 거절 표현만 보던 채점기가 못 잡는 사실 오류다.
+        'fact_errors': [w for w in fact_error_terms() if w in answer],
     }
 
 
@@ -232,6 +266,8 @@ def run(items, vectorstore, variant='baseline'):
             answer = (raw.get('response') or '').strip()
         row = dict(item, rule_path=False, answer=answer, elapsed=elapsed,
                    variant=variant, search_sec=search_sec, route=route,
+                   temperature=TEMPERATURE,
+                   context=built['context'],   # [10/05] 검색 본문 기록
                    event=built['event'], sources=built['sources'],
                    source_hit=source_hit(item.get('expect_source'),
                                          built['sources']),
@@ -244,13 +280,15 @@ def run(items, vectorstore, variant='baseline'):
         row.update(score(item, answer, ext=True))
         rows.append(row)
         flag = '잘림' if row['done_reason'] == 'length' else ''
+        fe = (f" 사실오류 {len(row['fact_errors'])}"
+              if row['fact_errors'] else '')
         print(f"  {item['id']} {elapsed:6.1f}초 "
               f"[{route or '-'}] "
               f"(검색 {search_sec:4.1f} / 적재 {row['load_sec']} / "
               f"프롬프트 {row['prompt_eval_sec']} / 생성 {row['eval_sec']}) "
               f"묶음 {row['must_include_passed']}/{row['must_include_total']} "
               f"출처 {row['source_hit']} 금지 "
-              f"{len(row['must_not_include_hits'])} {flag}")
+              f"{len(row['must_not_include_hits'])}{fe} {flag}")
     return rows
 
 
@@ -264,12 +302,14 @@ def summarize(rows, chunks, variant='baseline'):
            f'- 검색 {ui.CHAT_VARIANTS[variant]["search"]} · 프롬프트 '
            f'{ui.CHAT_VARIANTS[variant]["prompt"]} · 모델 {body["model"]} · '
            f'num_predict {body["options"]["num_predict"]} · '
-           f'stream {body["stream"]} · DB 청크 {chunks}개',
-           '- 채점: 확장 금지·거절 목록 적용 · 워밍업 1회는 지표에서 제외',
+           f'temperature {body["options"]["temperature"]} · '
+           f'stream {body["stream"]} · safety_manual {chunks}청크',
+           '- 채점: 확장 금지·거절 목록 + 사실 오류 목록 적용 · '
+           '워밍업 1회는 지표에서 제외',
            '', '## 유형별', '',
            '| 유형 | 문항 | 정답 문서 적중 | 필수 문구 포함률 | 금지 발언 | '
-           '거절 성공 | 답 잘림 | p50 초 | 최대 초 |',
-           '|---|---|---|---|---|---|---|---|---|']
+           '사실 오류 | 거절 성공 | 답 잘림 | p50 초 | 최대 초 |',
+           '|---|---|---|---|---|---|---|---|---|---|']
     types_ = []
     for r in rows:
         if r['type'] not in types_:
@@ -277,7 +317,7 @@ def summarize(rows, chunks, variant='baseline'):
     for t in types_ + ['전체']:
         grp = scored if t == '전체' else [r for r in scored if r['type'] == t]
         if not grp:
-            out.append(f'| {t} | 0 | — | — | — | — | — | — | — |')
+            out.append(f'| {t} | 0 | — | — | — | — | — | — | — | — |')
             continue
         hits = [r for r in grp if r['source_hit'] is not None]
         hit = (f"{sum(1 for r in hits if r['source_hit'])}/{len(hits)}"
@@ -290,9 +330,10 @@ def summarize(rows, chunks, variant='baseline'):
         ref = (f"{sum(1 for r in refs if r['refuse_ok'])}/{len(refs)}"
                if refs else '—')
         cut = sum(1 for r in grp if r['done_reason'] == 'length')
+        fer = sum(len(r.get('fact_errors') or []) for r in grp)
         el = sorted(r['elapsed'] for r in grp)
-        out.append(f'| {t} | {len(grp)} | {hit} | {inc} | {ban}건 | {ref} | '
-                   f'{cut}/{len(grp)} ({cut / len(grp) * 100:.0f}%) | '
+        out.append(f'| {t} | {len(grp)} | {hit} | {inc} | {ban}건 | {fer}건 | '
+                   f'{ref} | {cut}/{len(grp)} ({cut / len(grp) * 100:.0f}%) | '
                    f'{statistics.median(el):.1f} | {max(el):.1f} |')
 
     excluded = [r['id'] for r in rows if r['rule_path']]
@@ -361,6 +402,10 @@ def summarize(rows, chunks, variant='baseline'):
     if bans:
         out += ['', '## 금지 발언 적발', '']
         out += [f'- {i}: `{w}`' for i, w in bans]
+    fers = [(r['id'], w) for r in scored for w in (r.get('fact_errors') or [])]
+    if fers:
+        out += ['', '## 사실 오류 적발', '']
+        out += [f'- {i}: `{w}`' for i, w in fers]
     return '\n'.join(out) + '\n'
 
 
@@ -503,7 +548,14 @@ def main():
                     help='저장된 답 원문으로 재채점만 한다(LLM 재호출 없음)')
     ap.add_argument('--route-check', action='store_true',
                     help='라우터 판정만 채점한다(LLM·DB 불필요)')
+    ap.add_argument('--temperature', type=float,
+                    default=REQ['options']['temperature'],
+                    help='생성 temperature. 기본은 현행값 0.2 — 기존 결과와 '
+                         '비교가 깨지지 않게 바꾸지 않는다')
     args = ap.parse_args()
+
+    global TEMPERATURE
+    TEMPERATURE = args.temperature
 
     if args.route_check:
         return route_check()
@@ -545,6 +597,8 @@ def main():
     os.makedirs(RESULTS, exist_ok=True)
     stamp = time.strftime('%Y%m%d_%H%M')
     safe = variant.replace('+', '-')
+    if TEMPERATURE != REQ['options']['temperature']:
+        safe += f'_temp{TEMPERATURE:g}'
     base = os.path.join(RESULTS, f'{safe}_{stamp}')
     with open(base + '.jsonl', 'w', encoding='utf-8') as fp:
         for r in rows:
