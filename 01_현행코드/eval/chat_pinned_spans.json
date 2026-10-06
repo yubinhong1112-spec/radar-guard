@@ -1,0 +1,31 @@
+{
+  "_note": "Cowork 10/06. 챗봇 사고 경로 근거 = chunk_id + 구간(start/end 문자열, 공백 정규화 후 검색, null=처음/끝). 경보 화면용 pinned_chunks 와 별개. 구간은 Cowork 가 v2 원문에서 찾기 성공 확인(11/11). 화상·기도폐쇄 등 무관 절을 잘라냄.",
+  "fall_detected": [
+    {"chunk_id": "H-187-2021-0004", "start": null, "end": null},
+    {"chunk_id": "H-187-2021-0015", "start": "4.6 뇌진탕", "end": null}
+  ],
+  "pinching": [
+    {"chunk_id": "H-187-2021-0009", "start": "4.3.2.2. 절단", "end": null},
+    {"chunk_id": "H-187-2021-0010", "start": null, "end": null},
+    {"chunk_id": "B-M-37-2026-0077", "start": "비상정지나인터록", "end": "주지시킨다."}
+  ],
+  "electric_shock_risk": [
+    {"chunk_id": "E-14-2012-0013", "start": null, "end": null},
+    {"chunk_id": "RADAR-GUARD-SOP-v2-0007", "start": null, "end": "의료기관 평가를 받도록 한다."},
+    {"chunk_id": "H-187-2021-0015", "start": "(4) 전기화상", "end": "치료를 받아야 한다."}
+  ],
+  "overcurrent": [
+    {"chunk_id": "RADAR-GUARD-SOP-v2-0002", "start": null, "end": null},
+    {"chunk_id": "RADAR-GUARD-SOP-v2-0004", "start": null, "end": null}
+  ],
+  "leakage_current": [
+    {"chunk_id": "RADAR-GUARD-SOP-v2-0005", "start": null, "end": null},
+    {"chunk_id": "RADAR-GUARD-SOP-v2-0002", "start": null, "end": null}
+  ],
+  "unknown_incident": [
+    {"chunk_id": "H-187-2021-0012", "start": "(2) 의식이 없는 경우", "end": null},
+    {"chunk_id": "H-187-2021-0013", "start": null, "end": "심폐 소생술을 실시한다."},
+    {"chunk_id": "E-14-2012-0006", "start": null, "end": "확인한다.(그림 2 (b))"}
+  ],
+  "_alias": {"electric_shock_risk_confirmed": "electric_shock_risk", "stationary_anomaly": "unknown_incident", "fall_suspected": "fall_detected", "pinching_suspected": "pinching"}
+}
