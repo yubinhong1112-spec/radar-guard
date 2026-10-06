@@ -264,8 +264,8 @@ baseline 칩 답 전문은 `eval/results/chip_questions_baseline_temp0_20261006_
 | 해시 | 내용 |
 |---|---|
 | `1fe185c` | T-CC06 지시와 경보 화면 매뉴얼 원문 선정안 추가 (0단계) |
-| `HASH_MAIN` | T-CC06 챗봇 변형 J 와 두 모델 비교 측정 |
+| `4ad631a` | T-CC06 챗봇 변형 J 와 두 모델 비교 측정 — 권장 qwen2.5:3b |
 
-`PUSH_LINE`
+`git push origin main` → `8414723..1fe185c`(0단계), 이어서 `1fe185c..4ad631a` 와 이 해시 기록 커밋.
 
 `git add -A` 는 쓰지 않았다. 전부 경로를 지정해 스테이지했다.
