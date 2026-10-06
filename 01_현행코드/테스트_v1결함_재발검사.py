@@ -351,3 +351,8 @@ for x in OK: print('  OK  ', x)
 if NG:
     print()
     for x in NG: print('  NG  ', x)
+
+# ⚠ [10/06] 실패가 있어도 종료코드가 0 이라 출력을 읽지 않으면 놓쳤다.
+#   10/05 에 실제로 "통과 58 / 실패 2" 가 종료코드 0 으로 지나갔다.
+#   ui-verify 가 종료코드로 걸러낼 수 있게 1 로 끝낸다. 검사 내용은 그대로다.
+sys.exit(1 if NG else 0)

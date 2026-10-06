@@ -40,7 +40,12 @@ import json
 import os
 import sys
 import time
+import types
 import urllib.request
+
+# 프롬프트를 발췌 앞/뒤로 가르는 표지. _gen_facts 의 조립 순서에서 온다.
+CTX_HEAD = '[공식 매뉴얼 발췌]\n'
+CTX_TAIL = '\n규칙: 반드시 1.부터 4.까지'
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 CODE = os.path.dirname(HERE)
@@ -104,11 +109,20 @@ class _Tee:
 
 
 def capture(fn):
-    """fn 을 돌리는 동안 Ollama 응답 원문을 모은다. (결과, 응답들, 초)"""
-    seen = []
+    """fn 을 돌리는 동안 Ollama 요청·응답 원문을 모은다.
+
+    반환: (결과, 응답원문들, 요청본문들, 초)
+    _gen_facts 는 생성문만 돌려주고 load_duration·eval_count·프롬프트를 버린다.
+    제품 코드를 고치지 않고 그 값을 얻기 위해 urlopen 을 여기서만 감싼다.
+    """
+    seen, sent = [], []
     orig = urllib.request.urlopen
 
     def wrapped(req, timeout=None):
+        try:
+            sent.append(json.loads(req.data.decode('utf-8')))
+        except Exception:
+            sent.append({})
         with orig(req, timeout=timeout) as resp:
             raw = resp.read()
         seen.append(raw)
@@ -117,9 +131,50 @@ def capture(fn):
     urllib.request.urlopen = wrapped
     started = time.perf_counter()
     try:
-        return fn(), seen, time.perf_counter() - started
+        return fn(), seen, sent, time.perf_counter() - started
     finally:
         urllib.request.urlopen = orig
+
+
+def split_prompt(prompt):
+    """프롬프트를 (발췌 앞, 발췌, 발췌 뒤) 로 가른다. 못 가르면 None."""
+    if CTX_HEAD not in prompt or CTX_TAIL not in prompt:
+        return None
+    head, rest = prompt.split(CTX_HEAD, 1)
+    body, tail = rest.split(CTX_TAIL, 1)
+    return head + CTX_HEAD, body, CTX_TAIL + tail
+
+
+def prove_ctx(path700, pathfull):
+    """--ctx-limit full 이 발췌 길이 외에는 제품 프롬프트와 같음을 증명한다."""
+    a = {r['event']: r for r in
+         (json.loads(l) for l in open(path700, encoding='utf-8'))}
+    b = {r['event']: r for r in
+         (json.loads(l) for l in open(pathfull, encoding='utf-8'))}
+    ng = []
+    print(f'{"이벤트":32s} {"앞":>6s} {"뒤":>6s} {"발췌 700⊂full":>14s} '
+          f'{"700자":>7s} {"full자":>7s}')
+    for ev in a:
+        if ev not in b:
+            ng.append(f'{ev}: full 쪽에 없다')
+            continue
+        pa, pb = split_prompt(a[ev]['prompt']), split_prompt(b[ev]['prompt'])
+        if not pa or not pb:
+            ng.append(f'{ev}: 프롬프트를 표지로 가르지 못했다')
+            continue
+        head_ok = pa[0].encode('utf-8') == pb[0].encode('utf-8')
+        tail_ok = pa[2].encode('utf-8') == pb[2].encode('utf-8')
+        sub_ok = pb[1].startswith(pa[1])
+        if not (head_ok and tail_ok and sub_ok):
+            ng.append(f'{ev}: 앞 {head_ok} 뒤 {tail_ok} 포함 {sub_ok}')
+        print(f'{ev:32s} {"동일" if head_ok else "다름":>6s} '
+              f'{"동일" if tail_ok else "다름":>6s} '
+              f'{"예" if sub_ok else "아니오":>14s} '
+              f'{len(pa[1]):>7d} {len(pb[1]):>7d}')
+    print(f'\n발췌 외 프롬프트 동일 — {len(a)}이벤트 중 NG {len(ng)}건')
+    for line in ng:
+        print('NG', line)
+    return 1 if ng else 0
 
 
 def last_meta(raws):
@@ -179,12 +234,62 @@ def sample_facts(ev):
                       '이 유형의 경보 프레임이 없다. facts 를 비우고 돌렸다')
 
 
-def score_set():
+def score_set(path):
+    """채점 기준. {이벤트: {pinned_chunks, must_include, must_not_include}}
+
+    파일은 이벤트 이름을 최상위 키로 쓰고 `_note` 로 설명을 단다.
+    """
     try:
-        with open(SCORE_SET, encoding='utf-8') as fp:
-            return {it['event']: it for it in json.load(fp)['items']}
+        with open(path, encoding='utf-8') as fp:
+            d = json.load(fp)
+        return {k: v for k, v in d.items() if not k.startswith('_')}
     except FileNotFoundError:
         return None
+
+
+def pinned_context(chunk_ids, collection='safety_manual_v2'):
+    """지정 chunk_id 의 본문을 **지정한 순서대로** 돌려준다. 검색을 쓰지 않는다.
+
+    사람이 검토한 절만 쓰는 것이 목적이므로 용어 빈도 정렬도, 임베딩도 타지
+    않는다. 하나라도 없으면 조용히 빼지 않고 예외를 낸다 — 빠진 채로 생성하면
+    그 결과가 무엇에 근거한 것인지 알 수 없다.
+    """
+    import psycopg2
+    with psycopg2.connect(core.CONN_STR) as cn:
+        with cn.cursor() as cur:
+            cur.execute(
+                "SELECT e.cmetadata->>'chunk_id', e.document, e.cmetadata "
+                'FROM langchain_pg_embedding e JOIN langchain_pg_collection c '
+                "ON c.uuid = e.collection_id WHERE c.name = %s "
+                "AND e.cmetadata->>'chunk_id' = ANY(%s)",
+                (collection, list(chunk_ids)))
+            found = {cid: (doc, meta) for cid, doc, meta in cur.fetchall()}
+    missing = [c for c in chunk_ids if c not in found]
+    if missing:
+        raise SystemExit(
+            f"측정 중단 — {collection} 에 없는 chunk_id: {', '.join(missing)}. "
+            '채점 기준의 pinned_chunks 를 확인하라.')
+    docs = []
+    for cid in chunk_ids:
+        doc, meta = found[cid]
+        docs.append(types.SimpleNamespace(page_content=doc, metadata=meta))
+    return docs
+
+
+class FullCtx(str):
+    """`ctx[:700]` 을 전체 문자열로 되돌리는 str.
+
+    제품 `_gen_facts` 는 발췌를 `ctx[:700]` 으로 자른다(console_ui.py). 지정
+    조각 전체를 넣어 보려면 그 슬라이스만 무력화해야 하는데 제품 코드는 고칠
+    수 없다. 그래서 슬라이스를 무시하는 str 하위 클래스를 주입한다.
+    **발췌 길이 말고는 프롬프트가 제품과 같다** — `--prove` 가 두 조건의
+    프롬프트를 앞뒤로 갈라 바이트 비교해 그것을 증명한다.
+    """
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            return str(self)
+        return str.__getitem__(self, key)
 
 
 def chunk_label(meta):
@@ -202,23 +307,49 @@ def main():
                     choices=['safety_manual', 'safety_manual_v2'])
     ap.add_argument('--facts', default='none', choices=['none', 'sample'])
     ap.add_argument('--tag', default='')
+    ap.add_argument('--pinned', action='store_true',
+                    help='채점 기준의 pinned_chunks 를 지정 순서대로 쓴다'
+                         '(safety_manual_v2, 검색 함수 미사용)')
+    ap.add_argument('--ctx-limit', default='700', choices=['700', 'full'],
+                    help='제품은 ctx[:700] 로 자른다. full 은 지정 조각 전체')
+    ap.add_argument('--rules', default=SCORE_SET, help='채점 기준 파일')
+    ap.add_argument('--prove', nargs=2, metavar=('JSONL700', 'JSONLFULL'),
+                    help='두 조건의 프롬프트가 발췌 외 바이트 동일한지 증명')
+    ap.add_argument('--min-mem', type=int, default=2000,
+                    help='측정 전 요구 가용 메모리(MB). 기본 2000. 낮추면 '
+                         '모델이 페이징돼 **지연 수치가 오염된다** — 품질'
+                         '(필수·금지·형식)은 영향 없다. 결과에 기록된다')
     args = ap.parse_args()
+
+    if args.prove:
+        return prove_ctx(*args.prove)
 
     mem_start = avail_mb()
     print(f'가용 메모리 시작 {mem_start} MB · 모델 {args.model} · '
           f'컬렉션 {args.collection} · facts {args.facts}')
-    if mem_start < 2000:
-        print(f'중단: 가용 메모리 {mem_start} MB < 2000 MB', file=sys.stderr)
+    if mem_start < args.min_mem:
+        print(f'중단: 가용 메모리 {mem_start} MB < {args.min_mem} MB',
+              file=sys.stderr)
         return 2
+    if args.min_mem < 2000:
+        print(f'⚠ 메모리 하한을 {args.min_mem} MB 로 낮췄다 — 모델이 '
+              '페이징될 수 있어 지연 수치(초·적재·생성)를 신뢰하지 마라. '
+              '품질(필수·금지·형식)은 영향 없다.')
 
     vs = core.PGVector(
         connection_string=core.CONN_STR,
         embedding_function=core.OllamaEmbeddings(model=core.EMBED_MODEL),
         collection_name=args.collection)
 
-    rules = score_set()
+    rules = score_set(args.rules)
     if rules is None:
-        print('채점 기준(sop_eval_set.json) 없음 — 채점 열은 "기준 미승인"')
+        print(f'채점 기준({args.rules}) 없음 — 채점 열은 "기준 미승인"')
+    else:
+        print(f'채점 기준: {os.path.basename(args.rules)}')
+    if args.pinned and not rules:
+        print('중단: --pinned 는 채점 기준의 pinned_chunks 가 필요하다',
+              file=sys.stderr)
+        return 2
 
     # 모델 주입. facts 가 있으면 _gen_facts 가 core.LLM_MODEL 을, 없으면
     # SopEngineV2.PREPARE_MODEL 을 쓴다(console_ui.py 3011).
@@ -234,21 +365,33 @@ def main():
             (alert, pkt), facts_src = (sample_facts(ev) if args.facts == 'sample'
                                        else (({}, {}), 'facts 없음 (현행 사전 생성 조건)'))
             facts = (ui.SopEngineV2.build_facts(alert, pkt, 0) if alert else {})
-            docs = core.search_sop_documents(
-                vs, ev, core.SOP_QUERY.get(ev, ''), core.EVENT_CATEGORY.get(ev))
+            if args.pinned:
+                ids = rules.get(ev, {}).get('pinned_chunks') or []
+                if not ids:
+                    raise SystemExit(
+                        f'측정 중단 — {ev} 의 pinned_chunks 가 비어 있다')
+                docs = pinned_context(ids)
+            else:
+                docs = core.search_sop_documents(
+                    vs, ev, core.SOP_QUERY.get(ev, ''),
+                    core.EVENT_CATEGORY.get(ev))
             ctx = '\n'.join(d.page_content for d in docs)
+            # full 은 제품의 ctx[:700] 슬라이스만 무력화한다. 조립은 제품 코드.
+            ctx_arg = FullCtx(ctx) if args.ctx_limit == 'full' else ctx
             chunks = [{'label': chunk_label(d.metadata),
                        'source_file': d.metadata.get('source_file'),
                        'category': d.metadata.get('category'),
                        'text': d.page_content} for d in docs]
             try:
-                text, raws, elapsed = capture(
-                    lambda: ui.SopEngineV2._gen_facts(ev, ctx[:700], facts))
+                text, raws, sents, elapsed = capture(
+                    lambda: ui.SopEngineV2._gen_facts(ev, ctx_arg, facts))
                 err = None
             except Exception as e:
-                text, raws, elapsed = '', [], 0.0
+                text, raws, sents, elapsed = '', [], [], 0.0
                 err = f'{type(e).__name__}: {e}'
             meta = last_meta(raws)
+            prompt = (sents[-1].get('prompt', '') if sents else '')
+            parts = split_prompt(prompt)
             lines = [ln for ln in text.splitlines() if ln.strip()]
             # ⚠ _gen_facts 는 fact_block 이 있으면 core.LLM_MODEL, 없으면
             #   PREPARE_MODEL 을 쓴다(console_ui.py 3011). 실측값이 없는
@@ -263,8 +406,11 @@ def main():
                 'collection': args.collection,
                 'facts_mode': args.facts, 'facts_source': facts_src,
                 'facts': facts, 'tag': args.tag,
+                'chunk_mode': 'pinned' if args.pinned else 'search',
+                'ctx_limit': args.ctx_limit,
                 'chunks': chunks, 'context_chars': len(ctx),
-                'context_sent_chars': len(ctx[:700]),
+                'context_sent_chars': len(parts[1]) if parts else None,
+                'prompt': prompt, 'prompt_chars': len(prompt),
                 'generated': text, 'error': err,
                 'cacheable': ui.SopEngineV2._cacheable_sop(text) if text else False,
                 'line_count': len(lines),
@@ -283,13 +429,20 @@ def main():
                 row['must_include_total'] = len(groups)
                 row['must_include_passed'] = sum(
                     1 for g in groups if any(w in text for w in g))
+                row['must_include_missed'] = [
+                    g for g in groups if not any(w in text for w in g)]
                 row['must_not_include_hits'] = [
                     w for w in (r.get('must_not_include') or []) if w in text]
             rows.append(row)
-            print(f"  {ev:30s} {elapsed:6.1f}초 형식 "
+            sc = (f"필수 {row['must_include_passed']}/"
+                  f"{row['must_include_total']} 금지 "
+                  f"{len(row['must_not_include_hits'])} "
+                  if 'must_include_total' in row else '채점 미적용 ')
+            print(f"  {ev:30s} {elapsed:6.1f}초 {sc}형식 "
                   f"{'통과' if row['cacheable'] else '실패'} "
                   f"{row['line_count']}줄 {row['line_lens']} "
-                  f"청크 {len(chunks)}개 ctx {len(ctx)}자 "
+                  f"청크 {len(chunks)}개 발췌 "
+                  f"{row['context_sent_chars']}/{len(ctx)}자 "
                   f"모델 {effective.split(':')[0]}"
                   + ('' if row['model_as_requested'] else ' ⚠요청과 다름')
                   + (f' 오류 {err}' if err else ''))
@@ -298,7 +451,9 @@ def main():
 
     mem_end = avail_mb()
     os.makedirs(RESULTS, exist_ok=True)
-    name = (f"sop_{args.model.split(':')[0]}_{args.collection}_{args.facts}"
+    name = (f"sop_{args.model.split(':')[0]}_"
+            f"{'pinned' if args.pinned else args.collection}_"
+            f"ctx{args.ctx_limit}_{args.facts}"
             f"{('_' + args.tag) if args.tag else ''}_"
             f"{time.strftime('%Y%m%d_%H%M')}")
     base = os.path.join(RESULTS, name)
@@ -306,27 +461,43 @@ def main():
         for r in rows:
             fp.write(json.dumps(r, ensure_ascii=False) + '\n')
 
-    out = [f'# 경보 SOP 생성 — {args.model} · {args.collection} · '
-           f'facts {args.facts}', '',
+    chunk_mode = ('고정 조각(pinned, safety_manual_v2)' if args.pinned
+                  else f'현행 검색({args.collection})')
+    out = [f'# 경보 SOP 생성 — {args.model} · {chunk_mode} · '
+           f'ctx {args.ctx_limit} · facts {args.facts}', '',
            f'- {time.strftime("%Y-%m-%d %H:%M")} · 가용 메모리 '
-           f'{mem_start} → {mem_end} MB',
+           f'{mem_start} → {mem_end} MB (하한 {args.min_mem} MB)',]
+    if args.min_mem < 2000:
+        out += ['- ⚠ **지연 수치를 신뢰하지 말 것** — 메모리 하한을 '
+                f'{args.min_mem} MB 로 낮춰 측정했다. 모델(1.6~1.9 GB)이 '
+                '페이징될 수 있다. 품질(필수·금지·형식)은 영향 없다.']
+    out += [
            '- 옵션은 제품 그대로다 — temperature 0 · num_predict 160 · '
-           'num_ctx 1536 · 매뉴얼 발췌 700자 절단',
+           'num_ctx 1536',
+           '- 발췌 절단: '
+           + ('제품 그대로 ctx[:700]' if args.ctx_limit == '700'
+              else '지정 조각 전체(FullCtx 주입 — 발췌 외 프롬프트는 제품과 동일, '
+                   '`--prove` 로 증명)'),
            f'- 응답 형식: {"스트리밍(facts 있음)" if args.facts == "sample" else "format 스키마 JSON(facts 없음)"}',
-           f'- 채점: {"기준 적용" if rules else "**기준 미승인** — 형식·시간만 기록"}',
+           f'- 채점: {os.path.basename(args.rules) if rules else "**기준 없음** — 형식·시간만 기록"}',
            '', '## 요약', '',
-           '| 이벤트 | 실제 모델 | 형식 통과 | 줄 수 | 줄별 글자 | 초 | 적재 | '
-           '생성 | eval_count | 청크 | ctx자 |',
-           '|---|---|---|---|---|---|---|---|---|---|---|']
+           '| 이벤트 | 실제 모델 | 필수 | 금지 | 형식 통과 | 줄 수 | '
+           '줄별 글자 | 초 | 적재 | 생성 | eval_count | 청크 | 발췌/전체자 |',
+           '|---|---|---|---|---|---|---|---|---|---|---|---|---|']
     for r in rows:
         mk = r['model'].split(':')[0] + ('' if r['model_as_requested']
                                          else ' ⚠')
+        inc = (f"{r['must_include_passed']}/{r['must_include_total']}"
+               if 'must_include_total' in r else '—')
+        ban = (f"{len(r['must_not_include_hits'])}건"
+               if 'must_not_include_hits' in r else '—')
         out.append(
-            f"| {r['event']} | {mk} | "
+            f"| {r['event']} | {mk} | {inc} | {ban} | "
             f"{'통과' if r['cacheable'] else '**실패**'} | "
             f"{r['line_count']} | {r['line_lens']} | {r['elapsed']:.1f} | "
             f"{r['load_sec']} | {r['eval_sec']} | {r['eval_count']} | "
-            f"{len(r['chunks'])} | {r['context_chars']} |")
+            f"{len(r['chunks'])} | "
+            f"{r['context_sent_chars']}/{r['context_chars']} |")
     off = [r['event'] for r in rows if not r['model_as_requested']]
     if off:
         out += ['',
@@ -352,7 +523,16 @@ def main():
         if 'must_include_total' in r:
             out += [f"- 필수 문구 {r['must_include_passed']}/"
                     f"{r['must_include_total']} · 금지 "
-                    f"{len(r['must_not_include_hits'])}건", '']
+                    f"{len(r['must_not_include_hits'])}건"]
+            if r['must_include_missed']:
+                out.append('- 빠진 필수: '
+                           + ' · '.join('/'.join(g)
+                                        for g in r['must_include_missed']))
+            if r['must_not_include_hits']:
+                out.append('- 금지 적발: '
+                           + ' · '.join(f"`{w}`"
+                                        for w in r['must_not_include_hits']))
+            out.append('')
 
     with open(base + '.md', 'w', encoding='utf-8') as fp:
         fp.write('\n'.join(out) + '\n')

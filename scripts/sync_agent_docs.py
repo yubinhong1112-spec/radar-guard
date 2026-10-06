@@ -1,4 +1,4 @@
-"""sync_agent_docs.py — Claude Code 용 규칙을 Codex 용으로 복제한다.
+r"""sync_agent_docs.py — Claude Code 용 규칙을 Codex 용으로 복제한다.
 
   실행: [내 PC PowerShell] — cd 불필요
       python scripts\sync_agent_docs.py            반영
