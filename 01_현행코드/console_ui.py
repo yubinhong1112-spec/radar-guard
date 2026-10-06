@@ -2135,6 +2135,10 @@ CHAT_VARIANTS = {
     # [10/02 T-CC03] 질문 의도를 먼저 나눈다. route_question 참고.
     'I':        {'search': 'intent',   'prompt': 'intent'},
     'I+Q':      {'search': 'intent',   'prompt': 'intent'},
+    # [10/06 T-CC06] I + temperature 0 · 사고 근거 고정 조각 · 프롬프트 v3 ·
+    # 보안 고정 답변. _build_j_request 참고. temperature 는 호출 옵션이지만
+    # '모든 경로 0' 이 J 의 정의라 여기 적고 eval/chat_eval.py 가 읽어 쓴다.
+    'J':        {'search': 'pinned',   'prompt': 'v3', 'temperature': 0.0},
 }
 
 # prompt v2 가 SYSTEM_CONTEXT 대신 남기는 안전 규칙 2문장.
@@ -2325,6 +2329,125 @@ def _build_intent_request(question, alert, pkt, vectorstore):
             'context': context, 'route': route, 'fixed_answer': None}
 
 
+# ══ [10/06 T-CC06] 변형 J ═════════════════════════════════════════════
+#  I 에서 실측된 결함 넷을 막는다 — 사고 질문의 근거 조각 오선택(용어 빈도
+#  정렬이 EA-05 감전 질문에 화상 절을 골랐다), 안전 규칙 문장 베끼기, 보안
+#  질문 사실 오류(OS-06 "레이더로 영상 분석"), 무작위성(temperature 0.2).
+#  ⚠ 기본값은 'baseline' 그대로다. 제품 반영은 T-CC07.
+
+# 보안·개인정보 질문. LLM 을 타지 않고 CHAT_SECURITY_REPLY 로 답한다.
+SECURITY_TERMS = ('카메라', 'CCTV', '영상', '녹화', '사진', '촬영', '얼굴',
+                  '외부 전송', '외부전송', '클라우드', '인터넷')
+
+# ⚠ 코드로 확인한 사실만 쓴다(10/06, 노트북 쪽 코드 기준 — jetson_sender.py 는
+#   동결이라 열지 않았다).
+#   (a) console_ui·radar_core·radar_common·facility·event_log 에 카메라·영상
+#       입력 코드 0건(cv2·VideoCapture·QCamera·QtMultimedia 검색)
+#   (b) 노트북이 패킷에서 읽는 것: points(x·y·z)·centroid·track_state·판정(ev·
+#       pre_alert·phase)·전력(power·breaker). 영상·이미지 키 없음
+#   (c) 노트북이 여는 연결: Ollama localhost:11434 · PostgreSQL localhost:5432 ·
+#       젯슨 UDP. 그 밖의 HTTP·소켓 호출 0건
+#   eval/fact_error_terms.json 의 표현(녹화·촬영 등)이 들어가지 않게 썼다 —
+#   들어가면 맞는 답이 사실 오류로 세어진다(chat_eval.preflight 가 검사).
+CHAT_SECURITY_REPLY = (
+    'Radar-Guard 관제 프로그램에는 카메라·CCTV 입력이 없습니다. 젯슨에서 '
+    '받는 것은 레이더 좌표점(x·y·z)과 판정 결과·전력 측정값이라 얼굴이나 '
+    '모습은 담기지 않습니다. 관제 노트북은 이 PC 안의 AI·SOP 저장소와 '
+    '젯슨하고만 통신하고 인터넷으로 내보내지 않습니다.')
+
+# 사고 경로 답 뒤에 코드가 붙이는 고정 문장. 프롬프트에 안전 규칙을 넣으면
+# 2B 모델이 조치 번호로 베껴 적어서(T-CC02 KF-01) 프롬프트에서 빼고 여기 둔다.
+CHAT_INCIDENT_SUFFIX = '※ 화면의 즉시조치와 현장 책임자 지시가 이 답변보다 우선합니다.'
+
+# 라우터의 event → eval/sop_eval_set.json 의 키. 다른 것만 적는다.
+PINNED_EVENT_KEY = {'electric_shock_risk': 'electric_shock_risk_confirmed'}
+
+_v2_store = None
+
+
+def _vectorstore_v2():
+    """safety_manual_v2 검색 핸들. 문항마다 재연결하지 않게 한 번만 만든다."""
+    global _v2_store
+    if _v2_store is None:
+        _v2_store = core.PGVector(
+            connection_string=core.CONN_STR,
+            embedding_function=core.OllamaEmbeddings(model=EMBED_MODEL),
+            collection_name='safety_manual_v2')
+    return _v2_store
+
+
+def route_question_j(question):
+    """J 의 판정 순서: control → security → incident → system → other."""
+    route, event = route_question(question)
+    if route != 'control' and any(t in question for t in SECURITY_TERMS):
+        return 'security', None
+    return route, event
+
+
+def _pinned_docs(event):
+    """사고 종류에 사람이 지정한 조각을 **지정 순서대로** 돌려준다. 검색 안 함.
+
+    지정이 없는 event 는 빈 목록. 지정했는데 DB 에 없으면 예외 — 조용히
+    다른 근거로 답하게 두지 않는다.
+    """
+    import os
+    import psycopg2
+    from types import SimpleNamespace
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        'eval', 'sop_eval_set.json')
+    with open(path, encoding='utf-8') as fp:
+        ids = (json.load(fp).get(PINNED_EVENT_KEY.get(event, event)) or {}
+               ).get('pinned_chunks') or []
+    if not ids:
+        return []
+    with psycopg2.connect(core.CONN_STR) as cn:
+        with cn.cursor() as cur:
+            cur.execute(
+                "SELECT cmetadata->>'chunk_id', document, cmetadata "
+                "FROM langchain_pg_embedding WHERE collection_id = "
+                "(SELECT uuid FROM langchain_pg_collection WHERE name = %s) "
+                "AND cmetadata->>'chunk_id' = ANY(%s)",
+                ('safety_manual_v2', list(ids)))
+            got = {cid: (text, meta) for cid, text, meta in cur.fetchall()}
+    missing = [c for c in ids if c not in got]
+    if missing:
+        raise RuntimeError(
+            f"safety_manual_v2 에 없는 지정 조각: {', '.join(missing)}")
+    return [SimpleNamespace(page_content=got[c][0], metadata=got[c][1])
+            for c in ids]
+
+
+def _build_j_request(question, alert, pkt, vectorstore):
+    """변형 J. 반환은 I 와 같고 사고 경로만 'answer_suffix' 를 더 준다."""
+    route, event = route_question_j(question)
+    if route == 'security':
+        return {'prompt': '', 'event': None, 'sources': [], 'context': '',
+                'route': route, 'fixed_answer': CHAT_SECURITY_REPLY}
+    docs = _pinned_docs(event) if route == 'incident' and event else []
+    if route == 'incident' and not event:
+        # 사고 종류를 모르면 I 와 같은 응급처치 카테고리 검색, 컬렉션만 v2.
+        for cat in INCIDENT_CATEGORIES:
+            docs += _vectorstore_v2().similarity_search(
+                question, k=1, filter={'category': cat})
+    if not docs:
+        # control·system·other, 그리고 지정 조각이 없는 사고 종류(진동)는
+        # I 그대로. 라우터가 같은 판정을 다시 내므로 결과가 어긋나지 않는다.
+        return _build_intent_request(question, alert, pkt, vectorstore)
+    context = '\n'.join(d.page_content for d in docs)[:1400]
+    sources = sorted({d.metadata.get('source_file', '?') for d in docs})
+    live = _live_block(alert, pkt)
+    live_section = f'[현재 젯슨 실측]\n{live}\n' if live else ''
+    prompt = (
+        '아래 [공식 매뉴얼 발췌] 에 있는 조치 중 지금 질문에 맞는 것을 최대 '
+        '3개 골라 각 한 줄로, 서론 없이 한국어로 답하라.\n'
+        f'[공식 매뉴얼 발췌]\n{context}\n'
+        f'{live_section}'
+        f'[질문]\n{question}')
+    return {'prompt': prompt, 'event': event, 'sources': sources,
+            'context': context, 'route': route, 'fixed_answer': None,
+            'answer_suffix': CHAT_INCIDENT_SUFFIX}
+
+
 def build_chat_request(question, alert=None, pkt=None, vectorstore=None,
                        variant='baseline'):
     """질의 AI 의 '검색 → 프롬프트 조립'. 반환 prompt 를 그대로 Ollama 에 보낸다.
@@ -2342,6 +2465,8 @@ def build_chat_request(question, alert=None, pkt=None, vectorstore=None,
     variant 는 CHAT_VARIANTS 의 키다. 'baseline' 이 1단계 동작이다.
     """
     mode = CHAT_VARIANTS[variant]
+    if mode['search'] == 'pinned':
+        return _build_j_request(question, alert, pkt, vectorstore)
     if mode['search'] == 'intent':
         return _build_intent_request(question, alert, pkt, vectorstore)
     event = AssistantDrawer._event_for(question)

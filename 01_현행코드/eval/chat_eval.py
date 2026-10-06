@@ -79,7 +79,11 @@ VARIANT_CALL = {
     # [10/02 T-CC03] I 는 호출 옵션을 기준선 그대로 쓴다. I+Q 는 모델만 바꾼다.
     'I':        {},
     'I+Q':      {'model': 'qwen2.5:3b-instruct-q4_K_M'},
+    # [10/06 T-CC06] J 는 모델을 --model 로 바꿔 두 모델을 같은 변형으로 잰다.
+    'J':        {},
 }
+# --model 로 준 모델. None 이면 변형이 정한 모델(없으면 core.LLM_MODEL).
+MODEL = None
 
 # 거절·회피로 인정할 표현. out_of_scope 채점에만 쓴다.
 REFUSE_MARKS = ('모른', '모릅', '알 수 없', '확인할 수 없', '제공하지', '제공할 수 없',
@@ -140,6 +144,8 @@ def preflight(variant='baseline'):
         want = [core.LLM_MODEL, core.EMBED_MODEL]
         if variant and VARIANT_CALL[variant].get('model'):
             want.append(VARIANT_CALL[variant]['model'])
+        if MODEL:
+            want.append(MODEL)
         for need in want:
             if not any(n.split(':')[0] == need.split(':')[0] for n in names):
                 bad.append(f'ollama 에 {need} 가 없다')
@@ -155,6 +161,11 @@ def preflight(variant='baseline'):
     if TEMPERATURE != REQ['options']['temperature']:
         print(f'⚠ temperature {REQ["options"]["temperature"]} → {TEMPERATURE} '
               '— 현행과 다른 조건이다. 기존 결과와 직접 비교하지 말 것')
+    # [10/06] 고정 답변에 사실 오류 표현이 들어 있으면 맞는 답이 오류로 세어진다.
+    for name in ('CHAT_CONTROL_REPLY', 'CHAT_SECURITY_REPLY'):
+        hit = [w for w in fact_error_terms() if w in getattr(ui, name)]
+        if hit:
+            bad.append(f'{name} 에 사실 오류 표현이 들어 있다: {hit}')
     return chunks, bad
 
 
@@ -184,6 +195,8 @@ def req_body(variant, prompt):
     body.update({k: v for k, v in over.items() if k != 'options'})
     body['options'] = dict(REQ['options'], **over.get('options', {}))
     body['options']['temperature'] = TEMPERATURE
+    if MODEL:
+        body['model'] = MODEL
     return body
 
 
@@ -264,6 +277,9 @@ def run(items, vectorstore, variant='baseline'):
         else:
             raw, elapsed = call_ollama(built['prompt'], variant)
             answer = (raw.get('response') or '').strip()
+            if built.get('answer_suffix'):
+                # J 사고 경로 — 코드가 붙이는 고정 문장. 채점도 붙인 답으로 한다.
+                answer += '\n' + built['answer_suffix']
         row = dict(item, rule_path=False, answer=answer, elapsed=elapsed,
                    variant=variant, search_sec=search_sec, route=route,
                    temperature=TEMPERATURE,
@@ -367,7 +383,7 @@ def summarize(rows, chunks, variant='baseline'):
         out += ['', '## 경로(route)별', '',
                 '| route | 문항 | p50 초 | 최대 초 | 묶음 | 금지 | 거절 성공 |',
                 '|---|---|---|---|---|---|---|']
-        for rt in ('control', 'incident', 'system', 'other'):
+        for rt in ('control', 'security', 'incident', 'system', 'other'):
             grp = [r for r in scored if r.get('route') == rt]
             if not grp:
                 out.append(f'| {rt} | 0 | — | — | — | — | — |')
@@ -409,8 +425,10 @@ def summarize(rows, chunks, variant='baseline'):
     return '\n'.join(out) + '\n'
 
 
-def route_check():
+def route_check(variant='baseline'):
     """라우터만 채점한다. LLM·DB 를 쓰지 않아 즉시 끝난다.
+
+    --variant J 면 J 의 라우터(security 포함)로 본다.
 
     평가셋 30문항은 유형에서 기대 route 를 끌어내고(지시서 §6-2 표),
     미공개 12문항은 route_holdout.json 의 expect_route 를 쓴다.
@@ -421,16 +439,18 @@ def route_check():
     EXPECT = {'event_action': 'incident', 'keyword_free': 'incident',
               'system_explain': 'system', 'out_of_scope': None,
               'live_status': None}
+    router = ui.route_question_j if variant == 'J' else ui.route_question
     with open(EVAL_SET, encoding='utf-8') as fp:
         items = json.load(fp)['items']
-    out = ['# 라우터 판정 — ' + time.strftime('%Y-%m-%d %H:%M'), '',
+    out = [f'# 라우터 판정 — 변형 {variant} — '
+           + time.strftime('%Y-%m-%d %H:%M'), '',
            '## 평가셋 30문항', '',
            '| id | 유형 | 질문 | route | event | 기대 | 판정 |',
            '|---|---|---|---|---|---|---|']
     ng = 0
     checked = 0
     for it in items:
-        route, event = ui.route_question(it['question'])
+        route, event = router(it['question'])
         want = EXPECT[it['type']]
         if want is None:
             verdict = '—'
@@ -453,7 +473,7 @@ def route_check():
             '|---|---|---|---|---|']
     hit = 0
     for it in hold:
-        route, event = ui.route_question(it['question'])
+        route, event = router(it['question'])
         ok = route == it['expect_route']
         hit += 1 if ok else 0
         out.append(f"| {it['question']} | {route} | {event or '—'} | "
@@ -462,7 +482,9 @@ def route_check():
     print(f'미공개 12문항 — {hit}/{len(hold)} 적중')
 
     os.makedirs(RESULTS, exist_ok=True)
-    dst = os.path.join(RESULTS, f'route_{time.strftime("%Y%m%d_%H%M")}.md')
+    tag = '' if variant == 'baseline' else f'{variant}_'
+    dst = os.path.join(RESULTS,
+                       f'route_{tag}{time.strftime("%Y%m%d_%H%M")}.md')
     with open(dst, 'w', encoding='utf-8') as fp:
         fp.write('\n'.join(out) + '\n')
     print(f'기록: {dst}')
@@ -552,13 +574,20 @@ def main():
                     default=REQ['options']['temperature'],
                     help='생성 temperature. 기본은 현행값 0.2 — 기존 결과와 '
                          '비교가 깨지지 않게 바꾸지 않는다')
+    ap.add_argument('--model', help='생성 모델을 바꿔 잰다(코드 기본값은 그대로)')
+    ap.add_argument('--set', default=EVAL_SET, metavar='JSON',
+                    help='평가셋 파일. 기본 chat_eval_set.json, 칩 문항은 '
+                         'chip_questions.json')
     args = ap.parse_args()
 
-    global TEMPERATURE
-    TEMPERATURE = args.temperature
+    global TEMPERATURE, MODEL
+    # 변형이 temperature 를 정했으면(J = 0) 그것이 --temperature 보다 우선한다.
+    TEMPERATURE = ui.CHAT_VARIANTS[args.variant].get('temperature',
+                                                     args.temperature)
+    MODEL = args.model
 
     if args.route_check:
-        return route_check()
+        return route_check(args.variant)
     if args.rescore:
         return rescore(args.rescore)
 
@@ -569,7 +598,7 @@ def main():
             print(f'중단: {line}', file=sys.stderr)
         return 2
 
-    with open(EVAL_SET, encoding='utf-8') as fp:
+    with open(args.set, encoding='utf-8') as fp:
         items = json.load(fp)['items']
     if args.only:
         keep = {s.strip() for s in args.only.split(',')}
@@ -599,6 +628,10 @@ def main():
     safe = variant.replace('+', '-')
     if TEMPERATURE != REQ['options']['temperature']:
         safe += f'_temp{TEMPERATURE:g}'
+    if MODEL:
+        safe += '_' + MODEL.split(':')[0]
+    if args.set != EVAL_SET:
+        safe = os.path.splitext(os.path.basename(args.set))[0] + '_' + safe
     base = os.path.join(RESULTS, f'{safe}_{stamp}')
     with open(base + '.jsonl', 'w', encoding='utf-8') as fp:
         for r in rows:
