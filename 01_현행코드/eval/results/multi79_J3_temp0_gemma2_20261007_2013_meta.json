@@ -1,0 +1,17 @@
+{
+ "variant": "J3",
+ "model": "gemma2:2b",
+ "temperature": 0.0,
+ "sets": [
+  "C:\\dev\\radar-guard\\01_현행코드\\eval\\chat_eval_set.json",
+  "C:\\dev\\radar-guard\\01_현행코드\\eval\\chip_questions.json",
+  "C:\\dev\\radar-guard\\01_현행코드\\eval\\danger_probes.json",
+  "C:\\dev\\radar-guard\\01_현행코드\\eval\\paraphrase_probes.json",
+  "C:\\dev\\radar-guard\\01_현행코드\\eval\\holdout_probes_1007.json"
+ ],
+ "start_avail_mb": 3279,
+ "cold_load_sec": 11.5,
+ "warmup_sec": 23.802,
+ "warm_load_p50_sec": 0.018,
+ "mem_min_mb": 362
+}
