@@ -27,5 +27,9 @@
     {"chunk_id": "H-187-2021-0013", "start": null, "end": "심폐 소생술을 실시한다."},
     {"chunk_id": "E-14-2012-0006", "start": null, "end": "확인한다.(그림 2 (b))"}
   ],
+  "_j3_note": "[10/07 T-CC06c, Claude Code 추가 — 지시서 2-3 의 3가지뿐] 변형 J3 만 읽는다. J2 는 '_' 로 시작하는 키를 무시하므로 동작이 바뀌지 않는다.",
+  "_j3_instant_action_first": ["pinching"],
+  "_j3_prefer_event": {"terms": ["배전반", "전기", "감전", "찌릿", "전선"], "over": ["fall_detected"], "event": "electric_shock_risk"},
+  "_j3_extra_spans": {"fall_detected": {"terms": ["의식", "호흡", "숨", "대답"], "add": "stationary_anomaly"}},
   "_alias": {"electric_shock_risk_confirmed": "electric_shock_risk", "stationary_anomaly": "unknown_incident", "fall_suspected": "fall_detected", "pinching_suspected": "pinching"}
 }

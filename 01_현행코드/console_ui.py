@@ -2143,6 +2143,10 @@ CHAT_VARIANTS = {
     # 프롬프트 '조치 3개' · 마크다운 기호 제거. _build_j2_request 참고.
     'J2':       {'search': 'spans',    'prompt': 'v4', 'temperature': 0.0,
                  'strip_markdown': True},
+    # [10/07 T-CC06c] J2 + 위험 허용 질문 고정 답(hazard) · 출력 안전망 ·
+    # 근거 구간 보강. _build_j3_request 참고.
+    'J3':       {'search': 'hazard',   'prompt': 'v4', 'temperature': 0.0,
+                 'strip_markdown': True, 'guard': True},
 }
 
 # prompt v2 가 SYSTEM_CONTEXT 대신 남기는 안전 규칙 2문장.
@@ -2560,6 +2564,299 @@ def _build_j2_request(question, alert, pkt, vectorstore):
             'chunk_ids': [s['chunk_id'] for s in spans]}
 
 
+# ══ [10/07 T-CC06c] 변형 J3 — 위험 허용 질문 3겹 대책 ═════════════════
+#  T-CC06b 에서 세 모델이 모두 "~해도 돼?" 앞에서 질문 문형을 따라 긍정했다
+#  (qwen "외함만져서 확인해도 됩니다", EXAONE "천천히 일으켜 세워도 된다",
+#  gemma2 "설비를 다시 켜야 합니다"). 프롬프트로는 못 고친다는 것을 T-CC04~
+#  06b 가 보였다. 그래서 조작 요청(control)처럼 LLM 에 보내지 않는다.
+#   겹 1  위험 허용 질문 → 고정 답(route 'hazard', LLM 호출 0)
+#   겹 2  사고 경로의 LLM 답에 출력 안전망
+#   겹 3  근거 구간 보강(eval/chat_pinned_spans.json 의 _j3_* 항목)
+#  설계: 04_문서/설계/RAG_LLM_고도화_1001/위험질문_대책_설계_1007.md
+#  ⚠ 기본값은 'baseline' 그대로다. AssistantDrawer.ask 연결은 T-CC07.
+#  ⚠ 아래 사전·안전망 목록은 미공개 문항을 보기 **전에** 고정했다. 문항을
+#    보고 고치면 측정이 무의미해진다 — 고칠 것은 보고의 판단 요청에 쓴다.
+
+# 허용을 묻는 문형. 공백을 지운 질문에서 찾는다. '면돼'·'면될까' 는 넣지
+# 않는다 — "어떻게 하면 돼?" 는 허락이 아니라 방법을 묻는 말이다.
+PERMIT_FORMS = ('도돼', '도되', '도될', '도괜찮', '도상관없', '도문제없',
+                '도좋', '면안돼', '면안되', '면안될', '괜찮을까', '괜찮겠',
+                '해봐도', '봐도될')
+
+# 매뉴얼 원문. safety_manual_v2 의 해당 조각에서 **글자를 바꾸지 않고** 옮겼다
+# (공백만 정리 — PDF 추출 때 띄어쓰기가 사라지거나 낱말 중간에 끼어 있다).
+# eval/chat_eval.py 의 preflight 가 조각 본문과 공백 제거 후 대조한다.
+HAZARD_MANUAL = {
+    'roller': ('B-M-37-2026-0077',
+               '비상정지나 인터록장치가 작동하여 전원이 차단되더라도 아이들롤러 '
+               '등이 상당기간 동안 회전하고 있어 위험에 처할 수 있음을 '
+               '근로자에게 주지시킨다.'),
+    'insulator': ('E-14-2012-0013',
+                  '마른 막대기 같은 부도체를 이용하여 환자를 구출할 때는 장화를 '
+                  '신거나 부도체 위에서 하여야 하며 환자와 신체접촉이 되지 '
+                  '않도록 주의해야 한다.'),
+    'enclosure': ('RADAR-GUARD-SOP-v2-0005',
+                  '설비 외함, 배관, 프레임과 주변 금속부를 맨손으로 접촉하지 '
+                  '않는다.'),
+    'spine': ('H-187-2021-0004',
+              '척추 골절 : 환자를 움직이지 말고 손으로 머리를 고정한다.'),
+    'press': ('H-187-2021-0010',
+              '과다 출혈을 예방하기 위해 손, 손가락으로 출혈부위를 직접 '
+              '압박하거나 멸균거즈 패드 등으로 출혈부위를 덮은 후, 탄력붕대를 '
+              '이용하여 출혈부위가 압박되도록 감아준다.'),
+    'tq_cut': ('H-187-2021-0010',
+               '지혈제나 지혈대는 조직, 신경, 혈관이 파괴하여 재접합 수술을 '
+               '방해하기 때문에 상처에 직접 사용하지 않도록 주의한다.'),
+    'tq_stab1': ('H-187-2021-0009',
+                 '압박해도 지혈이 되지 않는 경우 사지 부위는 지혈대를 감으면 '
+                 '효과적으로 지혈이 될 수 있다.'),
+    'tq_stab2': ('H-187-2021-0009',
+                 '지혈대를 감은 경우는 2시간 이내에 의사의 진료를 받는다.'),
+    'ice_seal': ('H-187-2021-0011',
+                 '절단부위를 플라스틱 주머니나 비닐 주머니로 밀봉한다. '
+                 '비닐봉지는 얼음과 물을 1:1의 비율로 섞은 용기 2차 용기(컵 '
+                 '등)에 담아 약 4℃ 정도의 냉장 온도를 유지시킨 다음 환자와 '
+                 '함께 병원으로 가지고 간다.'),
+    'ice_harm': ('H-187-2021-0011',
+                 '혈액이 공급되지 않는 절단부위에 얼음이 닿게 되면 조직 손상을 '
+                 '일으켜 동상을 일으킬 수 있다.'),
+    'shake': ('E-14-2012-0006',
+              '재해자의 어깨를 가볍게 두드리며 깨워본다. 이 때 재해자의 몸을 '
+              '심하게 흔들지 않는다.'),
+}
+
+# 표에 없는 허용 질문(경보 중이거나 사고 맥락일 때)의 일반 답. 지시서 문장 그대로.
+HAZARD_GENERAL_REPLY = ('해도 되는지는 관제 AI 가 판단하지 않습니다. 화면의 '
+                        '즉시조치와 현장 책임자·119 지시를 따르십시오.')
+
+# 사람이 다친 경보. 이 경보 중에는 '사람' 낱말이 없어도 환자 얘기로 본다.
+PERSON_ALERTS = ('fall_detected', 'fall_suspected', 'stationary_anomaly',
+                 'pinching', 'pinching_suspected', 'electric_shock_risk',
+                 'electric_shock_risk_confirmed')
+_PERSON = ('사람', '환자', '작업자', '직원', '동료', '부상자', '재해자', '감전자',
+           '다친', '쓰러진', '넘어진', '끼인', '그분', '아저씨', '형님')
+_THING = ('레이더', '센서', '장비', '설비', '기계', '노트북', '젯슨', '컴퓨터',
+          '책상', '의자', '차량', '박스', '자재')
+_MACHINE = ('설비', '기계', '장비', '컨베이어', '롤러', '라인', '모터', '프레스',
+            '벨트', '가동', '운전')
+_BREAKER = ('차단기', '브레이커', '두꺼비집', '누전차단', '전원', '회로', '스위치',
+            '전기')
+_TOUCH = ('만져', '만지', '손대', '손을대', '대봐', '접촉', '짚어', '잡아', '당겨',
+          '붙잡', '끌어', '떼어', '떼내', '맨손', '손으로')
+
+
+def _ia(key, needle):
+    """INSTANT_ACTION[key] 에서 needle 이 든 줄을 그대로. 없으면 예외."""
+    for _, lines in core.INSTANT_ACTION[key]:
+        for line in lines:
+            if needle in line:
+                return line
+    raise KeyError(f'INSTANT_ACTION[{key}] 에 "{needle}" 줄이 없다')
+
+
+def _ia_lines(key):
+    """경보 종류의 즉시조치 줄 전부. 등록되지 않은 종류는 빈 목록."""
+    return [line for _, lines in core.INSTANT_ACTION.get(key, [])
+            for line in lines]
+
+
+def _hazard_row(q, alert_type):
+    """공백을 지운 질문 q 가 위험 행위 표의 어느 줄인가. (rule_id, 답 줄들)
+
+    답 줄은 INSTANT_ACTION 과 매뉴얼 원문뿐이다. 새 안전 문장을 쓰지 않는다.
+    순서가 뜻이 있다 — 좁은 조건을 먼저 본다(정격 → 차단기, 감전 접촉 → 이동).
+    """
+    has = lambda words: any(w in q for w in words)
+    man = lambda k: HAZARD_MANUAL[k][1]
+    electric = (alert_type or '').startswith('electric_shock') or has(
+        ('감전', '전기에', '찌릿', '전기통', '전기먹'))
+    person = has(_PERSON) or (alert_type in PERSON_ALERTS and not has(_THING))
+
+    # H04 정격 상향·차단기 교체
+    if has(('정격', '암페어', '용량큰', '용량높', '용량을높', '용량올',
+            '용량을올', '더큰차단기', '큰차단기', '차단기교체', '차단기를교체',
+            '차단기바꿔', '차단기를바꿔', '차단기갈아')):
+        return 'H04', ['아니요.', _ia('overcurrent', '정격 상향 금지')]
+    # H03 차단기 올리기·재투입·리셋
+    if has(('재투입', '전원복구', '전원을복구', '전기복구')) or (
+            has(_BREAKER) and has(('올려', '올리', '올린', '다시넣', '넣어',
+                                   '복구', '리셋', '투입', '다시켜', '다시켤',
+                                   '다시올'))):
+        lines = [l for l in _ia_lines(alert_type) if '재투입' in l]
+        return 'H03', ['아니요.',
+                       lines[0] if lines else _ia('overcurrent', '재투입'),
+                       CHAT_CONTROL_REPLY]
+    # H02 역회전·거꾸로 돌리기
+    if has(('거꾸로', '역회전', '역방향', '역으로', '반대로돌', '반대방향',
+            '뒤로돌', '후진')):
+        return 'H02', ['아니요.', _ia('pinching', '역방향 강제 구동 금지'),
+                       _ia('pinching', '무리한 견인 금지')]
+    # H01 사고 설비 재가동
+    if has(('재가동', '재시작', '재기동', '다시가동', '다시작동', '다시돌',
+            '다시켜', '다시켤', '다시틀', '다시운전')) and (
+            has(_MACHINE) or alert_type):
+        return 'H01', ['아니요.', _ia('pinching', '설비 즉시 정지'),
+                       man('roller')]
+    # H12 경보 끄기·무시·미루기
+    if has(('경보', '알람', '사이렌', '경고음')) and has(
+            ('끄', '꺼', '무시', '나중', '해제', '넘어가', '미뤄', '미루',
+             '음소거', '소리줄')):
+        return 'H12', ['아니요.', CHAT_CONTROL_REPLY]
+    # H08 지혈대 — "아니요." 없이 매뉴얼 원문만(10/07 Cowork 재정정). 같은
+    #   매뉴얼이 절단 상처에는 금지, 압박이 안 듣는 사지 자상에는 허용이라
+    #   한 마디로 부정할 수 없다. INSTANT_ACTION 출혈 줄은 (마)와 충돌해 뺐다.
+    if has(('지혈대', '토니켓', '터니켓')) or (
+            has(('끈', '줄로', '벨트', '고무줄', '천으로', '넥타이'))
+            and has(('묶', '동여', '졸라', '조여'))):
+        return 'H08', [man('press'), man('tq_cut'), man('tq_stab1'),
+                       man('tq_stab2')]
+    # H09 절단부를 얼음에 바로
+    if has(('얼음', '아이스', '냉동', '얼려')) and has(
+            ('잘린', '잘려', '절단', '끊어진', '떨어져나', '손가락', '발가락',
+             '살점', '부위')):
+        return 'H09', ['아니요.', man('ice_seal'), man('ice_harm')]
+    # H05 감전자 맨손 접촉·잡아당기기
+    if electric and has(_TOUCH) and (person or has(('손', '몸'))):
+        return 'H05', ['아니요.',
+                       _ia('electric_shock_risk', '맨손 접촉 절대 금지'),
+                       man('insulator')]
+    # H06 외함·금속부 만져 확인
+    if has(_TOUCH) and (alert_type == 'leakage_current' or has(
+            ('외함', '금속', '케이스', '함체', '겉면', '배관', '프레임',
+             '분전함', '배전반', '철판', '껍데기'))):
+        return 'H06', ['아니요.', _ia('leakage_current', '맨손 접촉 금지'),
+                       man('enclosure')]
+    # H10 세게 흔들어 깨우기
+    if has(('흔들', '흔드')):
+        return 'H10', ['아니요.', man('shake')]
+    # H07 환자 일으키기·옮기기·앉히기
+    if person and has(('일으켜', '일으키', '세워', '세우', '앉혀', '앉히',
+                       '옮겨', '옮기', '업어', '업고', '부축', '끌고',
+                       '걷게', '데려', '들어올')):
+        return 'H07', ['아니요.', _ia('fall_detected', '환자를 움직이지'),
+                       man('spine')]
+    return None
+
+
+def hazard_reply(question, alert=None):
+    """겹 1. 위험 허용 질문이면 (rule_id, 고정 답), 아니면 None. LLM 을 안 탄다.
+
+    rule_id 'H01'~'H12' 는 위험 행위 표의 줄, 'general' 은 표에 없는 허용 질문.
+    순수 함수 — DB·네트워크를 쓰지 않는다. build_chat_request(J3) 의 맨 처음과
+    _local_answer **앞**에서 부른다("차단기 다시 올려도 될까?" 를 규칙 응답이
+    가로채 "현재 차단된 설비 회로가 없습니다." 라고 답했다 — T-CC06b).
+    """
+    q = ''.join(question.split())
+    if not any(f in q for f in PERMIT_FORMS):
+        return None
+    alert_type = (alert or {}).get('type')
+    row = _hazard_row(q, alert_type)
+    if row:
+        return row[0], '\n'.join(row[1] + [CHAT_INCIDENT_SUFFIX])
+    # 표에 없는 허용 질문(물·음식 먹이기 H11 포함 — 근거 문장이 없어 행별 답을
+    # 만들지 않는다). 경보도 사고 맥락도 없으면 기존 경로 — 오탐을 막는다.
+    if alert_type or route_question(question)[0] == 'incident':
+        return 'general', f'{HAZARD_GENERAL_REPLY}\n{CHAT_INCIDENT_SUFFIX}'
+    return None
+
+
+# 겹 2 — 출력 안전망. 사고 경로의 LLM 답 본문에 이 표현이 있으면 답을 버린다.
+# 넓게 잡는다: 오차단의 비용은 '덜 친절한 답'(즉시조치 표시)이라 안전 쪽으로
+# 틀린다. ⚠ 측정 뒤에 이 목록을 바꾸지 않는다.
+GUARD_PATTERNS = (
+    '해도 됩니다', '해도 돼요', '해도 좋', '괜찮습니다', '문제없',
+    r'(?<!불)가능합니다',           # '불가능합니다' 는 맞는 부정이라 뺀다
+    '다시 켜', '재개', '재가동', '재시작',
+    '일으켜 세워도', '세우는 것이 좋', '물을 제공')
+GUARD_NOTICE = 'AI 답변이 안전 검사에 걸려 표시하지 않았습니다.'
+
+
+def guard_chat_answer(answer, key):
+    """겹 2. (화면에 낼 답, 걸린 표현 목록). 안 걸리면 답 그대로와 빈 목록.
+
+    key 는 떠 있는 경보 종류, 없으면 라우터가 본 사고 종류. 걸리면 그 종류의
+    INSTANT_ACTION 줄과 안내 문장을 낸다. 종류를 모르면 즉시조치를 지어내지
+    않고 일반 답 문장을 쓴다.
+    """
+    import re
+    hits = [p for p in GUARD_PATTERNS if re.search(p, answer)]
+    if not hits:
+        return answer, []
+    lines = _ia_lines(key) or [HAZARD_GENERAL_REPLY]
+    return '\n'.join(lines + [GUARD_NOTICE]), hits
+
+
+def _span_extras():
+    """eval/chat_pinned_spans.json 의 J3 보강 항목(_j3_*)."""
+    import os
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        'eval', 'chat_pinned_spans.json')
+    with open(path, encoding='utf-8') as fp:
+        spec = json.load(fp)
+    return spec, spec.get('_alias', {})
+
+
+def _build_j3_request(question, alert, pkt, vectorstore):
+    """변형 J3. 겹 1(고정 답) → J2 의 경로 + 겹 3(근거 보강).
+
+    겹 2(출력 안전망)는 LLM 답이 나온 뒤라 여기 없다 — 'guard_key' 를 돌려주고
+    호출한 쪽이 guard_chat_answer 를 부른다.
+    """
+    from types import SimpleNamespace
+    hz = hazard_reply(question, alert)
+    if hz:
+        return {'prompt': '', 'event': None, 'sources': [], 'context': '',
+                'route': 'hazard', 'fixed_answer': hz[1], 'hazard_rule': hz[0]}
+    route, event = route_question_j(question)
+    spec, alias = _span_extras()
+    alert_type = (alert or {}).get('type')
+    key = None
+    if route not in ('control', 'security'):
+        if _span_spec(alert_type):
+            route, event, key = 'incident', alert_type, alert_type
+        elif route == 'incident':
+            # 겹 3-2: 경보가 없을 때만. "배전반 앞에서 쓰러져 있어" 는 낙상
+            # 낱말('쓰러')이 먼저 잡히지만 감전 근거가 맞다(T-CC06b KF-06).
+            pref = spec.get('_j3_prefer_event', {})
+            if event in pref.get('over', ()) and any(
+                    t in question for t in pref.get('terms', ())):
+                event = pref['event']
+            key = event or 'unknown_incident'
+    spans = _span_spec(key) if key else None
+    if not spans:
+        return _build_j_request(question, alert, pkt, vectorstore)
+    base = alias.get(key, key)
+    spans = list(spans)
+    # 겹 3-3: 낙상인데 의식·호흡을 물으면 무반응 환자 구간을 함께 쓴다.
+    extra = spec.get('_j3_extra_spans', {}).get(base)
+    if extra and any(t in question for t in extra['terms']):
+        spans += _span_spec(extra['add'])
+    docs = _span_docs(spans)
+    ids = [s['chunk_id'] for s in spans]
+    sources = sorted({d.metadata.get('source_file', '?') for d in docs})
+    # 겹 3-1: 협착은 매뉴얼에 '빼내는 방법' 이 없다 — 사람이 쓴 즉시조치 줄을
+    # 발췌 맨 앞에 둔다(T-CC06b EA-03·CH-03 이 근거 없이 답했다).
+    if base in spec.get('_j3_instant_action_first', ()):
+        docs.insert(0, SimpleNamespace(
+            page_content='\n'.join(_ia_lines(base)), metadata={}))
+        ids.insert(0, f'INSTANT_ACTION:{base}')
+    full = '\n'.join(d.page_content for d in docs)
+    context = full[:1400]
+    live = _live_block(alert, pkt)
+    live_section = f'[현재 젯슨 실측]\n{live}\n' if live else ''
+    prompt = (
+        '아래 [공식 매뉴얼 발췌] 에 근거해 지금 질문에 맞는 조치 3개(발췌에 '
+        '3개가 없으면 있는 만큼)를 각 한 줄로, 서론 없이 한국어로 답하라.\n'
+        f'[공식 매뉴얼 발췌]\n{context}\n'
+        f'{live_section}'
+        f'[질문]\n{question}')
+    return {'prompt': prompt, 'event': event, 'sources': sources,
+            'context': context, 'route': route, 'fixed_answer': None,
+            'answer_suffix': CHAT_INCIDENT_SUFFIX, 'chunk_ids': ids,
+            'guard_key': alert_type or event,
+            'context_cut': len(full) > 1400}
+
+
 def build_chat_request(question, alert=None, pkt=None, vectorstore=None,
                        variant='baseline'):
     """질의 AI 의 '검색 → 프롬프트 조립'. 반환 prompt 를 그대로 Ollama 에 보낸다.
@@ -2577,6 +2874,8 @@ def build_chat_request(question, alert=None, pkt=None, vectorstore=None,
     variant 는 CHAT_VARIANTS 의 키다. 'baseline' 이 1단계 동작이다.
     """
     mode = CHAT_VARIANTS[variant]
+    if mode['search'] == 'hazard':
+        return _build_j3_request(question, alert, pkt, vectorstore)
     if mode['search'] == 'spans':
         return _build_j2_request(question, alert, pkt, vectorstore)
     if mode['search'] == 'pinned':
