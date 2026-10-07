@@ -2139,6 +2139,10 @@ CHAT_VARIANTS = {
     # 보안 고정 답변. _build_j_request 참고. temperature 는 호출 옵션이지만
     # '모든 경로 0' 이 J 의 정의라 여기 적고 eval/chat_eval.py 가 읽어 쓴다.
     'J':        {'search': 'pinned',   'prompt': 'v3', 'temperature': 0.0},
+    # [10/06 T-CC06b] J + 경보 연동 · 조각+구간 근거(임베딩 검색 없음) ·
+    # 프롬프트 '조치 3개' · 마크다운 기호 제거. _build_j2_request 참고.
+    'J2':       {'search': 'spans',    'prompt': 'v4', 'temperature': 0.0,
+                 'strip_markdown': True},
 }
 
 # prompt v2 가 SYSTEM_CONTEXT 대신 남기는 안전 규칙 2문장.
@@ -2448,6 +2452,114 @@ def _build_j_request(question, alert, pkt, vectorstore):
             'answer_suffix': CHAT_INCIDENT_SUFFIX}
 
 
+# ══ [10/06 T-CC06b] 변형 J2 ═══════════════════════════════════════════
+#  T-CC06 에서 J 가 남긴 문제 셋을 막는다.
+#   · 칩 7문항 중 6문항이 떠 있는 경보의 근거를 못 탔다 → 경보 연동
+#   · 사고 종류 불명 질문이 v2 검색을 타 20~30초 걸리고 기도폐쇄·화상 절이
+#     섞였다(gemma2 "등 부위를 세게 친다") → 사람이 지정한 조각+구간만 쓴다
+#   · 굵은 글씨 기호(**)가 그대로 화면에 나온다 → 표시 전에 지운다
+#  ⚠ 기본값은 'baseline' 그대로다. 제품 반영은 T-CC07.
+
+def _span_spec(key):
+    """eval/chat_pinned_spans.json 에서 key 의 구간 목록. 없으면 None."""
+    import os
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        'eval', 'chat_pinned_spans.json')
+    with open(path, encoding='utf-8') as fp:
+        spec = json.load(fp)
+    key = spec.get('_alias', {}).get(key, key)
+    if not key or key.startswith('_'):
+        return None
+    return spec.get(key)
+
+
+def _cut_span(text, start, end, cid):
+    """조각 본문에서 start~end 구간을 잘라 낸다(end 문자열 포함). None = 처음/끝.
+
+    공백을 정규화하고, 표식은 공백을 뺀 채로 찾는다 — 조각마다 띄어쓰기가
+    남은 것과 사라진 것이 섞여 있다. 못 찾으면 예외: 엉뚱한 근거로 답하게
+    두지 않는다.
+    """
+    norm = ' '.join(text.split())
+    idx = [i for i, ch in enumerate(norm) if ch != ' ']
+    compact = norm.replace(' ', '')
+    a, b, k0 = 0, len(norm), 0
+    if start:
+        k0 = compact.find(''.join(start.split()))
+        if k0 < 0:
+            raise RuntimeError(f'{cid}: 구간 시작을 찾지 못했다 — {start}')
+        a = idx[k0]
+    if end:
+        mark = ''.join(end.split())
+        k = compact.find(mark, k0)
+        if k < 0:
+            raise RuntimeError(f'{cid}: 구간 끝을 찾지 못했다 — {end}')
+        b = idx[k + len(mark) - 1] + 1
+    return norm[a:b]
+
+
+def _span_docs(spans):
+    """구간 목록을 지정 순서대로 본문으로 바꾼다. 임베딩 검색을 쓰지 않는다."""
+    import psycopg2
+    from types import SimpleNamespace
+    ids = [s['chunk_id'] for s in spans]
+    with psycopg2.connect(core.CONN_STR) as cn:
+        with cn.cursor() as cur:
+            cur.execute(
+                "SELECT cmetadata->>'chunk_id', document, cmetadata "
+                "FROM langchain_pg_embedding WHERE collection_id = "
+                "(SELECT uuid FROM langchain_pg_collection WHERE name = %s) "
+                "AND cmetadata->>'chunk_id' = ANY(%s)",
+                ('safety_manual_v2', ids))
+            got = {cid: (text, meta) for cid, text, meta in cur.fetchall()}
+    missing = [c for c in ids if c not in got]
+    if missing:
+        raise RuntimeError(
+            f"safety_manual_v2 에 없는 지정 조각: {', '.join(missing)}")
+    return [SimpleNamespace(
+        page_content=_cut_span(got[s['chunk_id']][0], s.get('start'),
+                               s.get('end'), s['chunk_id']),
+        metadata=got[s['chunk_id']][1]) for s in spans]
+
+
+def strip_chat_markdown(text):
+    """화면 표시용. 굵게(**)·제목(#)·줄머리 * 불릿 기호를 지운다."""
+    import re
+    return re.sub(r'(?m)^[ \t]*(#+[ \t]*|\*[ \t]+)', '',
+                  text.replace('**', ''))
+
+
+def _build_j2_request(question, alert, pkt, vectorstore):
+    """변형 J2. 사고 경로는 'chunk_ids' 를 더 준다."""
+    route, event = route_question_j(question)
+    spans = None
+    if route not in ('control', 'security'):
+        alert_type = (alert or {}).get('type')
+        if _span_spec(alert_type):
+            # 경보 연동 — 라우터 사전이 못 잡아도 떠 있는 경보의 근거를 쓴다.
+            route, event, spans = 'incident', alert_type, _span_spec(alert_type)
+        elif route == 'incident':
+            spans = _span_spec(event or 'unknown_incident')
+    if not spans:
+        # control·security·system·other, 구간 지정이 없는 사고 종류(진동)는 J.
+        return _build_j_request(question, alert, pkt, vectorstore)
+    docs = _span_docs(spans)
+    context = '\n'.join(d.page_content for d in docs)[:1400]
+    sources = sorted({d.metadata.get('source_file', '?') for d in docs})
+    live = _live_block(alert, pkt)
+    live_section = f'[현재 젯슨 실측]\n{live}\n' if live else ''
+    prompt = (
+        '아래 [공식 매뉴얼 발췌] 에 근거해 지금 질문에 맞는 조치 3개(발췌에 '
+        '3개가 없으면 있는 만큼)를 각 한 줄로, 서론 없이 한국어로 답하라.\n'
+        f'[공식 매뉴얼 발췌]\n{context}\n'
+        f'{live_section}'
+        f'[질문]\n{question}')
+    return {'prompt': prompt, 'event': event, 'sources': sources,
+            'context': context, 'route': route, 'fixed_answer': None,
+            'answer_suffix': CHAT_INCIDENT_SUFFIX,
+            'chunk_ids': [s['chunk_id'] for s in spans]}
+
+
 def build_chat_request(question, alert=None, pkt=None, vectorstore=None,
                        variant='baseline'):
     """질의 AI 의 '검색 → 프롬프트 조립'. 반환 prompt 를 그대로 Ollama 에 보낸다.
@@ -2465,6 +2577,8 @@ def build_chat_request(question, alert=None, pkt=None, vectorstore=None,
     variant 는 CHAT_VARIANTS 의 키다. 'baseline' 이 1단계 동작이다.
     """
     mode = CHAT_VARIANTS[variant]
+    if mode['search'] == 'spans':
+        return _build_j2_request(question, alert, pkt, vectorstore)
     if mode['search'] == 'pinned':
         return _build_j_request(question, alert, pkt, vectorstore)
     if mode['search'] == 'intent':

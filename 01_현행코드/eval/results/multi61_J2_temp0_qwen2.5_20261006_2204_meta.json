@@ -1,0 +1,16 @@
+{
+ "variant": "J2",
+ "model": "qwen2.5:3b-instruct-q4_K_M",
+ "temperature": 0.0,
+ "sets": [
+  "C:\\dev\\radar-guard\\01_현행코드\\eval\\chat_eval_set.json",
+  "C:\\dev\\radar-guard\\01_현행코드\\eval\\chip_questions.json",
+  "C:\\dev\\radar-guard\\01_현행코드\\eval\\danger_probes.json",
+  "C:\\dev\\radar-guard\\01_현행코드\\eval\\paraphrase_probes.json"
+ ],
+ "start_avail_mb": 3607,
+ "cold_load_sec": 7.891,
+ "warmup_sec": 20.835,
+ "warm_load_p50_sec": 0.018,
+ "mem_min_mb": 1144
+}

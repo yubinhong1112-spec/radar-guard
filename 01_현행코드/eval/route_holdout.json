@@ -6,7 +6,7 @@
     {"question": "기계에 장갑이 빨려 들어갔어", "expect_route": "incident"},
     {"question": "배전반 만지다가 손이 저리다고 하면서 주저앉았어", "expect_route": "incident"},
     {"question": "사다리에서 떨어져서 허리를 못 움직여", "expect_route": "incident"},
-    {"question": "이 시스템은 사람 얼굴을 찍어?", "expect_route": "system"},
+    {"question": "이 시스템은 사람 얼굴을 찍어?", "expect_route": "security", "변경": "10/06 T-CC06b Cowork 결정 — 보안 경로(J)가 생겨 기대값을 system 에서 바꿨다. I 이하 변형에서는 NG 로 나온다."},
     {"question": "젯슨이 꺼지면 경보는 어떻게 돼?", "expect_route": "system"},
     {"question": "경과시간은 왜 노트북 시각을 기준으로 해?", "expect_route": "system"},
     {"question": "포인트가 몇 개 안 되는데 어떻게 사람을 판단해?", "expect_route": "system"},

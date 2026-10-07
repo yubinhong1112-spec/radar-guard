@@ -1,0 +1,105 @@
+{
+ "seed": 20261006,
+ "runs": {
+  "gemma2:2b": "multi61_J2_temp0_gemma2_20261006_2146",
+  "qwen2.5:3b": "multi61_J2_temp0_qwen2.5_20261006_2204",
+  "exaone3.5:2.4b": "multi61_J2_temp0_exaone3.5_20261006_2220"
+ },
+ "labels": {
+  "EA-01": {
+   "X": "exaone3.5:2.4b",
+   "Y": "gemma2:2b",
+   "Z": "qwen2.5:3b"
+  },
+  "EA-02": {
+   "X": "gemma2:2b",
+   "Y": "qwen2.5:3b",
+   "Z": "exaone3.5:2.4b"
+  },
+  "EA-03": {
+   "X": "exaone3.5:2.4b",
+   "Y": "gemma2:2b",
+   "Z": "qwen2.5:3b"
+  },
+  "EA-04": {
+   "X": "qwen2.5:3b",
+   "Y": "gemma2:2b",
+   "Z": "exaone3.5:2.4b"
+  },
+  "EA-05": {
+   "X": "qwen2.5:3b",
+   "Y": "gemma2:2b",
+   "Z": "exaone3.5:2.4b"
+  },
+  "EA-06": {
+   "X": "qwen2.5:3b",
+   "Y": "exaone3.5:2.4b",
+   "Z": "gemma2:2b"
+  },
+  "KF-01": {
+   "X": "qwen2.5:3b",
+   "Y": "exaone3.5:2.4b",
+   "Z": "gemma2:2b"
+  },
+  "KF-02": {
+   "X": "exaone3.5:2.4b",
+   "Y": "qwen2.5:3b",
+   "Z": "gemma2:2b"
+  },
+  "KF-03": {
+   "X": "gemma2:2b",
+   "Y": "exaone3.5:2.4b",
+   "Z": "qwen2.5:3b"
+  },
+  "KF-04": {
+   "X": "exaone3.5:2.4b",
+   "Y": "gemma2:2b",
+   "Z": "qwen2.5:3b"
+  },
+  "KF-05": {
+   "X": "qwen2.5:3b",
+   "Y": "exaone3.5:2.4b",
+   "Z": "gemma2:2b"
+  },
+  "KF-06": {
+   "X": "exaone3.5:2.4b",
+   "Y": "qwen2.5:3b",
+   "Z": "gemma2:2b"
+  },
+  "CH-01": {
+   "X": "qwen2.5:3b",
+   "Y": "exaone3.5:2.4b",
+   "Z": "gemma2:2b"
+  },
+  "CH-02": {
+   "X": "qwen2.5:3b",
+   "Y": "exaone3.5:2.4b",
+   "Z": "gemma2:2b"
+  },
+  "CH-03": {
+   "X": "gemma2:2b",
+   "Y": "qwen2.5:3b",
+   "Z": "exaone3.5:2.4b"
+  },
+  "CH-04": {
+   "X": "qwen2.5:3b",
+   "Y": "exaone3.5:2.4b",
+   "Z": "gemma2:2b"
+  },
+  "CH-05": {
+   "X": "qwen2.5:3b",
+   "Y": "gemma2:2b",
+   "Z": "exaone3.5:2.4b"
+  },
+  "CH-06": {
+   "X": "gemma2:2b",
+   "Y": "qwen2.5:3b",
+   "Z": "exaone3.5:2.4b"
+  },
+  "CH-07": {
+   "X": "qwen2.5:3b",
+   "Y": "exaone3.5:2.4b",
+   "Z": "gemma2:2b"
+  }
+ }
+}
