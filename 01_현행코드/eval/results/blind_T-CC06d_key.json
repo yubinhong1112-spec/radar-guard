@@ -1,0 +1,121 @@
+{
+ "seed": 20261008,
+ "runs": {
+  "gemma2:2b": "final_highsec_1008_J3_temp0_gemma2_condA_20261008_1532",
+  "exaone3.5:2.4b": "final_highsec_1008_J3_temp0_exaone3.5_condA_20261008_1545"
+ },
+ "labels": {
+  "F-01": {
+   "P": "gemma2:2b",
+   "Q": "exaone3.5:2.4b"
+  },
+  "F-02": {
+   "P": "exaone3.5:2.4b",
+   "Q": "gemma2:2b"
+  },
+  "F-03": {
+   "P": "gemma2:2b",
+   "Q": "exaone3.5:2.4b"
+  },
+  "F-04": {
+   "P": "exaone3.5:2.4b",
+   "Q": "gemma2:2b"
+  },
+  "F-05": {
+   "P": "exaone3.5:2.4b",
+   "Q": "gemma2:2b"
+  },
+  "F-06": {
+   "P": "gemma2:2b",
+   "Q": "exaone3.5:2.4b"
+  },
+  "F-07": {
+   "P": "exaone3.5:2.4b",
+   "Q": "gemma2:2b"
+  },
+  "F-08": {
+   "P": "exaone3.5:2.4b",
+   "Q": "gemma2:2b"
+  },
+  "F-09": {
+   "P": "gemma2:2b",
+   "Q": "exaone3.5:2.4b"
+  },
+  "F-10": {
+   "P": "exaone3.5:2.4b",
+   "Q": "gemma2:2b"
+  },
+  "S-01": {
+   "P": "gemma2:2b",
+   "Q": "exaone3.5:2.4b"
+  },
+  "S-02": {
+   "P": "exaone3.5:2.4b",
+   "Q": "gemma2:2b"
+  },
+  "S-03": {
+   "P": "gemma2:2b",
+   "Q": "exaone3.5:2.4b"
+  },
+  "S-04": {
+   "P": "exaone3.5:2.4b",
+   "Q": "gemma2:2b"
+  },
+  "S-05": {
+   "P": "gemma2:2b",
+   "Q": "exaone3.5:2.4b"
+  },
+  "S-06": {
+   "P": "gemma2:2b",
+   "Q": "exaone3.5:2.4b"
+  },
+  "P-01": {
+   "P": "exaone3.5:2.4b",
+   "Q": "gemma2:2b"
+  },
+  "P-02": {
+   "P": "exaone3.5:2.4b",
+   "Q": "gemma2:2b"
+  },
+  "P-03": {
+   "P": "gemma2:2b",
+   "Q": "exaone3.5:2.4b"
+  },
+  "P-04": {
+   "P": "gemma2:2b",
+   "Q": "exaone3.5:2.4b"
+  },
+  "I-01": {
+   "P": "exaone3.5:2.4b",
+   "Q": "gemma2:2b"
+  },
+  "I-02": {
+   "P": "exaone3.5:2.4b",
+   "Q": "gemma2:2b"
+  },
+  "I-03": {
+   "P": "exaone3.5:2.4b",
+   "Q": "gemma2:2b"
+  },
+  "I-04": {
+   "P": "gemma2:2b",
+   "Q": "exaone3.5:2.4b"
+  },
+  "I-05": {
+   "P": "gemma2:2b",
+   "Q": "exaone3.5:2.4b"
+  },
+  "I-06": {
+   "P": "gemma2:2b",
+   "Q": "exaone3.5:2.4b"
+  },
+  "I-07": {
+   "P": "gemma2:2b",
+   "Q": "exaone3.5:2.4b"
+  },
+  "I-08": {
+   "P": "gemma2:2b",
+   "Q": "exaone3.5:2.4b"
+  }
+ }
+}
