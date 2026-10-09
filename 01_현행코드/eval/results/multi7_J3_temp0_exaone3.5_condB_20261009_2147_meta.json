@@ -1,0 +1,19 @@
+{
+ "cond": "B",
+ "incident_p50_sec": 5.18,
+ "cut": 0,
+ "variant": "J3",
+ "model": "exaone3.5:2.4b",
+ "temperature": 0.0,
+ "sets": [
+  "01_현행코드\\eval\\chat_eval_set.json",
+  "01_현행코드\\eval\\chip_questions.json",
+  "01_현행코드\\eval\\danger_probes.json",
+  "01_현행코드\\eval\\paraphrase_probes.json"
+ ],
+ "start_avail_mb": 909,
+ "cold_load_sec": 0.037,
+ "warmup_sec": 6.751,
+ "warm_load_p50_sec": 0.03,
+ "mem_min_mb": 911
+}

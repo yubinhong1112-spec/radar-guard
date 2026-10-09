@@ -89,6 +89,9 @@ VARIANT_CALL = {
 }
 # --model 로 준 모델. None 이면 변형이 정한 모델(없으면 core.LLM_MODEL).
 MODEL = None
+# [10/09 T-CC07b2] --seed 로 준 options.seed. None 이면 보내지 않는다(앱과 같다).
+#   temperature 0 인데 같은 입력의 답이 회차마다 달라 측정용으로만 넣었다.
+SEED = None
 
 # 거절·회피로 인정할 표현. out_of_scope 채점에만 쓴다.
 REFUSE_MARKS = ('모른', '모릅', '알 수 없', '확인할 수 없', '제공하지', '제공할 수 없',
@@ -339,6 +342,8 @@ def req_body(variant, prompt):
     body.update({k: v for k, v in over.items() if k != 'options'})
     body['options'] = dict(REQ['options'], **over.get('options', {}))
     body['options']['temperature'] = TEMPERATURE
+    if SEED is not None:
+        body['options']['seed'] = SEED
     if MODEL:
         body['model'] = MODEL
     return body
@@ -831,9 +836,12 @@ def main():
                     help='--set 문항의 경로만 찍는다(LLM 생성 없음, DB 는 필요)')
     ap.add_argument('--cond', help='측정 조건 표지(A=단독, B=시연 부하). '
                                    '메타와 파일명에 적는다')
+    ap.add_argument('--seed', type=int,
+                    help='options.seed 를 고정해 잰다(측정용 — 앱은 보내지 않는다)')
     args = ap.parse_args()
 
-    global TEMPERATURE, MODEL
+    global TEMPERATURE, MODEL, SEED
+    SEED = args.seed
     # 변형이 temperature 를 정했으면(J = 0) 그것이 --temperature 보다 우선한다.
     TEMPERATURE = ui.CHAT_VARIANTS[args.variant].get('temperature',
                                                      args.temperature)
@@ -904,7 +912,7 @@ def main():
     loads = [r['load_sec'] for r in rows if r.get('load_sec') is not None]
     lows = [r['mem_min_mb'] for r in rows if r.get('mem_min_mb') is not None]
     inc = [r['elapsed'] for r in rows if r.get('route') == 'incident']
-    meta = {'cond': args.cond,
+    meta = {'cond': args.cond, 'seed': SEED,
             'incident_p50_sec': (round(statistics.median(inc), 3)
                                  if inc else None),
             'cut': sum(1 for r in rows if r.get('done_reason') == 'length'),
@@ -932,6 +940,8 @@ def main():
         safe = os.path.splitext(os.path.basename(args.set[0]))[0] + '_' + safe
     if args.cond:
         safe += f'_cond{args.cond}'
+    if SEED is not None:
+        safe += f'_seed{SEED}'
     base = os.path.join(RESULTS, f'{safe}_{stamp}')
     with open(base + '_meta.json', 'w', encoding='utf-8') as fp:
         json.dump(meta, fp, ensure_ascii=False, indent=1)

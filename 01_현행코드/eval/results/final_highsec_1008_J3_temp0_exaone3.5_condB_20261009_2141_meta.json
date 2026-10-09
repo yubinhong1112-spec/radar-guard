@@ -1,0 +1,16 @@
+{
+ "cond": "B",
+ "incident_p50_sec": 7.389,
+ "cut": 2,
+ "variant": "J3",
+ "model": "exaone3.5:2.4b",
+ "temperature": 0.0,
+ "sets": [
+  "01_현행코드\\eval\\final_highsec_1008.json"
+ ],
+ "start_avail_mb": 648,
+ "cold_load_sec": 0.061,
+ "warmup_sec": 6.655,
+ "warm_load_p50_sec": 0.039,
+ "mem_min_mb": 582
+}
