@@ -169,6 +169,11 @@ check('17. 경과시간 = 노트북 기준', abs(w.alert_t0 - time.time()) < 30,
       f'alert_t0 diff={time.time()-w.alert_t0:.1f}s')
 
 # 같은 사건 안에 낙상이 추가되면 기존 설비 사고를 지우지 않고 화면을 갱신한다.
+# ⚠ [10/09 T-CC07b2] 이 구간 동안 데모 타이머(100 ms)를 멈춘다. 복합 사건을 넣은
+#   직후 processEvents 에서 타이머가 돌면 데모 패킷(rev 0, 낙상만)이 같은 사건의
+#   갱신으로 처리돼 표시를 '낙상' 으로 덮는다 — 17a·17c 가 저메모리에서 10회 중
+#   1회 실패하던 원인이다(재현: 복합 직후 데모 패킷 1개 → rev 1→0, '낙상').
+w.demo_timer.stop()
 _today, _t0, _eid = w.today, w.alert_t0, w.last_ev_id
 _compound = dict(w.pkt.get('ev') or {})
 _compound.update({'active': True, 'id': _eid, 'rev': w.last_ev_rev + 1,
@@ -187,6 +192,7 @@ check('17b. 복합 사건 revision은 새 사건 건수·경과시간을 만들�
 check('17c. 복합 사건 하위 등급을 텍스트로 함께 표시',
       w.monitor.a_kind.text().count('[위험]') == 2,
       w.monitor.a_kind.text())
+w.demo_timer.start(100)
 
 # ── 18. 미확인 경보 중 화면 이탈 차단 ──
 w.clear_alarm(); w.last_ev_id = 0; w.alarm = ui.ST_NORMAL

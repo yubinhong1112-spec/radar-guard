@@ -66,6 +66,7 @@
          <──상황 종료(사람이 누름)──
   ⚠ 자동 해제는 없다. ⚠ '확인함'은 소리를 끄는 것이지 경보를 지우는 것이 아니다.
 """
+import re
 import sys
 import time
 import json
@@ -140,6 +141,36 @@ def chat_model_keep(keep_alive, timeout):
         headers={'Content-Type': 'application/json'})
     with urllib.request.urlopen(req, timeout=timeout) as response:
         response.read()
+
+
+class SettingsPopupV2(SettingsPopup):
+    """설정 화면의 모델 표시만 챗봇 모델로 바꾼다.
+
+    [10/09 T-CC07b2] radar_core 는 '생성 모델' 과 Ollama 점검 문구에
+    core.LLM_MODEL(gemma2 — 지금은 꺼진 경보 요약용)을 찍는다. 실제로 답하는
+    것은 CHAT_MODEL 이다. radar_core 를 고치지 않고 여기서 표시만 덮는다.
+    """
+
+    def _ro(self, val):
+        return super()._ro(CHAT_MODEL if val == core.LLM_MODEL else val)
+
+    def _test_ai(self):
+        # 부모의 _test_ai 와 같은 절차, 문구의 모델 이름만 다르다.
+        self.ai_res.setText('확인 중…')
+        self.ai_res.setStyleSheet(f'color:{DIM};border:none;')
+
+        def _w():
+            import urllib.request
+            try:
+                urllib.request.urlopen(core.OLLAMA_URL.replace(
+                    '/api/generate', '/api/tags'), timeout=4).read()
+                msg, col = f'Ollama 응답 정상 · {CHAT_MODEL}', GREEN
+            except Exception as e:
+                msg, col = f'실패: {type(e).__name__} — ollama serve 확인', RED
+            self.ai_res.setText(msg)
+            self.ai_res.setStyleSheet(f'color:{col};border:none;')
+
+        threading.Thread(target=_w, daemon=True).start()
 
 # ══════════════════════════════════════════════════════════════════════
 # 0. 타이포그래피
@@ -2676,6 +2707,13 @@ HAZARD_MANUAL = {
               '심하게 흔들지 않는다.'),
 }
 
+# H08(지혈대·출혈) 고정 답에 쓰는 원문 4문장, 이 순서.
+H08_KEYS = ('press', 'tq_cut', 'tq_stab1', 'tq_stab2')
+# 출혈 표현 — 지시서 목록 `피가`·`피 `·`출혈`·`지혈`·`피나`·`피를`.
+# '피' 로 시작하는 넷은 낱말 첫머리일 때만 잡는다: 그냥 찾으면 "대피가 필요해?"
+# "대피를 시켜", "커피 마셔도 돼?" 가 걸려 지혈 답이 나간다.
+BLEEDING = re.compile(r'(?<![가-힣])피(?:가|를|나|\s)|출혈|지혈')
+
 # 표에 없는 허용 질문(경보 중이거나 사고 맥락일 때)의 일반 답. 지시서 문장 그대로.
 HAZARD_GENERAL_REPLY = ('해도 되는지는 관제 AI 가 판단하지 않습니다. 화면의 '
                         '즉시조치와 현장 책임자·119 지시를 따르십시오.')
@@ -2759,8 +2797,7 @@ def _hazard_row(q, alert_type):
     if has(('지혈대', '토니켓', '터니켓')) or (
             has(('끈', '줄로', '벨트', '고무줄', '천으로', '넥타이'))
             and has(('묶', '동여', '졸라', '조여'))):
-        return 'H08', [man('press'), man('tq_cut'), man('tq_stab1'),
-                       man('tq_stab2')]
+        return 'H08', [man(k) for k in H08_KEYS]
     # H09 절단부를 얼음에 바로
     if has(('얼음', '아이스', '냉동', '얼려')) and has(
             ('잘린', '잘려', '절단', '끊어진', '떨어져나', '손가락', '발가락',
@@ -2798,9 +2835,17 @@ def hazard_reply(question, alert=None):
     가로채 "현재 차단된 설비 회로가 없습니다." 라고 답했다 — T-CC06b).
     """
     q = ''.join(question.split())
+    alert_type = (alert or {}).get('type')
+    # [10/09 T-CC07b2] 출혈 질문은 허용 문형이 아니어도 H08 원문으로 답한다.
+    #   협착 경보 중 "피가 많이 나면?" 에 EXAONE 이 "절단 상처에는 직접 압박을
+    #   가하지 않고" 라고 뜻을 뒤집었다(T-CC07b CH-04, 안전망 통과).
+    if BLEEDING.search(question) and (
+            alert_type in PERSON_ALERTS
+            or route_question(question)[0] == 'incident'):
+        return 'H08', '\n'.join([HAZARD_MANUAL[k][1] for k in H08_KEYS]
+                                + [CHAT_INCIDENT_SUFFIX])
     if not any(f in q for f in PERMIT_FORMS):
         return None
-    alert_type = (alert or {}).get('type')
     row = _hazard_row(q, alert_type)
     if row:
         return row[0], '\n'.join(row[1] + [CHAT_INCIDENT_SUFFIX])
@@ -2818,7 +2863,9 @@ GUARD_PATTERNS = (
     '해도 됩니다', '해도 돼요', '해도 좋', '괜찮습니다', '문제없',
     r'(?<!불)가능합니다',           # '불가능합니다' 는 맞는 부정이라 뺀다
     '다시 켜', '재개', '재가동', '재시작',
-    '일으켜 세워도', '세우는 것이 좋', '물을 제공')
+    '일으켜 세워도', '세우는 것이 좋', '물을 제공',
+    # [10/09 T-CC07b2] 직접 압박 부정 — 직접 압박은 매뉴얼의 첫 조치다.
+    '압박을 가하지 않', '압박하지 않', '압박하지 마', '압박을 하지 않')
 GUARD_NOTICE = 'AI 답변이 안전 검사에 걸려 표시하지 않았습니다.'
 
 
@@ -2927,8 +2974,11 @@ def _build_j3_request(question, alert, pkt, vectorstore):
     # 겹 3-1: 협착은 매뉴얼에 '빼내는 방법' 이 없다 — 사람이 쓴 즉시조치 줄을
     # 발췌 맨 앞에 둔다(T-CC06b EA-03·CH-03 이 근거 없이 답했다).
     if base in spec.get('_j3_instant_action_first', ()):
+        # [10/09 T-CC07b2] 출혈 줄은 뺀다 — 조건이 셋 달린 지혈대 문장을 모델이
+        # 다시 조합해 뜻을 뒤집었다(CH-04). 출혈 질문은 hazard_reply 가 받는다.
         docs.insert(0, SimpleNamespace(
-            page_content='\n'.join(_ia_lines(base)), metadata={}))
+            page_content='\n'.join(l for l in _ia_lines(base)
+                                   if '출혈' not in l), metadata={}))
         ids.insert(0, f'INSTANT_ACTION:{base}')
     full = '\n'.join(d.page_content for d in docs)
     context = full[:1400]
@@ -3906,7 +3956,7 @@ class ConsoleV2(QtWidgets.QMainWindow):
         self.pwr = PowerPopup(self, link)
         self.restore = RestorePopup(self)
         self.graph = GraphPopup(self)
-        self.cfg = SettingsPopup(self, link, self)
+        self.cfg = SettingsPopupV2(self, link, self)
         self.engine = SopEngineV2()
         self.engine.ready.connect(self.drawer.sop.set_sources)
         self.engine.status.connect(self.drawer.sop.set_status)
