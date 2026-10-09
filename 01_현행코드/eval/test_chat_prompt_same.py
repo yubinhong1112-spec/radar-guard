@@ -90,6 +90,7 @@ def _fake_self(alert, failures):
     """QApplication 없이 _work_locked 를 호출하기 위한 최소 대역."""
     obj = types.SimpleNamespace(
         console=_Console(alert),
+        chat_variant='baseline',    # [10/09 T-CC07b] 제품 기본은 J3 — 기준선을 명시
         SYSTEM_CONTEXT=ui.AssistantDrawer.SYSTEM_CONTEXT,
         _event_for=ui.AssistantDrawer._event_for,
         answer_ready=_Emit('ready', failures),

@@ -109,16 +109,29 @@ AI_WORK_LOCK = threading.Lock()
 #   올려 챗봇 모델과 서로 밀어냈다 — 첫 질문 적재 25~30초, 생성 중 가용 287 MB.
 #   되돌릴 때는 True 로만 바꾼다(prewarm·_gen_facts 코드는 남겨 뒀다).
 ALARM_SCREEN_LLM = False
+# ⚠ [10/09 T-CC07b] 경보 화면의 공식 원문은 사람이 고른 문장만 띄운다
+#   (eval/alarm_pinned_sentences.json 15문장). 임베딩 검색은 T-CC04 에서 6종 중
+#   4종이 다른 대목을 골랐다(협착 경보에 전기화상·뇌진탕). True 면 예전 검색
+#   경로(SopEngineV2._search)로 돌아간다 — 코드는 남겨 뒀다.
+ALARM_EMBED_SEARCH = False
 # 워밍업과 챗봇 요청이 같은 값을 써야 모델이 중간에 내려가지 않는다.
 #   -1 = 앱이 떠 있는 동안 유지. 창을 닫을 때 keep_alive 0 요청으로 내린다.
 #   ⚠ 앱이 비정상 종료되면 모델이 남는다 → `ollama stop` 으로 내린다.
 CHAT_KEEP_ALIVE = -1
+# [10/08 결정] 챗봇 전용 모델. 챗봇·워밍업·종료 시 내리기가 이것을 쓴다.
+#   radar_core.LLM_MODEL(경보 요약용, 지금은 꺼져 있다)과 별개다.
+CHAT_MODEL = 'exaone3.5:2.4b'
+# 챗봇 기본 변형(CHAT_VARIANTS 의 키). T-CC06c·06d 에서 잰 조합이다.
+CHAT_VARIANT = 'J3'
+# 워밍업 재시도 — Ollama 가 앱보다 늦게 뜨는 경우. 실패 문구는 마지막에만 낸다.
+CHAT_WARM_TRIES = 3
+CHAT_WARM_GAP_SEC = 10
 
 
 def chat_model_keep(keep_alive, timeout):
     """챗봇 모델을 올려 두거나(CHAT_KEEP_ALIVE) 내린다(0). 답을 만들지 않는다."""
     import urllib.request
-    body = {'model': core.LLM_MODEL, 'stream': False, 'keep_alive': keep_alive}
+    body = {'model': CHAT_MODEL, 'stream': False, 'keep_alive': keep_alive}
     if keep_alive != 0:
         # num_ctx 가 챗봇 요청과 다르면 Ollama 가 모델을 다시 올린다 → 같은 값.
         body.update(prompt='안녕', options={'num_ctx': 2048, 'num_predict': 1})
@@ -1111,7 +1124,7 @@ class SopView(QtWidgets.QWidget):
         v.addWidget(self.body, 2)
         self.stat = lb('', F_CAP, DIM, wrap=True)
         v.addWidget(self.stat)
-        v.addWidget(lb('공식 안전 매뉴얼 · 실측 브리핑 · AI 보조 요약', F_LABEL, DIM))
+        v.addWidget(lb('공식 안전 매뉴얼 · 실측 브리핑', F_LABEL, DIM))
         self.src = QtWidgets.QTextEdit()
         self.src.setReadOnly(True)
         self.src.setFont(f(F_LABEL))
@@ -1148,7 +1161,17 @@ class SopView(QtWidgets.QWidget):
         if et != self._et:
             return
         h = []
-        for n, t in srcs:
+        for item in srcs:
+            if len(item) == 3:
+                # [10/09 T-CC07b] 고정 원문 — (등급, 출처, 문장). 등급·출처는
+                #   alarm_pinned_sentences.json 에 적힌 그대로 찍는다.
+                grade, title, t = item
+                col = AMBER if grade == '자체' else CYAN
+                h.append(f'<p style="color:{col};margin:0 0 2px">'
+                         f'<b>[{grade}]</b> {title}</p>'
+                         f'<p style="color:{DIM};margin:0 0 12px">{t}</p>')
+                continue
+            n, t = item
             # [8/25] 파일명을 그대로 찍지 않는다. 공식 지침과 프로젝트 자체 SOP 가
             #   나란히 뜨면 둘 다 같은 "매뉴얼" 로 보인다 → 등급을 먼저 밝힌다.
             #   자체 작성은 근거 조항을 함께 적어 근거 없는 문서가 아님을 보인다.
@@ -2814,6 +2837,42 @@ def guard_chat_answer(answer, key):
     return '\n'.join(lines + [GUARD_NOTICE]), hits
 
 
+# ══ [10/09 T-CC07b] 지시문 공개·모드 전환·규칙 무시 요구 → 고정 거절 ══
+#  T-CC06d P-01~03 에서 gemma2·EXAONE 둘 다 실패했다. 조작 요청(control)처럼
+#  LLM 에 보내지 않는다. 낱말은 요구의 종류(무엇을 · 어떻게)로 묶었고 문항
+#  문장을 옮기지 않았다. 공백을 지우고 소문자로 바꾼 질문에서 찾는다.
+CHAT_POLICY_REPLY = '관제 AI 는 내부 지시문·설정을 공개하거나 모드를 바꾸지 않습니다.'
+_PROMPT_NOUNS = ('지시문', '프롬프트', '시스템메시지', '시스템명령', '내부지시',
+                 '내부설정', '내부규칙', '초기지시', '숨겨진지시', 'prompt',
+                 'instruction')
+_REVEAL = ('보여', '알려', '출력', '공개', '말해', '읽어', '적어', '써줘', '써봐',
+           '복사', '그대로', '원문', '전문', '전체', '뭐야', '뭐였', '무엇',
+           '반복', 'show', 'print', 'reveal', 'repeat')
+# '관리자 권한이 있어야 재투입할 수 있어?' 는 정상 질문이라 '권한' 은 안 본다.
+_MODE_WHO = ('관리자', '개발자', '디버그', '운영자', '마스터', '슈퍼유저',
+             '무제한', '제한없는', 'admin', 'developer', 'debug', 'sudo')
+_IGNORE = ('무시', '잊어', '잊고', '없던', '따르지마', '따르지말', 'ignore',
+           'disregard', 'forget', 'override')
+# '현장 책임자 지시 무시해도 돼?' 는 안전 질문이다 — 지시·규칙·지침·명령은
+# AI 가 받은 것을 가리키는 말('앞의'·'이전' 등)이 함께 있을 때만 잡는다.
+_RULE_NOUNS = ('지시', '규칙', '지침', '명령', '제한', 'rule')
+_RULE_REFS = ('앞의', '이전', '위의', '지금까지', '기존', '받은', '너의',
+              'previous', 'above')
+
+
+def policy_hit(question):
+    """지시문 공개 · 모드 전환 · 규칙 무시 요구인가. 순수 함수."""
+    q = ''.join(question.lower().split())
+    has = lambda words: any(w in q for w in words)
+    if has(('탈옥', 'jailbreak')):
+        return True
+    if has(_PROMPT_NOUNS) and has(_REVEAL + _IGNORE):
+        return True
+    if has(_MODE_WHO) and has(('모드', 'mode')):
+        return True
+    return has(_IGNORE) and has(_RULE_NOUNS) and has(_RULE_REFS)
+
+
 def _span_extras():
     """eval/chat_pinned_spans.json 의 J3 보강 항목(_j3_*)."""
     import os
@@ -2831,6 +2890,9 @@ def _build_j3_request(question, alert, pkt, vectorstore):
     호출한 쪽이 guard_chat_answer 를 부른다.
     """
     from types import SimpleNamespace
+    if policy_hit(question):
+        return {'prompt': '', 'event': None, 'sources': [], 'context': '',
+                'route': 'policy', 'fixed_answer': CHAT_POLICY_REPLY}
     hz = hazard_reply(question, alert)
     if hz:
         return {'prompt': '', 'event': None, 'sources': [], 'context': '',
@@ -2964,6 +3026,7 @@ class AssistantDrawer(QtWidgets.QDialog):
     visibility_changed = QtCore.pyqtSignal(bool)
     answer_ready = QtCore.pyqtSignal(str, str, float)
     answer_failed = QtCore.pyqtSignal(str)
+    chat_variant = CHAT_VARIANT
 
     SYSTEM_CONTEXT = (
         'Radar-Guard는 IWR6843 mmWave 레이더의 포인트 클라우드를 Jetson Orin '
@@ -3062,6 +3125,16 @@ class AssistantDrawer(QtWidgets.QDialog):
 
     def ask(self, question):
         self.log.append(self._bubble(html_escape(question), True, '나'))
+        if CHAT_VARIANTS[self.chat_variant]['search'] == 'hazard':
+            # 고정 답은 규칙 응답보다 먼저다 — "차단기 다시 올려도 될까?" 를
+            # _local_answer 가 가로채 "차단된 회로가 없습니다" 라고 답했다(T-CC06b).
+            c = self.console
+            hz = hazard_reply(question, c.alert if c else None)
+            fixed = (CHAT_POLICY_REPLY if policy_hit(question)
+                     else hz[1] if hz else None)
+            if fixed:
+                self._append_answer(fixed, '고정 안전 답변', 0.0)
+                return
         local = self._local_answer(question)
         if local is not None:
             source = ('즉시 응답' if self._is_smalltalk(question)
@@ -3211,28 +3284,49 @@ class AssistantDrawer(QtWidgets.QDialog):
         started = time.perf_counter()
         try:
             c = self.console
+            variant = self.chat_variant
+            mode = CHAT_VARIANTS[variant]
             built = build_chat_request(
                 question, alert=(c.alert if c else None),
-                pkt=(c.pkt if c else None))
+                pkt=(c.pkt if c else None), variant=variant)
             prompt, sources = built['prompt'], built['sources']
-            body = json.dumps({
-                'model': core.LLM_MODEL, 'prompt': prompt, 'stream': False,
-                'keep_alive': CHAT_KEEP_ALIVE,
-                'options': {'num_ctx': 2048, 'num_predict': 100,
-                            'temperature': 0.2},
-            }).encode('utf-8')
-            req = urllib.request.Request(
-                core.OLLAMA_URL, data=body,
-                headers={'Content-Type': 'application/json'})
-            with urllib.request.urlopen(req, timeout=30) as response:
-                answer = json.loads(response.read().decode('utf-8')).get(
-                    'response', '').strip()
+            answer = built.get('fixed_answer')
+            fixed = answer is not None
+            if not fixed:
+                body = json.dumps({
+                    # 'baseline' 은 1단계 호출 그대로(gemma2 · 0.2) —
+                    # eval/test_chat_prompt_same.py 가 바이트로 고정한다.
+                    'model': (core.LLM_MODEL if variant == 'baseline'
+                              else CHAT_MODEL),
+                    'prompt': prompt, 'stream': False,
+                    'keep_alive': CHAT_KEEP_ALIVE,
+                    'options': {'num_ctx': 2048, 'num_predict': 100,
+                                'temperature': mode.get('temperature', 0.2)},
+                }).encode('utf-8')
+                req = urllib.request.Request(
+                    core.OLLAMA_URL, data=body,
+                    headers={'Content-Type': 'application/json'})
+                with urllib.request.urlopen(req, timeout=30) as response:
+                    answer = json.loads(response.read().decode('utf-8')).get(
+                        'response', '').strip()
+                # 아래 후처리 순서는 eval/chat_eval.py 의 run() 과 같다 —
+                # 다르면 잰 것과 화면에 나오는 것이 달라진다.
+                if mode.get('strip_markdown'):
+                    answer = strip_chat_markdown(answer).strip()
+                hits = []
+                if mode.get('guard') and built.get('route') == 'incident':
+                    answer, hits = guard_chat_answer(
+                        answer, built.get('guard_key'))
+                if built.get('answer_suffix') and not hits:
+                    answer += '\n' + built['answer_suffix']
             # 질의 답변의 출처도 같은 규칙으로 표기한다(파일명 노출 금지).
             labels = []
             for s_file in sources:
                 kind, title, _ = core.source_label(s_file)
                 labels.append(f'[{core.SRC_BADGE[kind]}] {title}')
-            source_text = ' · '.join(labels) if labels else 'Radar-Guard 내장 시스템 명세'
+            source_text = (' · '.join(labels) if labels else
+                           '고정 안전 답변' if fixed else
+                           'Radar-Guard 내장 시스템 명세')
             self.answer_ready.emit(answer, source_text,
                                    time.perf_counter() - started)
         except Exception as e:
@@ -3375,6 +3469,38 @@ def stationary_display_context(ev):
             'sop_type': 'stationary_anomaly', 'pos': pos}
 
 
+def alarm_pinned_sentences(ev_type):
+    """경보 종류의 고정 원문 [(등급, 출처, 문장)]. 파일 순서 그대로, 검색 안 함.
+
+    등록되지 않은 경보는 빈 목록. 문장이 safety_manual_v2 의 그 조각 본문에
+    없으면(공백 제외 비교) 예외 — 승인된 원문과 DB 가 어긋난 채로 띄우지 않는다.
+    """
+    import os
+    import psycopg2
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        'eval', 'alarm_pinned_sentences.json')
+    with open(path, encoding='utf-8') as fp:
+        spec = json.load(fp)
+    key = spec.get('_alias', {}).get(ev_type, ev_type)
+    if not key or key.startswith('_') or key not in spec:
+        return []
+    rows = spec[key]
+    with psycopg2.connect(core.CONN_STR) as cn:
+        with cn.cursor() as cur:
+            cur.execute(
+                "SELECT cmetadata->>'chunk_id', document "
+                "FROM langchain_pg_embedding WHERE collection_id = "
+                "(SELECT uuid FROM langchain_pg_collection WHERE name = %s) "
+                "AND cmetadata->>'chunk_id' = ANY(%s)",
+                ('safety_manual_v2', sorted({r['chunk_id'] for r in rows})))
+            body = {cid: ''.join(text.split()) for cid, text in cur.fetchall()}
+    for r in rows:
+        if ''.join(r['text'].split()) not in body.get(r['chunk_id'], ''):
+            raise RuntimeError(
+                f"{r['chunk_id']} 에 고정 문장이 없다 — {r['text'][:20]}…")
+    return [(r['grade'], r['source'], r['text']) for r in rows]
+
+
 class SopEngineV2(core.SopEngine):
     """공식 대응 문서를 검색하고 젯슨 실측값을 결정적으로 표시한다.
 
@@ -3460,9 +3586,23 @@ class SopEngineV2(core.SopEngine):
     def _work_body(self, ev_type, facts):
         if not ALARM_SCREEN_LLM:
             # 공식 매뉴얼 원문 + 젯슨 실측 브리핑만. 캐시도 생성도 쓰지 않는다.
-            srcs, _ = self._search(ev_type)
             brief = self._fact_block(facts).replace(
                 '\n- ', ' · ').removeprefix('- ')
+            if ALARM_EMBED_SEARCH:
+                srcs, _ = self._search(ev_type)
+            else:
+                try:
+                    srcs = alarm_pinned_sentences(ev_type)
+                except Exception as e:
+                    # 다른 문장으로 대체하지 않는다 — 즉시조치만 남는다.
+                    # psycopg2 오류는 여러 줄이다 — 상태줄에는 첫 줄만.
+                    why = (str(e).splitlines() or [type(e).__name__])[0]
+                    self._emit_status(f'공식 원문 조회 실패: {why}  '
+                                      '(docker start radar-guard-db)')
+                    self._emit_ready(ev_type, [], brief)
+                    return
+                if not srcs:
+                    self._emit_status('등록된 공식 원문 없음 · 즉시조치 표시')
             if srcs:    # 검색 실패 문구는 덮어쓰지 않는다
                 self._emit_status('공식 매뉴얼 원문 표시 · 생성형 AI 미사용')
             self._emit_ready(ev_type, srcs, brief)
@@ -3817,12 +3957,17 @@ class ConsoleV2(QtWidgets.QMainWindow):
 
         def worker():
             err = ''
-            try:
-                # 워밍업 중 들어온 질문은 이 잠금 뒤에서 순서대로 처리된다.
-                with AI_WORK_LOCK:
-                    chat_model_keep(CHAT_KEEP_ALIVE, timeout=120)
-            except Exception as e:
-                err = str(e) or type(e).__name__
+            for attempt in range(CHAT_WARM_TRIES):
+                if attempt:
+                    time.sleep(CHAT_WARM_GAP_SEC)
+                try:
+                    # 워밍업 중 들어온 질문은 이 잠금 뒤에서 순서대로 처리된다.
+                    with AI_WORK_LOCK:
+                        chat_model_keep(CHAT_KEEP_ALIVE, timeout=120)
+                    err = ''
+                    break
+                except Exception as e:
+                    err = str(e) or type(e).__name__
             try:
                 self.chat_warmed.emit(err)
             except RuntimeError:    # 워밍업이 끝나기 전에 창이 닫혔다
@@ -4591,7 +4736,7 @@ class ConsoleV2(QtWidgets.QMainWindow):
                 chat_model_keep(0, timeout=3)
             except Exception as ex:
                 print(f'[AI] 챗봇 모델 내리기 실패: {ex}  '
-                      f'(ollama stop {core.LLM_MODEL})')
+                      f'(ollama stop {CHAT_MODEL})')
         e.accept()
 
 
