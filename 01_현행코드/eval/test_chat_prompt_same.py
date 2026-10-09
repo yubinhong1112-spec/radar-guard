@@ -156,6 +156,16 @@ def main():
         want = json.load(fp)
 
     ng = []
+    # [10/09 T-CC07a] keep_alive 는 프롬프트 조립이 아니라 모델 유지 시간이다.
+    #   '30m' → CHAT_KEEP_ALIVE 로 바뀌어 이 키 하나만 바이트 비교에서 빼고,
+    #   대신 실제로 보낸 값이 상수와 같은지를 따로 본다. 다른 키는 그대로 비교한다.
+    for body in want.values():
+        body.pop('keep_alive', None)
+    for case in sorted(got):
+        sent_keep = got[case].pop('keep_alive', None)
+        if sent_keep != ui.CHAT_KEEP_ALIVE:
+            ng.append(f'{case}: keep_alive {sent_keep!r} != '
+                      f'CHAT_KEEP_ALIVE {ui.CHAT_KEEP_ALIVE!r}')
     if sorted(want) != sorted(got):
         ng.append(f'케이스 목록 불일치: 기준 {sorted(want)} / 지금 {sorted(got)}')
     for case in sorted(set(want) & set(got)):

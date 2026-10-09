@@ -102,6 +102,32 @@ APP_VERSION = 'v2.0'
 # 서로 빼앗아 둘 다 늦어지므로, UI 밖 작업 스레드에서만 직렬화한다.
 AI_WORK_LOCK = threading.Lock()
 
+# ⚠ [10/06 결정] 경보 화면에서 생성형 AI 를 뺀다 — 즉시조치·공식 원문·실측
+#   브리핑만 띄운다. T-CC04~05b 에서 프롬프트로는 위험 문장을 못 막는다는 것을
+#   확인했다. False 면 6종 SOP 사전 생성(prewarm)도, 경보 시 요약 생성도 없다.
+#   [10/08 실측 T-CC06d 조건 B] prewarm 이 경보가 없어도 qwen2.5:3b(2.1 GB)를
+#   올려 챗봇 모델과 서로 밀어냈다 — 첫 질문 적재 25~30초, 생성 중 가용 287 MB.
+#   되돌릴 때는 True 로만 바꾼다(prewarm·_gen_facts 코드는 남겨 뒀다).
+ALARM_SCREEN_LLM = False
+# 워밍업과 챗봇 요청이 같은 값을 써야 모델이 중간에 내려가지 않는다.
+#   -1 = 앱이 떠 있는 동안 유지. 창을 닫을 때 keep_alive 0 요청으로 내린다.
+#   ⚠ 앱이 비정상 종료되면 모델이 남는다 → `ollama stop` 으로 내린다.
+CHAT_KEEP_ALIVE = -1
+
+
+def chat_model_keep(keep_alive, timeout):
+    """챗봇 모델을 올려 두거나(CHAT_KEEP_ALIVE) 내린다(0). 답을 만들지 않는다."""
+    import urllib.request
+    body = {'model': core.LLM_MODEL, 'stream': False, 'keep_alive': keep_alive}
+    if keep_alive != 0:
+        # num_ctx 가 챗봇 요청과 다르면 Ollama 가 모델을 다시 올린다 → 같은 값.
+        body.update(prompt='안녕', options={'num_ctx': 2048, 'num_predict': 1})
+    req = urllib.request.Request(
+        core.OLLAMA_URL, data=json.dumps(body).encode('utf-8'),
+        headers={'Content-Type': 'application/json'})
+    with urllib.request.urlopen(req, timeout=timeout) as response:
+        response.read()
+
 # ══════════════════════════════════════════════════════════════════════
 # 0. 타이포그래피
 # ══════════════════════════════════════════════════════════════════════
@@ -1337,7 +1363,9 @@ class DashboardPage(QtWidgets.QWidget):
     def __init__(self, link=None, demo=False):
         super().__init__()
         self.link, self.demo = link, demo
-        self._ai_status = (False, '대기', '감시 시작 후 6종 SOP 준비', AMBER)
+        self._ai_status = (False, '대기',
+                           '감시 시작 후 6종 SOP 준비' if ALARM_SCREEN_LLM
+                           else '챗봇 워밍업 전', AMBER)
         self._pkt = {}
         self._link_ok = bool(demo)
         outer = QtWidgets.QVBoxLayout(self)
@@ -3189,7 +3217,7 @@ class AssistantDrawer(QtWidgets.QDialog):
             prompt, sources = built['prompt'], built['sources']
             body = json.dumps({
                 'model': core.LLM_MODEL, 'prompt': prompt, 'stream': False,
-                'keep_alive': '30m',
+                'keep_alive': CHAT_KEEP_ALIVE,
                 'options': {'num_ctx': 2048, 'num_predict': 100,
                             'temperature': 0.2},
             }).encode('utf-8')
@@ -3430,6 +3458,15 @@ class SopEngineV2(core.SopEngine):
             self._emit_status(f'SOP 처리 실패: {e}  (즉시조치는 계속 표시)')
 
     def _work_body(self, ev_type, facts):
+        if not ALARM_SCREEN_LLM:
+            # 공식 매뉴얼 원문 + 젯슨 실측 브리핑만. 캐시도 생성도 쓰지 않는다.
+            srcs, _ = self._search(ev_type)
+            brief = self._fact_block(facts).replace(
+                '\n- ', ' · ').removeprefix('- ')
+            if srcs:    # 검색 실패 문구는 덮어쓰지 않는다
+                self._emit_status('공식 매뉴얼 원문 표시 · 생성형 AI 미사용')
+            self._emit_ready(ev_type, srcs, brief)
+            return
         cached = self._cache.get(ev_type)
         if cached:
             srcs, generated = cached
@@ -3607,6 +3644,7 @@ class ConsoleV2(QtWidgets.QMainWindow):
     ⚠ 경보 상태기계·패킷 처리 순서는 v1 Console 과 의미가 같다. 위젯 이름만
       새 화면 구조에 맞게 바뀌었다. 바꾼 곳에는 전부 주석을 달았다.
     """
+    chat_warmed = QtCore.pyqtSignal(str)    # 워밍업 결과 ('' = 성공)
     HIST_KEYS = ('cz', 'ds', 'sc', 'logs', 'incidents')
     NAV_WIDTH = 224
 
@@ -3734,7 +3772,9 @@ class ConsoleV2(QtWidgets.QMainWindow):
         self.engine.status.connect(self.drawer.sop.set_status)
         self.engine.cache_progress.connect(self._on_cache_progress)
         self._prewarmed = True
-        QtCore.QTimer.singleShot(0, self.engine.prewarm)
+        self.chat_warmed.connect(self._on_chat_warmed)
+        QtCore.QTimer.singleShot(
+            0, self.engine.prewarm if ALARM_SCREEN_LLM else self._warm_chat)
         self.pwr.restore_btn.clicked.connect(self.do_restore)
         self.monitor.b_pwr.clicked.connect(self._show_pwr)
         self.monitor.b_graph.clicked.connect(self.graph.show)
@@ -3768,6 +3808,37 @@ class ConsoleV2(QtWidgets.QMainWindow):
             self._set_link_label('데모 모드', AMBER)
         self.nav.set_user(self.shift, self.operator)
         self._apply_shell_geometry()
+
+    def _warm_chat(self):
+        """앱 시작 시 챗봇 모델을 미리 올린다. SOP·답 생성이 아니다."""
+        if QtCore.qEnvironmentVariable('QT_QPA_PLATFORM') == 'offscreen':
+            return
+        self.dash.set_ai_status(False, '준비 중', '챗봇 워밍업 중', AMBER)
+
+        def worker():
+            err = ''
+            try:
+                # 워밍업 중 들어온 질문은 이 잠금 뒤에서 순서대로 처리된다.
+                with AI_WORK_LOCK:
+                    chat_model_keep(CHAT_KEEP_ALIVE, timeout=120)
+            except Exception as e:
+                err = str(e) or type(e).__name__
+            try:
+                self.chat_warmed.emit(err)
+            except RuntimeError:    # 워밍업이 끝나기 전에 창이 닫혔다
+                pass
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_chat_warmed(self, err):
+        if err:
+            self.dash.set_ai_status(
+                False, '준비 실패', '챗봇 준비 실패 — Ollama 확인', AMBER)
+            self.timeline.add(f'챗봇 준비 실패 · {err}', AMBER)
+        else:
+            self.dash.set_ai_status(
+                True, '준비 완료',
+                '챗봇 준비 완료 · 경보 화면은 즉시조치·공식 원문', GREEN)
+            self.timeline.add('챗봇 준비 완료', GREEN)
 
     def _on_cache_progress(self, done, total, failed):
         if done < total:
@@ -4041,7 +4112,7 @@ class ConsoleV2(QtWidgets.QMainWindow):
                 f'{self.zone} {ZONE_KO.get(self.zone, "")} · {PHASE_KO.get(ph, ph or "")}')
             self.timeline.add(f'단계 전환 · {PHASE_KO.get(ph, ph)}',
                               GREEN if ph == PH_LIVE else DIM)
-            if ph == PH_LIVE and not self._prewarmed:
+            if ph == PH_LIVE and ALARM_SCREEN_LLM and not self._prewarmed:
                 self._prewarmed = True
                 self.engine.prewarm()
 
@@ -4514,6 +4585,13 @@ class ConsoleV2(QtWidgets.QMainWindow):
     def closeEvent(self, e):
         if self.link:
             self.link.stop()
+        # keep_alive -1 로 올려 둔 챗봇 모델을 내려 메모리를 돌려준다.
+        if QtCore.qEnvironmentVariable('QT_QPA_PLATFORM') != 'offscreen':
+            try:
+                chat_model_keep(0, timeout=3)
+            except Exception as ex:
+                print(f'[AI] 챗봇 모델 내리기 실패: {ex}  '
+                      f'(ollama stop {core.LLM_MODEL})')
         e.accept()
 
 
