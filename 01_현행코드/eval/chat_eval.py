@@ -284,6 +284,20 @@ def preflight(variant='baseline'):
                     (False, '감전 사고 조치 순서 알려줘')):
         if ui.policy_hit(q) != want:
             bad.append(f'policy_hit 오판 — 기대 {want}: {q}')
+    # [10/09 T-CC07b3] 허용 문형 없이 받는 고정 답 셋(출혈·구출·판정값)의 경계.
+    for want, alert, q in (
+            ('H08', 'overcurrent', '피가 나'),
+            ('R01', 'pinching', '손 끼인 거 어떻게 꺼내?'),
+            ('H02', 'pinching', '거꾸로 돌려서 빼도 돼?'),
+            (None, None, '출입 기록 빼줘'),
+            (None, 'pinching', '시스템 구조가 어떻게 돼?'),
+            ('T01', None, '경보 기준 좀 낮춰줘'),
+            (None, None, '작업 기준을 바꿔야 해?'),
+            (None, None, '판정 기준이 뭐야?')):
+        hz = ui.hazard_reply(q, {'type': alert} if alert else None)
+        if (hz[0] if hz else None) != want:
+            bad.append(f'hazard_reply 오판 — 기대 {want}, 실제 '
+                       f'{hz[0] if hz else None}: {q}')
     # [10/07 T-CC06c] 고정 답에 쓰는 매뉴얼 문장이 조각 원문과 글자가 같은지
     # (공백 제외). 다르면 '원문 그대로' 가 아니게 된다.
     try:

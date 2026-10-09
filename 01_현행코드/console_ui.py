@@ -2702,6 +2702,8 @@ HAZARD_MANUAL = {
     'ice_harm': ('H-187-2021-0011',
                  '혈액이 공급되지 않는 절단부위에 얼음이 닿게 되면 조직 손상을 '
                  '일으켜 동상을 일으킬 수 있다.'),
+    'stop_rescue': ('OSHRI-STOP-0001',
+                    '즉시 기계설비의 전원을 차단하고 재해자 구조'),
     'shake': ('E-14-2012-0006',
               '재해자의 어깨를 가볍게 두드리며 깨워본다. 이 때 재해자의 몸을 '
               '심하게 흔들지 않는다.'),
@@ -2713,6 +2715,19 @@ H08_KEYS = ('press', 'tq_cut', 'tq_stab1', 'tq_stab2')
 # '피' 로 시작하는 넷은 낱말 첫머리일 때만 잡는다: 그냥 찾으면 "대피가 필요해?"
 # "대피를 시켜", "커피 마셔도 돼?" 가 걸려 지혈 답이 나간다.
 BLEEDING = re.compile(r'(?<![가-힣])피(?:가|를|나|\s)|출혈|지혈')
+
+# 끼임 구출 표현(공백을 지운 질문에서). 단독 '구조'·'제거' 는 뺐다 — 협착 경보
+# 중 "시스템 구조가 어떻게 돼?", "경보 제거" 가 걸린다. '빼' 가 '빼내' 를 덮는다.
+RESCUE_TERMS = ('구조해', '구조하', '구출', '빼', '꺼내', '빼내', '끄집어')
+# 판정값·설정 변경 질문. 단독 '기준' 은 '경보' 가 함께 있을 때만 본다
+# ("작업 기준을 바꿔야 해?" 는 판정 얘기가 아니다).
+TUNE_NOUNS = ('판정', '임계', '감도', '기준값')
+TUNE_VERBS = ('바꾸', '바꿔', '바꿀', '변경', '조정', '수정', '올리', '올려',
+              '올릴', '낮추', '낮춰', '낮출')
+# SYSTEM_CONTEXT 의 "판정은 젯슨에서 끝나며 … LLM은 판정하거나 차단하지 않는다" 와
+# SettingsPopup 에 판정 임계값이 없다는 사실에 기댄 문장(지시서 문장안 그대로).
+CHAT_TUNE_REPLY = ('관제 화면과 관제 AI 는 판정 기준값을 바꾸지 않습니다. '
+                   '판정은 젯슨에서 끝납니다.')
 
 # 표에 없는 허용 질문(경보 중이거나 사고 맥락일 때)의 일반 답. 지시서 문장 그대로.
 HAZARD_GENERAL_REPLY = ('해도 되는지는 관제 AI 가 판단하지 않습니다. 화면의 '
@@ -2830,6 +2845,7 @@ def hazard_reply(question, alert=None):
     """겹 1. 위험 허용 질문이면 (rule_id, 고정 답), 아니면 None. LLM 을 안 탄다.
 
     rule_id 'H01'~'H12' 는 위험 행위 표의 줄, 'general' 은 표에 없는 허용 질문.
+    허용 문형이 아니어도 받는 것 셋: 출혈(H08) · 끼임 구출(R01) · 판정값 변경(T01).
     순수 함수 — DB·네트워크를 쓰지 않는다. build_chat_request(J3) 의 맨 처음과
     _local_answer **앞**에서 부른다("차단기 다시 올려도 될까?" 를 규칙 응답이
     가로채 "현재 차단된 설비 회로가 없습니다." 라고 답했다 — T-CC06b).
@@ -2839,19 +2855,34 @@ def hazard_reply(question, alert=None):
     # [10/09 T-CC07b2] 출혈 질문은 허용 문형이 아니어도 H08 원문으로 답한다.
     #   협착 경보 중 "피가 많이 나면?" 에 EXAONE 이 "절단 상처에는 직접 압박을
     #   가하지 않고" 라고 뜻을 뒤집었다(T-CC07b CH-04, 안전망 통과).
-    if BLEEDING.search(question) and (
-            alert_type in PERSON_ALERTS
-            or route_question(question)[0] == 'incident'):
+    #   [T-CC07b3] 경보가 무엇이든 떠 있으면 받는다(과전류 경보 중 "피가 나").
+    route, event = route_question(question)
+    if BLEEDING.search(question) and (alert_type or route == 'incident'):
         return 'H08', '\n'.join([HAZARD_MANUAL[k][1] for k in H08_KEYS]
                                 + [CHAT_INCIDENT_SUFFIX])
-    if not any(f in q for f in PERMIT_FORMS):
-        return None
-    row = _hazard_row(q, alert_type)
+    permit = any(f in q for f in PERMIT_FORMS)
+    row = _hazard_row(q, alert_type) if permit else None
     if row:
         return row[0], '\n'.join(row[1] + [CHAT_INCIDENT_SUFFIX])
+    # [10/09 T-CC07b3] 끼임 구출 — "끼인 사람을 어떻게 빼야 해?" 에 EXAONE 이
+    #   "구조자가 신속하게 끼인 사람을 안전하게 제거한다" 라고 답했다(CH-03).
+    #   즉시조치 '무리한 견인 금지 · 구조대 지시 대기' 와 어긋난다.
+    if (alert_type in ('pinching', 'pinching_suspected') or event == 'pinching'
+            ) and any(w in q for w in RESCUE_TERMS):
+        return 'R01', '\n'.join([
+            _ia('pinching', '설비 즉시 정지'), _ia('pinching', '무리한 견인 금지'),
+            _ia('pinching', '구조대 지시 대기'),
+            HAZARD_MANUAL['stop_rescue'][1], CHAT_INCIDENT_SUFFIX])
+    # [10/09 T-CC07b3] 판정값 변경 — F-07 이 회차에 따라 "변경할 수 없습니다" 와
+    #   "설정에 따라 변경 가능" 으로 갈렸다. 설정 화면에는 판정 임계값이 없다.
+    if (any(w in q for w in TUNE_NOUNS) or ('기준' in q and '경보' in q)
+            ) and any(w in q for w in TUNE_VERBS):
+        return 'T01', CHAT_TUNE_REPLY
+    if not permit:
+        return None
     # 표에 없는 허용 질문(물·음식 먹이기 H11 포함 — 근거 문장이 없어 행별 답을
     # 만들지 않는다). 경보도 사고 맥락도 없으면 기존 경로 — 오탐을 막는다.
-    if alert_type or route_question(question)[0] == 'incident':
+    if alert_type or route == 'incident':
         return 'general', f'{HAZARD_GENERAL_REPLY}\n{CHAT_INCIDENT_SUFFIX}'
     return None
 
