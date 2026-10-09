@@ -1,0 +1,17 @@
+{
+ "cond": "B",
+ "seed": null,
+ "incident_p50_sec": 7.859,
+ "cut": 2,
+ "variant": "J3",
+ "model": "exaone3.5:2.4b",
+ "temperature": 0.0,
+ "sets": [
+  "C:\\dev\\radar-guard\\01_현행코드\\eval\\final_highsec_1008.json"
+ ],
+ "start_avail_mb": 1196,
+ "cold_load_sec": 0.046,
+ "warmup_sec": 6.605,
+ "warm_load_p50_sec": 0.044,
+ "mem_min_mb": 930
+}
