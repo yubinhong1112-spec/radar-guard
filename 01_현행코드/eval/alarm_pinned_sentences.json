@@ -1,0 +1,31 @@
+{
+ "_note": "경보 화면 '공식 매뉴얼 원문'. Cowork 작성, 사용자 승인: 12문장 10/09 00:17(a), 추가 4건 10/09 20:06(a). 문장은 safety_manual_v2 조각 원문 그대로(공백만 정규화). 조회 시 chunk_id 의 document 에서 text 를 공백 제거 비교로 찾고, 못 찾으면 예외 — 다른 문장으로 대체하지 않는다. 표시 순서 = 배열 순서.",
+ "_alias": {"electric_shock_risk": "electric_shock_risk_confirmed", "fall_suspected": "fall_detected", "pinching_suspected": "pinching"},
+ "fall_detected": [
+  {"chunk_id": "H-187-2021-0004", "text": "척추 골절 : 환자를 움직이지 말고 손으로 머리를 고정한다.", "source": "KOSHA H-187 응급처치", "grade": "공식"},
+  {"chunk_id": "H-187-2021-0015", "text": "이송을 할 경우에도 전신 고정이 이루어진 상태로 이동해야 한다.", "source": "KOSHA H-187 응급처치", "grade": "공식"}
+ ],
+ "pinching": [
+  {"chunk_id": "OSHRI-STOP-0001", "text": "즉시 기계설비의 전원을 차단하고 재해자 구조", "source": "산업안전보건연구원 연구보고서(작업중지 운영)", "grade": "공식(연구보고서)"},
+  {"chunk_id": "H-187-2021-0010", "text": "가능한 절단부위를 심장 높이보다 위로 유지한다.", "source": "KOSHA H-187 응급처치", "grade": "공식"},
+  {"chunk_id": "B-M-37-2026-0077", "text": "비상정지나 인터록장치가 작동하여 전원이 차단되더라도 아이들롤러 등이 상당기간 동안 회전하고 있어 위험에 처할 수 있음을 근로자에게 주지시킨다.", "source": "KOSHA B-M-37", "grade": "공식"}
+ ],
+ "electric_shock_risk_confirmed": [
+  {"chunk_id": "E-14-2012-0013", "text": "마른 막대기 같은 부도체를 이용하여 환자를 구출할 때는 장화를 신거나 부도체 위에서 하여야 하며 환자와 신체접촉이 되지 않도록 주의해야 한다.", "source": "KOSHA E-14 감전 응급조치", "grade": "공식"},
+  {"chunk_id": "H-187-2021-0015", "text": "심정지가 발생한 환자는 심폐소생술을 시행하고, 상처 부위는 마른 무균붕대로 덮고 골절이 의심되면 부목을 댄다.", "source": "KOSHA H-187 응급처치", "grade": "공식"},
+  {"chunk_id": "CPR-2025-0001", "text": "성인 심장정지의 경우 압박 깊이는 약 5cm, 가슴압박의 속도는 분당 100회-120회를 유지한다.", "source": "2025 한국 심폐소생술 가이드라인(질병관리청·대한심폐소생협회)", "grade": "공식"}
+ ],
+ "overcurrent": [
+  {"chunk_id": "KOSHA-BLD-MACH-0001", "text": "차단기 등의 과전류 차단장치에 의해 자동 차단된 후에는 전기회로 또는 전기기계ㆍ기구가 안전하다는 것이 입증되기 전까지는 과전류 차단장치를 재투입하지 않도록 할 것", "source": "KOSHA 안전보건 실무길잡이(건설기계작업)", "grade": "공식"},
+  {"chunk_id": "RADAR-GUARD-SOP-v2-0002", "text": "연기, 타는 냄새, 스파크, 비정상 발열 또는 물기가 있으면 접근 범위를 넓히고 화재·감전 비상절차로 전환한다.", "source": "Radar-Guard 자체 SOP", "grade": "자체"}
+ ],
+ "leakage_current": [
+  {"chunk_id": "RADAR-GUARD-SOP-v2-0005", "text": "누수, 결로, 침수, 오염, 케이블 피복 손상과 접지선 단선 여부를 확인한다.", "source": "Radar-Guard 자체 SOP", "grade": "자체"},
+  {"chunk_id": "RADAR-GUARD-SOP-v2-0005", "text": "사람이 전기설비에 접촉했거나 감전 가능성이 있으면 설비점검 절차와 별도로 감전 응급조치 SOP를 즉시 적용한다.", "source": "Radar-Guard 자체 SOP", "grade": "자체"}
+ ],
+ "stationary_anomaly": [
+  {"chunk_id": "KOSHA-ALERT-2019-2-0002", "text": "적절한 호흡용 보호구(송기마스크 등)가 없다면 구조하지 말고 밀폐공간 밖에서 119구조대가 올 때까지 기다려야 합니다.", "source": "KOSHA 질식 사망사고 발생경보 제2019-2호", "grade": "공식"},
+  {"chunk_id": "E-14-2012-0006", "text": "재해자의 어깨를 가볍게 두드리며 깨워본다. 이 때 재해자의 몸을 심하게 흔들지 않는다.", "source": "KOSHA E-14 감전 응급조치", "grade": "공식"},
+  {"chunk_id": "E-14-2012-0006", "text": "재해자의 입과 코 부위에 자신의 귀와 뺨을 대고 눈은 흉부를 관찰하여 5∼10초 이내에 호흡유무와 비정상 호흡 여부를 확인한다.", "source": "KOSHA E-14 감전 응급조치", "grade": "공식"}
+ ]
+}
