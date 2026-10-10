@@ -2936,31 +2936,41 @@ def guard_chat_answer(answer, key):
     return '\n'.join(lines + [GUARD_NOTICE]), hits
 
 
-def read_chat_stream(response, guard, on_line):
-    """Ollama `stream: true` 응답을 줄 단위로 읽는다. 반환 (받은 원문, 마지막 조각).
+# [10/10 T-CC07d] 스트리밍 미리보기를 끊는 자리 — 줄 끝, 문장 끝('다.' '요.' '오.'
+#   뒤 공백 — '니다.' 는 '다.' 에 든다), '?' '!'. 마침표는 이 어미 뒤에서만 끊어
+#   소수점(5.6)·번호(1.)·약어에서 끊기지 않는다.
+#   ⚠ [10/10 실측] 시스템·일반 답 14문항이 전부 한 줄이라 줄 단위로는 첫 줄이
+#   곧 완료였다(6.4 · 7.5초).
+CHAT_SENT_END = re.compile(r'\n|(?<=[다요오]\.)[ \t]|[?!]')
 
-    줄이 끝날 때마다(마지막 줄은 생성 종료 시) 마크다운 기호를 지운 그 줄을
-    on_line 에 넘긴다. guard 가 켜져 있고 줄이 GUARD_PATTERNS 에 걸리면 그 줄을
-    넘기지 않고 바로 돌아온다 — 호출한 쪽 with 가 요청을 닫아 생성이 멈춘다.
+
+def read_chat_stream(response, guard, on_line):
+    """Ollama `stream: true` 응답을 문장 단위로 읽는다. 반환 (받은 원문, 마지막 조각).
+
+    줄이나 문장이 끝날 때마다(마지막 토막은 생성 종료 시) 마크다운 기호를 지운
+    그 토막을 on_line 에 넘긴다 — 뒤에 줄바꿈(줄 끝) 또는 공백(같은 줄의 다음
+    문장)을 붙여서. guard 가 켜져 있고 토막이 GUARD_PATTERNS 에 걸리면 넘기지
+    않고 바로 돌아온다 — 호출한 쪽 with 가 요청을 닫아 생성이 멈춘다.
     화면 최종 답은 여기서 만들지 않는다: 반환 원문에 비스트리밍과 같은 후처리
     (_work_locked · eval/chat_eval.py)를 그대로 적용해야 두 결과가 같다.
     순수 함수 — Qt 를 쓰지 않아 측정 스크립트가 같은 코드를 탄다.
     """
-    import re
-    raw, sent, last = '', 0, {}
+    raw, pos, last = '', 0, {}
     for chunk in response:
         if not chunk.strip():
             continue
         last = json.loads(chunk.decode('utf-8'))
         raw += last.get('response', '')
-        lines = raw.split('\n')
-        for line in (lines if last.get('done') else lines[:-1])[sent:]:
-            sent += 1
-            line = strip_chat_markdown(line).strip()
-            if guard and any(re.search(p, line) for p in GUARD_PATTERNS):
+        ends = [m.end() for m in CHAT_SENT_END.finditer(raw, pos)]
+        if last.get('done'):
+            ends.append(len(raw))
+        for end in ends:
+            piece, pos = raw[pos:end], end
+            text = strip_chat_markdown(piece).strip()
+            if guard and any(re.search(p, text) for p in GUARD_PATTERNS):
                 return raw, {}
-            if line:
-                on_line(line)
+            if text:
+                on_line(text + ('\n' if piece.endswith('\n') else ' '))
         if last.get('done'):
             break
     return raw, last
@@ -3553,8 +3563,8 @@ class AssistantDrawer(QtWidgets.QDialog):
         if self._mark is None:      # 안전 검사에 걸려 이미 지웠다
             return
         self.waiting.clear()
-        self._pending += line + '\n'
-        # 한 줄을 0.3초 안에 다 친다(15ms × 최대 15번).
+        self._pending += line
+        # 한 토막(줄·문장)을 0.3초 안에 다 친다(15ms × 최대 15번).
         self._type_step = len(self._pending) // 15 + 1
         self._type_timer.start()
 
@@ -4192,7 +4202,7 @@ class ConsoleV2(QtWidgets.QMainWindow):
         self.dash.set_ai_status(False, '준비 중', '챗봇 워밍업 중', AMBER)
 
         def worker():
-            err = ''
+            err, t0 = '', time.perf_counter()
             for attempt in range(CHAT_WARM_TRIES):
                 if attempt:
                     time.sleep(CHAT_WARM_GAP_SEC)
@@ -4209,6 +4219,9 @@ class ConsoleV2(QtWidgets.QMainWindow):
                     break
                 except Exception as e:
                     err = str(e) or type(e).__name__
+            # 화면 카드와 같은 결과를 로그에도 남긴다(start_demo.ps1 이 파일로 받는다).
+            print(f'[AI] 챗봇 워밍업 {time.perf_counter() - t0:.1f}초 · '
+                  f'{"준비 실패 — " + err if err else "준비 완료"}', flush=True)
             try:
                 self.chat_warmed.emit(err)
             except RuntimeError:    # 워밍업이 끝나기 전에 창이 닫혔다

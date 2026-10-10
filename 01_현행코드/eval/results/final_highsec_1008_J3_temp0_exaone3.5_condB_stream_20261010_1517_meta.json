@@ -1,0 +1,20 @@
+{
+ "cond": "B",
+ "seed": null,
+ "stream": true,
+ "first_line_p50_sec": 4.26,
+ "llm_p50_sec": 7.024,
+ "incident_p50_sec": 8.023,
+ "cut": 3,
+ "variant": "J3",
+ "model": "exaone3.5:2.4b",
+ "temperature": 0.0,
+ "sets": [
+  "01_현행코드\\eval\\final_highsec_1008.json"
+ ],
+ "start_avail_mb": 429,
+ "cold_load_sec": 0.061,
+ "warmup_sec": 7.483,
+ "warm_load_p50_sec": 0.0655,
+ "mem_min_mb": 276
+}

@@ -9,6 +9,8 @@
   2. 정상 응답 — 화면에 남는 최종 답이 같은 원문의 비스트리밍 후처리 결과와
      글자가 같은지(마크다운 제거 · 꼬리 문장 한 번).
   3. 답이 흘러나오는 중에 들어온 고정 답 질문이 지워지지 않는지.
+  4. 문장 단위(T-CC07d) — 한 줄짜리 답의 둘째 문장에 위험 표현이 있을 때 첫
+     문장만 보였다가 지워지는지, 소수점·번호에서 끊기지 않는지.
 
   DB·Ollama 는 띄우지 않는다 — urlopen 과 build_chat_request 를 가짜로 바꾼다.
   보는 것은 표시 경로이지 답의 품질이 아니다.
@@ -35,11 +37,11 @@ GOOD = ['* 119 에 신고한다.', '# 호흡과 의식을 확인한다.']
 
 
 class FakeStream:
-    """Ollama 스트림 대역. 조각 사이에 gap 초를 쉰다."""
+    """Ollama 스트림 대역. 줄·문장이 끝난 조각 뒤에 gap 초를 쉰다."""
 
-    def __init__(self, lines, gap):
+    def __init__(self, lines, gap, parts=None):
         text = '\n'.join(lines)
-        self.parts = [text[i:i + 7] for i in range(0, len(text), 7)]
+        self.parts = parts or [text[i:i + 7] for i in range(0, len(text), 7)]
         self.gap, self.sent, self.closed = gap, 0, False
 
     def __enter__(self):
@@ -50,12 +52,12 @@ class FakeStream:
 
     def __iter__(self):
         for i, part in enumerate(self.parts):
-            if '\n' in part:
-                time.sleep(self.gap)
             self.sent += 1
             yield json.dumps({'response': part,
                               'done': i == len(self.parts) - 1}
                              ).encode('utf-8') + b'\n'
+            if '\n' in part or part.endswith(' '):
+                time.sleep(self.gap)
 
 
 def drawer(alert):
@@ -65,9 +67,9 @@ def drawer(alert):
     return d
 
 
-def ask(d, app, lines, gap, extra=None):
+def ask(d, app, lines, gap, extra=None, parts=None):
     """질문 하나를 보내고 끝날 때까지 화면 글자를 0.02초마다 받아 적는다."""
-    stream = FakeStream(lines, gap)
+    stream = FakeStream(lines, gap, parts)
     done, shots = [], []
     d.answer_ready.connect(lambda a, s, e: done.append(a))
     d.answer_failed.connect(lambda err: done.append(RuntimeError(err)))
@@ -143,6 +145,26 @@ def main():
     check(end.index(ui.CHAT_TUNE_REPLY) < end.index('호흡과 의식'),
           '스트리밍 답이 그 뒤에 이어 붙었다')
     check(end.count(first) == 1, '미리보기가 겹쳐 남지 않았다')
+
+    # 4. 문장 단위 — 한 줄짜리 답
+    got = []
+    ui.read_chat_stream(
+        FakeStream([], 0, ['1. 레이더는 5.6 m 안', '에서 봅니다. 맞나', '요? 네! 끝']),
+        True, got.append)
+    check(got == ['1. 레이더는 5.6 m 안에서 봅니다. ', '맞나요? ', '네! ', '끝 '],
+          f'문장 끝에서만 끊는다(소수점·번호 제외) → {got}')
+    d = drawer(alert)
+    sent1 = '환자를 움직이지 않습니다.'
+    stream, done, shots = ask(d, app, [], gap=0.6, parts=[
+        '환자를 움직이지 ', '않습니다. ', '상태가 좋아 보이면 일', '으켜 세워도 좋습니다. ',
+        '뒤 문장입니다.'])
+    end = d.log.toPlainText()
+    check(any(sent1 in s for s in shots), '한 줄 답의 첫 문장이 먼저 보였다')
+    check(not any('일으켜' in s for s in shots), '위험 문장은 한 번도 안 보였다')
+    check(sent1 not in end and ui.GUARD_NOTICE in end,
+          '걸린 뒤 첫 문장이 지워지고 안내 문장으로 바뀌었다')
+    check(stream.closed and stream.sent < len(stream.parts),
+          f'요청을 중간에 닫았다({stream.sent}/{len(stream.parts)} 조각)')
 
     print(f'스트리밍 표시 — NG {len(ng)}건')
     return 1 if ng else 0

@@ -2,8 +2,8 @@
 start_demo.ps1 — 시연 시작 (T-CC07c)
 
   실행: [내 PC PowerShell, 저장소 루트]
-      powershell -ExecutionPolicy Bypass -File scripts\start_demo.ps1
-      powershell -ExecutionPolicy Bypass -File scripts\start_demo.ps1 -Jetson 127.0.0.1   # 재생기로 볼 때
+      powershell -ExecutionPolicy Bypass -File scripts\start_demo.ps1 -Jetson 192.168.35.217   # 젯슨 IP 필수
+      powershell -ExecutionPolicy Bypass -File scripts\start_demo.ps1 -Jetson 127.0.0.1        # 재생기로 볼 때
   되돌리기: scripts\stop_demo.ps1
 
 왜 있나
@@ -15,10 +15,14 @@ start_demo.ps1 — 시연 시작 (T-CC07c)
   단계마다 결과를 한 줄씩 낸다. 실패하면 그 자리에서 멈춘다.
 #>
 param(
-    # ⚠ 젯슨 IP — 코드·문서에 적힌 실데이터 예시 값이다. 현장 값이 다르면 넘겨 준다.
-    [string]$Jetson = '192.168.0.50',
+    # 젯슨 IP — 핫스팟 DHCP 라 접속마다 바뀐다. 기본값을 두지 않는다.
+    [string]$Jetson,
     [string]$OllamaVersion = '0.40.2'
 )
+if (-not $Jetson) {
+    Write-Host '젯슨 IP 를 넣으십시오(예: -Jetson 192.168.35.217) · 확인: 핫스팟 연결 기기 목록 또는 젯슨에서 `hostname -I`'
+    exit 1
+}
 $root = Split-Path $PSScriptRoot -Parent
 $ollama = Join-Path $env:LOCALAPPDATA 'Programs\Ollama\ollama.exe'
 
@@ -61,6 +65,9 @@ if ($ver -notmatch [regex]::Escape($OllamaVersion) + '\s*$') {
 Write-Host "[3/4] ollama serve 실행 · $ver"
 
 # 4. 관제 화면. 챗봇 워밍업은 화면이 뜬 뒤 스스로 돈다(AI 상태 카드에 표시).
+#    앱이 찍는 줄('[AI] 챗봇 워밍업 N초 · 준비 완료' 등)은 로그 파일로 받는다.
+$log = Join-Path $env:TEMP 'radar_guard_console.log'
 $ui = Start-Process -FilePath 'python' -WorkingDirectory $root -PassThru `
-    -ArgumentList "`"$(Join-Path $root '01_현행코드\console_ui.py')`"", '--live', $Jetson
-Write-Host "[4/4] 관제 화면 실행 · 젯슨 $Jetson · PID $($ui.Id)"
+    -RedirectStandardOutput $log -RedirectStandardError "$log.err" `
+    -ArgumentList '-u', "`"$(Join-Path $root '01_현행코드\console_ui.py')`"", '--live', $Jetson
+Write-Host "[4/4] 관제 화면 실행 · 젯슨 $Jetson · PID $($ui.Id) · 로그 $log"
