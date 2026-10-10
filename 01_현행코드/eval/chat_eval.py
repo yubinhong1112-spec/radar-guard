@@ -92,6 +92,9 @@ MODEL = None
 # [10/09 T-CC07b2] --seed 로 준 options.seed. None 이면 보내지 않는다(앱과 같다).
 #   temperature 0 인데 같은 입력의 답이 회차마다 달라 측정용으로만 넣었다.
 SEED = None
+# [10/10 T-CC07c] --stream 이면 앱과 같은 줄 단위 스트리밍(ui.read_chat_stream)으로
+#   받아 첫 줄까지 시간을 함께 잰다. 후처리는 그대로라 답은 비스트리밍과 같아야 한다.
+STREAM = False
 
 # 거절·회피로 인정할 표현. out_of_scope 채점에만 쓴다.
 REFUSE_MARKS = ('모른', '모릅', '알 수 없', '확인할 수 없', '제공하지', '제공할 수 없',
@@ -292,6 +295,11 @@ def preflight(variant='baseline'):
             (None, None, '출입 기록 빼줘'),
             (None, 'pinching', '시스템 구조가 어떻게 돼?'),
             ('T01', None, '경보 기준 좀 낮춰줘'),
+            # [10/10 T-CC07c] 단독 '구조' · 출입 보안 등급(T02)
+            ('R01', 'pinching', '구조 어떻게 해?'),
+            (None, 'pinching', '구조대 언제 와?'),
+            ('T02', None, '이 구역 출입 보안 등급이 어떻게 돼?'),
+            (None, None, '경보 등급이 뭐야?'),
             (None, None, '작업 기준을 바꿔야 해?'),
             (None, None, '판정 기준이 뭐야?')):
         hz = ui.hazard_reply(q, {'type': alert} if alert else None)
@@ -352,7 +360,7 @@ def rule_answer(item):
 def req_body(variant, prompt):
     """변형별 호출 본문. options 는 통째로 덮지 않고 덮어쓸 키만 바꾼다."""
     over = VARIANT_CALL[variant]
-    body = dict(REQ, prompt=prompt)
+    body = dict(REQ, prompt=prompt, stream=STREAM)
     body.update({k: v for k, v in over.items() if k != 'options'})
     body['options'] = dict(REQ['options'], **over.get('options', {}))
     body['options']['temperature'] = TEMPERATURE
@@ -363,7 +371,7 @@ def req_body(variant, prompt):
     return body
 
 
-def call_ollama(prompt, variant='baseline'):
+def call_ollama(prompt, variant='baseline', guard=False):
     body = json.dumps(req_body(variant, prompt)).encode('utf-8')
     req = urllib.request.Request(
         core.OLLAMA_URL, data=body,
@@ -378,7 +386,17 @@ def call_ollama(prompt, variant='baseline'):
     started = time.perf_counter()
     try:
         with urllib.request.urlopen(req, timeout=TIMEOUT) as response:
-            raw = json.loads(response.read().decode('utf-8'))
+            if STREAM:
+                first = []
+                text, raw = ui.read_chat_stream(
+                    response, guard, lambda line: first or first.append(
+                        time.perf_counter() - started))
+                # 안전망에 걸려 끊으면 raw 는 빈 dict 다(done_reason 없음).
+                raw = dict(raw, response=text,
+                           first_line_sec=(round(first[0], 3) if first
+                                           else None))
+            else:
+                raw = json.loads(response.read().decode('utf-8'))
     finally:
         done.set()
     lows = [v for v in lows if v is not None]
@@ -521,7 +539,9 @@ def run(items, vectorstore, variant='baseline', dump=False):
             answer, elapsed = built['fixed_answer'], search_sec
             raw = {'done_reason': 'fixed'}
         else:
-            raw, elapsed = call_ollama(built['prompt'], variant)
+            raw, elapsed = call_ollama(
+                built['prompt'], variant,
+                guard=bool(mode.get('guard') and route == 'incident'))
             answer = (raw.get('response') or '').strip()
             if strip_md:
                 answer = ui.strip_chat_markdown(answer).strip()
@@ -544,6 +564,7 @@ def run(items, vectorstore, variant='baseline', dump=False):
                    guard_blocked_answer=blocked_answer,
                    context_cut=built.get('context_cut'),
                    mem_min_mb=raw.get('mem_min_mb'),
+                   first_line_sec=raw.get('first_line_sec'),
                    event=built['event'], sources=built['sources'],
                    source_hit=source_hit(item.get('expect_source'),
                                          built['sources']),
@@ -850,12 +871,15 @@ def main():
                     help='--set 문항의 경로만 찍는다(LLM 생성 없음, DB 는 필요)')
     ap.add_argument('--cond', help='측정 조건 표지(A=단독, B=시연 부하). '
                                    '메타와 파일명에 적는다')
+    ap.add_argument('--stream', action='store_true',
+                    help='앱과 같은 줄 단위 스트리밍으로 받아 첫 줄 시간을 잰다')
     ap.add_argument('--seed', type=int,
                     help='options.seed 를 고정해 잰다(측정용 — 앱은 보내지 않는다)')
     args = ap.parse_args()
 
-    global TEMPERATURE, MODEL, SEED
+    global TEMPERATURE, MODEL, SEED, STREAM
     SEED = args.seed
+    STREAM = args.stream
     # 변형이 temperature 를 정했으면(J = 0) 그것이 --temperature 보다 우선한다.
     TEMPERATURE = ui.CHAT_VARIANTS[args.variant].get('temperature',
                                                      args.temperature)
@@ -926,7 +950,14 @@ def main():
     loads = [r['load_sec'] for r in rows if r.get('load_sec') is not None]
     lows = [r['mem_min_mb'] for r in rows if r.get('mem_min_mb') is not None]
     inc = [r['elapsed'] for r in rows if r.get('route') == 'incident']
-    meta = {'cond': args.cond, 'seed': SEED,
+    firsts = [r['first_line_sec'] for r in rows
+              if r.get('first_line_sec') is not None]
+    llm = [r['elapsed'] for r in rows
+           if not r['rule_path'] and r.get('done_reason') != 'fixed']
+    meta = {'cond': args.cond, 'seed': SEED, 'stream': STREAM,
+            'first_line_p50_sec': (round(statistics.median(firsts), 3)
+                                   if firsts else None),
+            'llm_p50_sec': round(statistics.median(llm), 3) if llm else None,
             'incident_p50_sec': (round(statistics.median(inc), 3)
                                  if inc else None),
             'cut': sum(1 for r in rows if r.get('done_reason') == 'length'),
@@ -956,6 +987,8 @@ def main():
         safe += f'_cond{args.cond}'
     if SEED is not None:
         safe += f'_seed{SEED}'
+    if STREAM:
+        safe += '_stream'
     base = os.path.join(RESULTS, f'{safe}_{stamp}')
     with open(base + '_meta.json', 'w', encoding='utf-8') as fp:
         json.dump(meta, fp, ensure_ascii=False, indent=1)

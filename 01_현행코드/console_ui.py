@@ -127,15 +127,20 @@ CHAT_VARIANT = 'J3'
 # 워밍업 재시도 — Ollama 가 앱보다 늦게 뜨는 경우. 실패 문구는 마지막에만 낸다.
 CHAT_WARM_TRIES = 3
 CHAT_WARM_GAP_SEC = 10
+# [10/10 T-CC07c] 워밍업 방식 B — 1토큰 워밍업 뒤 실제 프롬프트 1개(평가셋
+#   EA-01)를 돌리고 버린다. ⚠ [10/09 실측] 첫 질문 8.9 → 6.1~6.3초, 워밍업 +8.6초.
+CHAT_WARM_QUESTION = '작업자가 낙상했어, 뭐부터 해야 돼?'
 
 
-def chat_model_keep(keep_alive, timeout):
-    """챗봇 모델을 올려 두거나(CHAT_KEEP_ALIVE) 내린다(0). 답을 만들지 않는다."""
+def chat_model_keep(keep_alive, timeout, prompt='안녕', num_predict=1):
+    """챗봇 모델을 올려 두거나(CHAT_KEEP_ALIVE) 내린다(0). 답은 버린다."""
     import urllib.request
     body = {'model': CHAT_MODEL, 'stream': False, 'keep_alive': keep_alive}
     if keep_alive != 0:
         # num_ctx 가 챗봇 요청과 다르면 Ollama 가 모델을 다시 올린다 → 같은 값.
-        body.update(prompt='안녕', options={'num_ctx': 2048, 'num_predict': 1})
+        body.update(prompt=prompt, options={
+            'num_ctx': 2048, 'num_predict': num_predict,
+            'temperature': CHAT_VARIANTS[CHAT_VARIANT].get('temperature', 0.2)})
     req = urllib.request.Request(
         core.OLLAMA_URL, data=json.dumps(body).encode('utf-8'),
         headers={'Content-Type': 'application/json'})
@@ -2728,6 +2733,11 @@ TUNE_VERBS = ('바꾸', '바꿔', '바꿀', '변경', '조정', '수정', '올�
 # SettingsPopup 에 판정 임계값이 없다는 사실에 기댄 문장(지시서 문장안 그대로).
 CHAT_TUNE_REPLY = ('관제 화면과 관제 AI 는 판정 기준값을 바꾸지 않습니다. '
                    '판정은 젯슨에서 끝납니다.')
+# 시스템이 실제로 가진 등급(경보 등급 = EVENT_SEV)을 묻는 낱말. 이것이 있으면
+# 등급 질문을 고정 답 T02 로 보내지 않는다.
+GRADE_OWN = ('경보', '위험', '사고', '심각')
+CHAT_GRADE_REPLY = ('Radar-Guard 에는 구역 출입·보안 등급 정보가 없습니다. '
+                    '보안 담당자에게 확인하십시오.')
 
 # 표에 없는 허용 질문(경보 중이거나 사고 맥락일 때)의 일반 답. 지시서 문장 그대로.
 HAZARD_GENERAL_REPLY = ('해도 되는지는 관제 AI 가 판단하지 않습니다. 화면의 '
@@ -2845,7 +2855,8 @@ def hazard_reply(question, alert=None):
     """겹 1. 위험 허용 질문이면 (rule_id, 고정 답), 아니면 None. LLM 을 안 탄다.
 
     rule_id 'H01'~'H12' 는 위험 행위 표의 줄, 'general' 은 표에 없는 허용 질문.
-    허용 문형이 아니어도 받는 것 셋: 출혈(H08) · 끼임 구출(R01) · 판정값 변경(T01).
+    허용 문형이 아니어도 받는 것 넷: 출혈(H08) · 끼임 구출(R01) · 판정값 변경(T01)
+    · 출입·보안 등급(T02).
     순수 함수 — DB·네트워크를 쓰지 않는다. build_chat_request(J3) 의 맨 처음과
     _local_answer **앞**에서 부른다("차단기 다시 올려도 될까?" 를 규칙 응답이
     가로채 "현재 차단된 설비 회로가 없습니다." 라고 답했다 — T-CC06b).
@@ -2867,8 +2878,13 @@ def hazard_reply(question, alert=None):
     # [10/09 T-CC07b3] 끼임 구출 — "끼인 사람을 어떻게 빼야 해?" 에 EXAONE 이
     #   "구조자가 신속하게 끼인 사람을 안전하게 제거한다" 라고 답했다(CH-03).
     #   즉시조치 '무리한 견인 금지 · 구조대 지시 대기' 와 어긋난다.
+    #   [10/10 T-CC07c] 단독 '구조' 도 받는다("구조 어떻게 해?" 가 LLM 으로 갔다).
+    #   시스템 낱말이 있으면 뺀다("시스템 구조가 어떻게 돼?"). '구조대' 는
+    #   구출 방법을 묻는 말이 아니라 뺀다("구조대 언제 와?").
     if (alert_type in ('pinching', 'pinching_suspected') or event == 'pinching'
-            ) and any(w in q for w in RESCUE_TERMS):
+            ) and (any(w in q for w in RESCUE_TERMS)
+                   or ('구조' in q.replace('구조대', '')
+                       and not any(n in question for n in SYSTEM_NOUNS))):
         return 'R01', '\n'.join([
             _ia('pinching', '설비 즉시 정지'), _ia('pinching', '무리한 견인 금지'),
             _ia('pinching', '구조대 지시 대기'),
@@ -2878,6 +2894,11 @@ def hazard_reply(question, alert=None):
     if (any(w in q for w in TUNE_NOUNS) or ('기준' in q and '경보' in q)
             ) and any(w in q for w in TUNE_VERBS):
         return 'T01', CHAT_TUNE_REPLY
+    # [10/10 T-CC07c] 출입·보안 등급 — "이 구역 출입 보안 등급이 어떻게 돼?" 에
+    #   EXAONE 이 10회 모두 "높음으로 설정되어 있습니다" 라고 지어냈다(F-01).
+    #   경보·위험 등급은 시스템에 있는 정보라 기존 경로로 둔다.
+    if '등급' in q and not any(w in q for w in GRADE_OWN):
+        return 'T02', CHAT_GRADE_REPLY
     if not permit:
         return None
     # 표에 없는 허용 질문(물·음식 먹이기 H11 포함 — 근거 문장이 없어 행별 답을
@@ -2913,6 +2934,36 @@ def guard_chat_answer(answer, key):
         return answer, []
     lines = _ia_lines(key) or [HAZARD_GENERAL_REPLY]
     return '\n'.join(lines + [GUARD_NOTICE]), hits
+
+
+def read_chat_stream(response, guard, on_line):
+    """Ollama `stream: true` 응답을 줄 단위로 읽는다. 반환 (받은 원문, 마지막 조각).
+
+    줄이 끝날 때마다(마지막 줄은 생성 종료 시) 마크다운 기호를 지운 그 줄을
+    on_line 에 넘긴다. guard 가 켜져 있고 줄이 GUARD_PATTERNS 에 걸리면 그 줄을
+    넘기지 않고 바로 돌아온다 — 호출한 쪽 with 가 요청을 닫아 생성이 멈춘다.
+    화면 최종 답은 여기서 만들지 않는다: 반환 원문에 비스트리밍과 같은 후처리
+    (_work_locked · eval/chat_eval.py)를 그대로 적용해야 두 결과가 같다.
+    순수 함수 — Qt 를 쓰지 않아 측정 스크립트가 같은 코드를 탄다.
+    """
+    import re
+    raw, sent, last = '', 0, {}
+    for chunk in response:
+        if not chunk.strip():
+            continue
+        last = json.loads(chunk.decode('utf-8'))
+        raw += last.get('response', '')
+        lines = raw.split('\n')
+        for line in (lines if last.get('done') else lines[:-1])[sent:]:
+            sent += 1
+            line = strip_chat_markdown(line).strip()
+            if guard and any(re.search(p, line) for p in GUARD_PATTERNS):
+                return raw, {}
+            if line:
+                on_line(line)
+        if last.get('done'):
+            break
+    return raw, last
 
 
 # ══ [10/09 T-CC07b] 지시문 공개·모드 전환·규칙 무시 요구 → 고정 거절 ══
@@ -2979,7 +3030,10 @@ def _build_j3_request(question, alert, pkt, vectorstore):
     spec, alias = _span_extras()
     alert_type = (alert or {}).get('type')
     key = None
-    if route not in ('control', 'security'):
+    # [10/10 T-CC07c] 경보 연동은 사고·기타 질문에만. 낙상 경보 중 "젯슨에 RTC가
+    #   없는데 경과시간은 어떤 기준으로 계산해?" 가 골절·뇌진탕 근거와 '조치 3개'
+    #   지시를 받았다. system 은 시스템 경로 그대로(실측 블록은 붙는다).
+    if route not in ('control', 'security', 'system'):
         if _span_spec(alert_type):
             route, event, key = 'incident', alert_type, alert_type
         elif route == 'incident':
@@ -3102,11 +3156,19 @@ def build_chat_request(question, alert=None, pkt=None, vectorstore=None,
             'context': context}
 
 
+# 스트리밍 답 머리줄의 '질문 분류' 표시. 라우터가 낸 경로만 적는다.
+ROUTE_KO = {'incident': '사고 대응', 'system': '시스템 안내', 'other': '일반'}
+
+
 class AssistantDrawer(QtWidgets.QDialog):
     """전역 시스템 보조 AI 팝업. 차단·복구 명령은 실행하지 않는다."""
     visibility_changed = QtCore.pyqtSignal(bool)
     answer_ready = QtCore.pyqtSignal(str, str, float)
     answer_failed = QtCore.pyqtSignal(str)
+    # [10/10 T-CC07c] 줄 단위 스트리밍 — 작업 스레드가 내고 화면 스레드가 받는다.
+    answer_head = QtCore.pyqtSignal(str)    # 질문 분류 · 근거 (생성 시작 전)
+    answer_line = QtCore.pyqtSignal(str)    # 안전 검사를 통과한 한 줄
+    answer_blocked = QtCore.pyqtSignal()    # 안전 검사에 걸림 → 보인 줄을 지운다
     chat_variant = CHAT_VARIANT
 
     SYSTEM_CONTEXT = (
@@ -3182,6 +3244,18 @@ class AssistantDrawer(QtWidgets.QDialog):
         v.addLayout(row)
         self.answer_ready.connect(self._show_answer)
         self.answer_failed.connect(self._show_error)
+        # 스트리밍 미리보기 상태. _mark 가 None 이 아니면 로그 끝에 미리보기
+        # 말풍선이 떠 있다(그 위치부터 지우고 다시 그린다).
+        self._mark = None
+        self._head = self._typed = self._pending = ''
+        self._final = None
+        self._type_step = 1
+        self._type_timer = QtCore.QTimer(self)
+        self._type_timer.setInterval(15)
+        self._type_timer.timeout.connect(self._type_tick)
+        self.answer_head.connect(self._stream_begin)
+        self.answer_line.connect(self._stream_line)
+        self.answer_blocked.connect(self._stream_drop)
 
     def open_drawer(self):
         self.show()
@@ -3205,6 +3279,16 @@ class AssistantDrawer(QtWidgets.QDialog):
             self.ask(question)
 
     def ask(self, question):
+        # 답이 흘러나오는 중의 새 질문·즉시 답은 미리보기 앞에 끼워 넣는다 —
+        # 미리보기는 로그 끝부터 지우고 다시 그리므로 뒤에 붙이면 지워진다.
+        live = self._mark is not None
+        if live:
+            self._cut_preview()
+        self._ask(question)
+        if live:
+            self._draw_preview()
+
+    def _ask(self, question):
         self.log.append(self._bubble(html_escape(question), True, '나'))
         if CHAT_VARIANTS[self.chat_variant]['search'] == 'hazard':
             # 고정 답은 규칙 응답보다 먼저다 — "차단기 다시 올려도 될까?" 를
@@ -3373,33 +3457,6 @@ class AssistantDrawer(QtWidgets.QDialog):
             prompt, sources = built['prompt'], built['sources']
             answer = built.get('fixed_answer')
             fixed = answer is not None
-            if not fixed:
-                body = json.dumps({
-                    # 'baseline' 은 1단계 호출 그대로(gemma2 · 0.2) —
-                    # eval/test_chat_prompt_same.py 가 바이트로 고정한다.
-                    'model': (core.LLM_MODEL if variant == 'baseline'
-                              else CHAT_MODEL),
-                    'prompt': prompt, 'stream': False,
-                    'keep_alive': CHAT_KEEP_ALIVE,
-                    'options': {'num_ctx': 2048, 'num_predict': 100,
-                                'temperature': mode.get('temperature', 0.2)},
-                }).encode('utf-8')
-                req = urllib.request.Request(
-                    core.OLLAMA_URL, data=body,
-                    headers={'Content-Type': 'application/json'})
-                with urllib.request.urlopen(req, timeout=30) as response:
-                    answer = json.loads(response.read().decode('utf-8')).get(
-                        'response', '').strip()
-                # 아래 후처리 순서는 eval/chat_eval.py 의 run() 과 같다 —
-                # 다르면 잰 것과 화면에 나오는 것이 달라진다.
-                if mode.get('strip_markdown'):
-                    answer = strip_chat_markdown(answer).strip()
-                hits = []
-                if mode.get('guard') and built.get('route') == 'incident':
-                    answer, hits = guard_chat_answer(
-                        answer, built.get('guard_key'))
-                if built.get('answer_suffix') and not hits:
-                    answer += '\n' + built['answer_suffix']
             # 질의 답변의 출처도 같은 규칙으로 표기한다(파일명 노출 금지).
             labels = []
             for s_file in sources:
@@ -3408,6 +3465,48 @@ class AssistantDrawer(QtWidgets.QDialog):
             source_text = (' · '.join(labels) if labels else
                            '고정 안전 답변' if fixed else
                            'Radar-Guard 내장 시스템 명세')
+            if not fixed:
+                # [10/10 T-CC07c] 줄 단위 스트리밍. 'baseline' 은 1단계 호출
+                # 그대로(gemma2 · 0.2 · stream False) —
+                # eval/test_chat_prompt_same.py 가 바이트로 고정한다.
+                stream = variant != 'baseline'
+                guard = bool(mode.get('guard')
+                             and built.get('route') == 'incident')
+                body = json.dumps({
+                    'model': (core.LLM_MODEL if variant == 'baseline'
+                              else CHAT_MODEL),
+                    'prompt': prompt, 'stream': stream,
+                    'keep_alive': CHAT_KEEP_ALIVE,
+                    'options': {'num_ctx': 2048, 'num_predict': 100,
+                                'temperature': mode.get('temperature', 0.2)},
+                }).encode('utf-8')
+                req = urllib.request.Request(
+                    core.OLLAMA_URL, data=body,
+                    headers={'Content-Type': 'application/json'})
+                if stream:
+                    # 라우터·근거는 생성 전에 정해진 것이다 — 실제 단계만 띄운다.
+                    self.answer_head.emit(
+                        f"질문 분류: {ROUTE_KO.get(built.get('route'), '일반')}"
+                        f' · 근거: {source_text}')
+                with urllib.request.urlopen(req, timeout=30) as response:
+                    if stream:
+                        answer = read_chat_stream(
+                            response, guard, self.answer_line.emit)[0].strip()
+                    else:
+                        answer = json.loads(response.read().decode(
+                            'utf-8')).get('response', '').strip()
+                # 아래 후처리 순서는 eval/chat_eval.py 의 run() 과 같다 —
+                # 다르면 잰 것과 화면에 나오는 것이 달라진다.
+                if mode.get('strip_markdown'):
+                    answer = strip_chat_markdown(answer).strip()
+                hits = []
+                if guard:
+                    answer, hits = guard_chat_answer(
+                        answer, built.get('guard_key'))
+                    if hits and stream:
+                        self.answer_blocked.emit()
+                if built.get('answer_suffix') and not hits:
+                    answer += '\n' + built['answer_suffix']
             self.answer_ready.emit(answer, source_text,
                                    time.perf_counter() - started)
         except Exception as e:
@@ -3426,8 +3525,13 @@ class AssistantDrawer(QtWidgets.QDialog):
         return None
 
     def _show_answer(self, answer, source, elapsed):
+        if self._pending:
+            # 마지막 줄을 아직 치는 중 — 다 친 뒤 _type_tick 이 다시 부른다.
+            self._final = (answer, source, elapsed)
+            return
         self._busy = False
         self.waiting.clear()
+        self._stream_drop()
         self._append_answer(answer, source, elapsed)
 
     def _append_answer(self, answer, source, elapsed):
@@ -3436,9 +3540,60 @@ class AssistantDrawer(QtWidgets.QDialog):
                    f'{elapsed:.1f}초</span>')
         self.log.append(self._bubble(content, False, 'AI'))
 
+    # ── [10/10 T-CC07c] 줄 단위 스트리밍 미리보기 ──────────────────────
+    #  미리보기는 로그 끝의 말풍선 하나다. 줄이 올 때마다 그 말풍선만 지우고
+    #  다시 그리고, 답이 끝나면 지운 자리에 기존 형식의 답을 붙인다 — 화면의
+    #  최종 글자는 비스트리밍 때와 같은 후처리 결과(_work_locked)다.
+    def _stream_begin(self, head):
+        self._head, self._typed, self._pending, self._final = head, '', '', None
+        self.waiting.setText('근거에서 답 작성 중…')
+        self._draw_preview()
+
+    def _stream_line(self, line):
+        if self._mark is None:      # 안전 검사에 걸려 이미 지웠다
+            return
+        self.waiting.clear()
+        self._pending += line + '\n'
+        # 한 줄을 0.3초 안에 다 친다(15ms × 최대 15번).
+        self._type_step = len(self._pending) // 15 + 1
+        self._type_timer.start()
+
+    def _type_tick(self):
+        self._typed += self._pending[:self._type_step]
+        self._pending = self._pending[self._type_step:]
+        self._cut_preview()
+        self._draw_preview()
+        if not self._pending:
+            self._type_timer.stop()
+            if self._final:
+                self._show_answer(*self._final)
+
+    def _stream_drop(self):
+        """미리보기를 지운다. 안전 검사에 걸렸을 때는 치던 줄도 버린다."""
+        self._type_timer.stop()
+        self._pending, self._final = '', None
+        self._cut_preview()
+
+    def _cut_preview(self):
+        if self._mark is None:
+            return
+        cur = self.log.textCursor()
+        cur.setPosition(self._mark)
+        cur.movePosition(QtGui.QTextCursor.End, QtGui.QTextCursor.KeepAnchor)
+        cur.removeSelectedText()
+        self._mark = None
+
+    def _draw_preview(self):
+        self._mark = self.log.document().characterCount() - 1
+        self.log.append(self._bubble(
+            f'<span style="color:{FAINT};font-size:9pt;">'
+            f'{html_escape(self._head)}</span><br>'
+            + html_escape(self._typed).replace('\n', '<br>'), False, 'AI'))
+
     def _show_error(self, error):
         self._busy = False
         self.waiting.clear()
+        self._stream_drop()
         self.log.append(self._bubble(
             f'<span style="color:{AMBER};">AI 응답 실패: '
             f'{html_escape(error)}</span>', False, 'AI'))
@@ -4045,6 +4200,11 @@ class ConsoleV2(QtWidgets.QMainWindow):
                     # 워밍업 중 들어온 질문은 이 잠금 뒤에서 순서대로 처리된다.
                     with AI_WORK_LOCK:
                         chat_model_keep(CHAT_KEEP_ALIVE, timeout=120)
+                        chat_model_keep(
+                            CHAT_KEEP_ALIVE, timeout=120, num_predict=100,
+                            prompt=build_chat_request(
+                                CHAT_WARM_QUESTION,
+                                variant=CHAT_VARIANT)['prompt'])
                     err = ''
                     break
                 except Exception as e:
